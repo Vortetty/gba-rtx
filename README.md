@@ -1,9 +1,18 @@
-# AGBRS template
+# GBA RTX
 
-## A basic template example for agb projects
+## A raytracer... on a gameboy
 
-This makes getting started with a new project for the Game Boy Advance in rust really simple, by providing
-all the boiler plate files for you.
+<sub><sup>(but it's a wip)</sup></sub>
+
+### Why?
+
+Well why not, 'nuff said.
+
+<sub>Not a good enough answer?</sub>
+
+<sub><sup>I saw someone else made a raytracer but it was somewhat bad, i wanted one that looked nice so i made this :3</sup></sub>
+
+<sub><sup><sub><sup>... Really tho know others have written ones before that look nice tbh i am just bored. Sue me lol</sup></sub></sup></sub>
 
 ## Building
 

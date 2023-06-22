@@ -1,9 +1,7 @@
-use core::{mem, cell::RefCell};
+use core::mem;
 
-use agb::{timer::Timer, rng::RandomNumberGenerator, sync::Mutex};
+use agb::{timer::Timer};
 use agb_fixnum::Num;
-
-pub static rng: Mutex<RefCell<RandomNumberGenerator>> = Mutex::new(RefCell::new(RandomNumberGenerator::new()));
 
 const FNV_PRIME: u32 = 16777619;
 const FNV_OFFSET_BASIS: u32 = 2166136261;
@@ -20,30 +18,14 @@ pub fn fnv1a_hash_u16(i: u16) -> u32 {
     return hash;
 }
 
-struct RandomNumberGeneratorModifiable {
-    pub state: [u32; 4],
+pub fn rand_double(t: &Timer) -> Num<i32, 16> {
+    return Num::<i32, 16>::new(rand_u32(t) as i32) / Num::<i32, 16>::new(u16::MAX as i32);
 }
 
-pub fn seed_rng_from_timer(t: &Timer) {
-    unsafe {
-        let rngptr: *mut RandomNumberGenerator = rng.lock().get_mut();
-        (*core::mem::transmute::<*const (), *mut RandomNumberGeneratorModifiable>(rngptr as *const ())).state = [
-            fnv1a_hash_u16(t.value()),
-            fnv1a_hash_u16(t.value()),
-            fnv1a_hash_u16(t.value()),
-            fnv1a_hash_u16(t.value())
-        ];
-    }
+pub fn rand_double_range(t: &Timer, min: i32, max: i32) -> Num<i32, 16> {
+    return Num::new(min) + Num::new(max-min)*rand_double(t);
 }
 
-pub fn rand_double() -> Num<i32, 16> {
-    return Num::new(rng.lock().get_mut().gen());
-}
-
-pub fn rand_double_range(min: i32, max: i32) -> Num<i32, 16> {
-    return Num::new(min) + Num::new(max-min)*rand_double();
-}
-
-pub fn rand_u32() -> u32 {
-    return unsafe { mem::transmute(rng.lock().get_mut().gen()) };
+pub fn rand_u32(t: &Timer) -> u32 {
+    return fnv1a_hash_u16(t.value());
 }

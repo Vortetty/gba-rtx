@@ -1,5 +1,6 @@
 use core::{ops::{Add, Mul, Div, Sub, Neg}, i16::MIN};
 
+use agb::timer::Timer;
 use agb_fixnum::{Num, num};
 
 use crate::rand::{rand_double, rand_double_range};
@@ -180,18 +181,18 @@ impl Vec3 {
         };
     }
 
-    pub fn rand() -> Vec3 {
+    pub fn rand(t: &Timer) -> Vec3 {
         return Vec3 {
-            x: rand_double(),
-            y: rand_double(),
-            z: rand_double(),
+            x: rand_double(t),
+            y: rand_double(t),
+            z: rand_double(t),
         };
     }
-    pub fn rand_range(min: i32, max: i32) -> Vec3 {
+    pub fn rand_range(t: &Timer, min: i32, max: i32) -> Vec3 {
         return Vec3 {
-            x: rand_double_range(min, max),
-            y: rand_double_range(min, max),
-            z: rand_double_range(min, max),
+            x: rand_double_range(t, min, max),
+            y: rand_double_range(t, min, max),
+            z: rand_double_range(t, min, max),
         };
     }
 

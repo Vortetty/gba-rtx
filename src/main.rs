@@ -19,7 +19,7 @@ mod rand;
 
 use agb::{display, syscall, timer::TimerController, input::Button};
 use agb_fixnum::{Num, num};
-use rand::{rand_u32, seed_rng_from_timer};
+use rand::{rand_u32};
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
 // ensures that everything is in order. `agb` will call this after setting up the stack
@@ -46,7 +46,7 @@ fn main(mut gba: agb::Gba) -> ! {
     //}
     let mut t2 = gba.timers.timers().timer2;
 
-    t2.set_divider(agb::timer::Divider::Divider64);
+    t2.set_divider(agb::timer::Divider::Divider1);
     t2.set_enabled(true);
 
     loop {
@@ -55,11 +55,9 @@ fn main(mut gba: agb::Gba) -> ! {
             input.update();
         }
 
-        seed_rng_from_timer(&t2);
-
         for x in 0..display::WIDTH {
             for y in 0..display::HEIGHT {
-                bitmap.draw_point(x, y, rand_u32() as u16);
+                bitmap.draw_point(x, y, rand_u32(&t2) as u16);
             }
         }
     }
