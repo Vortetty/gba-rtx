@@ -16,10 +16,16 @@
 
 mod vec3;
 mod rand;
+mod camera;
+mod color;
+mod ray;
+mod utils;
+mod trig_num;
 
 use agb::{display, syscall, timer::TimerController, input::Button};
 use agb_fixnum::{Num, num};
 use rand::{rand_u32};
+use trig_num::TrigFixedNum;
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
 // ensures that everything is in order. `agb` will call this after setting up the stack
@@ -44,23 +50,57 @@ fn main(mut gba: agb::Gba) -> ! {
     //        bitmap.draw_point(x, y, color);
     //    }
     //}
+
+    //loop {
+    //    let mut input = agb::input::ButtonController::new();
+    //    while !input.is_pressed(Button::START) {
+    //        input.update();
+    //    }
+
+    //    for x in 0..display::WIDTH {
+    //        for y in 0..display::HEIGHT {
+    //            bitmap.draw_point(x, y, rand_u32(&t2) as u16);
+    //        }
+    //    }
+    //}
+
+    //for i in 0..display::WIDTH {
+    //    if (Num::<i32, 14>::new(i)/(display::WIDTH/2-1))/num!(0.25)%2 < num!(0.025) {
+    //        for y in 0..display::HEIGHT {
+    //            bitmap.draw_point(i, y, (0x001F/2) << 10);
+    //        }
+    //    }
+    //}
+    //for i in 0..display::HEIGHT {
+    //    if (Num::<i32, 14>::new(i)%10) < num!(1.0) {
+    //        for x in 0..display::WIDTH {
+    //            bitmap.draw_point(x, i, (0x001F/2) << 10);
+    //        }
+    //    }
+
+    //    bitmap.draw_point(display::WIDTH/2, i, 0x001F << 10);
+    //}
+    //for i in 0..display::WIDTH {
+    //    bitmap.draw_point(i, display::HEIGHT/2, 0x001F << 10);
+    //}
+
+    //for i in 0..display::WIDTH {
+    //    //let y: Num<i32, 16> = (Num::new(x - (display::WIDTH/2) / display::WIDTH)).tan();
+    //    //let y: Num<i32, 16> = y / 2 + Num::new(display::HEIGHT/2);
+    //    //bitmap.draw_point(x, y.floor(), 0x001F);
+    //    //let x = Num::<i32,16>::new(i);
+    //    //agb::println!("{:.3}", x.cos())
+
+    //    for x in 0..display::WIDTH {
+    //        let y: Num<i32, 14> = Num::tan(Num::<i32, 14>::new(x)/(display::WIDTH/2-1))/10;//syscall::sqrt(x << 6);
+    //        let y: Num<i32, 14> = (Num::new(display::HEIGHT) * y + display::HEIGHT/2).clamp(num!(0.0), Num::new(display::HEIGHT) - 1);
+    //        bitmap.draw_point(x, y.floor(), 0x001F);
+    //    }
+    
     let mut t2 = gba.timers.timers().timer2;
 
     t2.set_divider(agb::timer::Divider::Divider1);
     t2.set_enabled(true);
-
-    loop {
-        let mut input = agb::input::ButtonController::new();
-        while !input.is_pressed(Button::START) {
-            input.update();
-        }
-
-        for x in 0..display::WIDTH {
-            for y in 0..display::HEIGHT {
-                bitmap.draw_point(x, y, rand_u32(&t2) as u16);
-            }
-        }
-    }
 
     loop {
         syscall::halt();

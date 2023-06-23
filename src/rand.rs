@@ -22,8 +22,8 @@ pub fn rand_double(t: &Timer) -> Num<i32, 16> {
     return Num::<i32, 16>::new(rand_u32(t) as i32) / Num::<i32, 16>::new(u16::MAX as i32);
 }
 
-pub fn rand_double_range(t: &Timer, min: i32, max: i32) -> Num<i32, 16> {
-    return Num::new(min) + Num::new(max-min)*rand_double(t);
+pub fn rand_double_range(t: &Timer, min: Num<i32, 16>, max: Num<i32, 16>) -> Num<i32, 16> {
+    return min + (max-min) * rand_double(t);
 }
 
 pub fn rand_u32(t: &Timer) -> u32 {

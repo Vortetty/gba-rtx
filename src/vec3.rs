@@ -5,7 +5,7 @@ use agb_fixnum::{Num, num};
 
 use crate::rand::{rand_double, rand_double_range};
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Vec3 {
     pub x: Num<i32, 16>,
     pub y: Num<i32, 16>,
@@ -188,7 +188,7 @@ impl Vec3 {
             z: rand_double(t),
         };
     }
-    pub fn rand_range(t: &Timer, min: i32, max: i32) -> Vec3 {
+    pub fn rand_range(t: &Timer, min: Num<i32, 16>, max: Num<i32, 16>) -> Vec3 {
         return Vec3 {
             x: rand_double_range(t, min, max),
             y: rand_double_range(t, min, max),
