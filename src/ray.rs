@@ -9,7 +9,7 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn at(&self, t: Num<i32, 16>) -> Vec3 {
+    pub fn at(&self, t: Num<i64, 20>) -> Vec3 {
         return self.orig + t*self.dir;
     }
 

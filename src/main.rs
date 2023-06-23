@@ -22,10 +22,41 @@ mod ray;
 mod utils;
 mod trig_num;
 
-use agb::{display, syscall, timer::TimerController, input::Button};
+use agb::{display, syscall, timer::{TimerController, Timer}, input::Button};
 use agb_fixnum::{Num, num};
+use color::Color;
 use rand::{rand_u32};
+use ray::Ray;
 use trig_num::TrigFixedNum;
+use vec3::Vec3;
+
+fn hit_sphere(timer: &Timer, center: Vec3, radius: Num<i64, 20>, ray: &Ray) -> bool {
+    let oc = ray.orig - center;
+    let a = ray.dir.length_squared();
+    let b = oc.dot_prod(ray.dir) * 2;
+    let c = oc.length_squared() - radius*radius;
+    let disc = b*b - a*c*4;
+    return disc > Num::new(0);
+}
+
+fn ray_color(timer: &Timer, ray: &Ray) -> Color {
+    if hit_sphere(timer, Vec3::newi(0, 0, -1), num!(0.5), ray) {
+        return Color::new_01_range(Num::new(0), Num::new(1), Num::new(0));
+    }
+    if hit_sphere(timer, Vec3::newi(1, 0, -1), num!(0.5), ray) {
+        return Color::new_01_range(Num::new(0), Num::new(0), Num::new(1));
+    }
+    if hit_sphere(timer, Vec3::newi(-1, 0, -1), num!(0.5), ray) {
+        return Color::new_01_range(Num::new(1), Num::new(0), Num::new(0));
+    }
+    let unit_dir = ray.dir.unit_vector();
+    let t = num!(0.5) * (unit_dir.y + 1);
+    return Color::new_01_range(
+        (num!(1.0)-t) * num!(1.0) + t*num!(0.5),
+        (num!(1.0)-t) * num!(1.0) + t*num!(0.7),
+        (num!(1.0)-t) * num!(1.0) + t*num!(1.0)
+    );
+}
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
 // ensures that everything is in order. `agb` will call this after setting up the stack
@@ -34,73 +65,47 @@ use trig_num::TrigFixedNum;
 fn main(mut gba: agb::Gba) -> ! {
     let mut bitmap = gba.display.video.bitmap3();
 
-    //for x in 0..display::WIDTH {
-    //    let y: Num<i32, 16> = Num::sin(Num::new(x)/150)/2+num!(0.5);//syscall::sqrt(x << 6);
-    //    let y: Num<i32, 16> = (Num::new(display::HEIGHT) * y).clamp(num!(0.0), Num::new(display::HEIGHT) - 1);
-    //    bitmap.draw_point(x, y.floor(), 0x001F);
-    //}
-
-    //for x in 0..display::WIDTH {
-    //    for y in 0..display::HEIGHT {
-    //        let mut color: u16 = 0;
-    //        color += (Num::<i32, 8>::new(31)/display::WIDTH * (display::WIDTH-x)).floor() as u16;
-    //        color += ((Num::<i32, 8>::new(31)/display::WIDTH * x).floor() as u16) << 10;
-    //        color += ((Num::<i32, 8>::new(31)/display::HEIGHT * y).floor() as u16) << 5;
-
-    //        bitmap.draw_point(x, y, color);
-    //    }
-    //}
-
-    //loop {
-    //    let mut input = agb::input::ButtonController::new();
-    //    while !input.is_pressed(Button::START) {
-    //        input.update();
-    //    }
-
-    //    for x in 0..display::WIDTH {
-    //        for y in 0..display::HEIGHT {
-    //            bitmap.draw_point(x, y, rand_u32(&t2) as u16);
-    //        }
-    //    }
-    //}
-
-    //for i in 0..display::WIDTH {
-    //    if (Num::<i32, 14>::new(i)/(display::WIDTH/2-1))/num!(0.25)%2 < num!(0.025) {
-    //        for y in 0..display::HEIGHT {
-    //            bitmap.draw_point(i, y, (0x001F/2) << 10);
-    //        }
-    //    }
-    //}
-    //for i in 0..display::HEIGHT {
-    //    if (Num::<i32, 14>::new(i)%10) < num!(1.0) {
-    //        for x in 0..display::WIDTH {
-    //            bitmap.draw_point(x, i, (0x001F/2) << 10);
-    //        }
-    //    }
-
-    //    bitmap.draw_point(display::WIDTH/2, i, 0x001F << 10);
-    //}
-    //for i in 0..display::WIDTH {
-    //    bitmap.draw_point(i, display::HEIGHT/2, 0x001F << 10);
-    //}
-
-    //for i in 0..display::WIDTH {
-    //    //let y: Num<i32, 16> = (Num::new(x - (display::WIDTH/2) / display::WIDTH)).tan();
-    //    //let y: Num<i32, 16> = y / 2 + Num::new(display::HEIGHT/2);
-    //    //bitmap.draw_point(x, y.floor(), 0x001F);
-    //    //let x = Num::<i32,16>::new(i);
-    //    //agb::println!("{:.3}", x.cos())
-
-    //    for x in 0..display::WIDTH {
-    //        let y: Num<i32, 14> = Num::tan(Num::<i32, 14>::new(x)/(display::WIDTH/2-1))/10;//syscall::sqrt(x << 6);
-    //        let y: Num<i32, 14> = (Num::new(display::HEIGHT) * y + display::HEIGHT/2).clamp(num!(0.0), Num::new(display::HEIGHT) - 1);
-    //        bitmap.draw_point(x, y.floor(), 0x001F);
-    //    }
-    
     let mut t2 = gba.timers.timers().timer2;
 
     t2.set_divider(agb::timer::Divider::Divider1);
     t2.set_enabled(true);
+
+    //let mut input = agb::input::ButtonController::new();
+    //while !input.is_pressed(Button::START) {
+    //    input.update();
+    //}
+
+    let aspect_ratio = Num::<i64, 20>::new(display::WIDTH as i64) / Num::<i64, 20>::new(display::HEIGHT as i64);
+    let img_width = Num::<i64, 20>::new(display::WIDTH as i64);
+    let img_height = Num::<i64, 20>::new(display::HEIGHT as i64);
+
+    let viewport_height = num!(2.0);
+    let viewport_width = viewport_height * aspect_ratio;
+    let focal_length = num!(1.0);
+
+    let orig = Vec3::newi(0, 0, 0);
+    let horiz = Vec3::new(viewport_width, num!(0.0), num!(0.0));
+    let vert = Vec3::new(num!(0.0), viewport_height, num!(0.0));
+    let lower_left = orig - horiz/2 - vert/2 - Vec3::new(num!(0.0), num!(0.0), focal_length);
+
+    for y in 0..display::HEIGHT as i64 {
+        for x in 0..display::WIDTH as i64 {
+            let u = Num::<i64, 20>::new(x) / (img_width-1);
+            let v = Num::<i64, 20>::new(display::HEIGHT as i64-y) / (img_height-1);
+            let ray = Ray{
+                orig,
+                dir: lower_left + u*horiz + v*vert - orig
+            };
+            let pc = ray_color(&t2, &ray);
+
+            bitmap.draw_point(
+                x as i32,
+                y as i32,
+                //oc
+                (((pc.b * Num::new(31)).floor() as u16) << 10) + (((pc.g * Num::new(31)).floor() as u16) << 5) + (((pc.r * Num::new(31)).floor() as u16))
+            );
+        }
+    }
 
     loop {
         syscall::halt();

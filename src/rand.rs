@@ -18,11 +18,11 @@ pub fn fnv1a_hash_u16(i: u16) -> u32 {
     return hash;
 }
 
-pub fn rand_double(t: &Timer) -> Num<i32, 16> {
-    return Num::<i32, 16>::new(rand_u32(t) as i32) / Num::<i32, 16>::new(u16::MAX as i32);
+pub fn rand_double(t: &Timer) -> Num<i64, 20> {
+    return Num::<i64, 20>::new(rand_u32(t) as i64) / Num::<i64, 20>::new(u16::MAX as i64);
 }
 
-pub fn rand_double_range(t: &Timer, min: Num<i32, 16>, max: Num<i32, 16>) -> Num<i32, 16> {
+pub fn rand_double_range(t: &Timer, min: Num<i64, 20>, max: Num<i64, 20>) -> Num<i64, 20> {
     return min + (max-min) * rand_double(t);
 }
 

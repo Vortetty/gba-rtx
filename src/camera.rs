@@ -12,7 +12,7 @@ pub struct Camera {
     pub u: Vec3,
     pub v: Vec3,
     pub w: Vec3,
-    pub lens_radius: Num<i32, 16>
+    pub lens_radius: Num<i64, 20>
 }
 
 impl Camera {
@@ -20,17 +20,17 @@ impl Camera {
         look_from: Vec3,
         look_to: Vec3,
         view_up: Vec3,
-        vert_fov: Num<i32, 16>,
-        aspect_ratio: Num<i32, 16>,
-        aperture: Num<i32, 16>,
-        focus_dist: Num<i32, 16>,
+        vert_fov: Num<i64, 20>,
+        aspect_ratio: Num<i64, 20>,
+        aperture: Num<i64, 20>,
+        focus_dist: Num<i64, 20>,
         rng: &Timer
     ) -> Camera {
         let theta = deg_to_rad(vert_fov);
         let h = (theta / num!(2.0)).tan();
-        //let aspect_ratio: Num<i32, 16> = 16.0 / 9.0;
-        let viewport_height: Num<i32, 16> = num!(2.0) * h;
-        let viewport_width: Num<i32, 16> = aspect_ratio * viewport_height;
+        //let aspect_ratio: Num<i64, 20> = 16.0 / 9.0;
+        let viewport_height: Num<i64, 20> = num!(2.0) * h;
+        let viewport_width: Num<i64, 20> = aspect_ratio * viewport_height;
 
         let w = (look_from - look_to).unit_vector();
         let u = view_up.cross_prod(w).unit_vector();
@@ -53,7 +53,7 @@ impl Camera {
         };
     }
 
-    pub fn get_ray(&self, s: Num<i32, 16>, t: Num<i32, 16>, rng: &Timer) -> Ray {
+    pub fn get_ray(&self, s: Num<i64, 20>, t: Num<i64, 20>, rng: &Timer) -> Ray {
         let rd = self.lens_radius * random_in_unit_disk(rng);
         let offset = self.u * rd.x + self.v * rd.y;
 
