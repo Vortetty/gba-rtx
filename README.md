@@ -30,7 +30,7 @@ It would also be cool to see any forks or otherwise also released under CC0 as o
 Below is a list of licenses i recommend against using both here and elsewhere with links to why:
 
 - [The Unlicense](https://softwareengineering.stackexchange.com/questions/147111/what-is-wrong-with-the-unlicense)
-- [The WTFPL](https://cubicspot.blogspot.com/2017/04/wtfpl-is-harmful-to-software-developers.html).
+- [The WTFPL](https://cubicspot.blogspot.com/2017/04/wtfpl-is-harmful-to-software-developers.html)
 - [No license](https://choosealicense.com/no-permission/)
 - [CC licenses other than CC0](https://creativecommons.org/faq/#can-i-apply-a-creative-commons-license-to-software)
 - [And many others](https://github.com/ErikMcClure/bad-licenses)
