@@ -14,13 +14,14 @@ Well why not, 'nuff said.
 
 <sub><sup><sub><sup>... Really tho know others have written ones before that look nice tbh i am just bored. Sue me lol</sup></sub></sup></sub>
 
-## Notice
+## License
 
-This program is free software. It comes without any warranty, to
-the extent permitted by applicable law. You can redistribute it
-and/or modify it under the terms of the Do What The Fuck You Want
-To Public License, Version 2, as published by Sam Hocevar. See
-<http://www.wtfpl.net/> for more details
+[![CC0](https://licensebuttons.net/p/zero/1.0/88x31.png)](http://creativecommons.org/publicdomain/zero/1.0/)  
+To the extent possible under law, [Kali/Wintersys/Vortetty](https://github.com/Vortetty/gba-rtx) has waived all copyright and related or neighboring rights to GBA RTX. This work is published from: United States.
+
+### Why would i do this?
+
+*Why not lmao*, really though this is just a side project, i stand to gain nothing from this and a public license is the best way to do it. This is the closest i can get to public domain that works in 99.99999% of places so, y'all enjoy it :3
 
 ## Building
 
