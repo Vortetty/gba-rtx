@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 agb = "0.15.0"
 agb_fixnum = "0.15.0"
+fixed = "1.23.1"
 
 [profile.dev]
 opt-level = 3

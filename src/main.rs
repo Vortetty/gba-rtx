@@ -21,40 +21,43 @@ mod color;
 mod ray;
 mod utils;
 mod trig_num;
+mod hittable;
 
 use agb::{display, syscall, timer::{TimerController, Timer}, input::Button};
 use agb_fixnum::{Num, num};
 use color::Color;
 use rand::{rand_u32};
 use ray::Ray;
-use trig_num::TrigFixedNum;
+use fixed::types::I14F18;
 use vec3::Vec3;
 
-fn hit_sphere(timer: &Timer, center: Vec3, radius: Num<i64, 20>, ray: &Ray) -> bool {
+fn hit_sphere(timer: &Timer, center: Vec3, radius: I14F18, ray: &Ray) -> I14F18 {
     let oc = ray.orig - center;
     let a = ray.dir.length_squared();
-    let b = oc.dot_prod(ray.dir) * 2;
+    let b_half = oc.dot_prod(ray.dir);
     let c = oc.length_squared() - radius*radius;
-    let disc = b*b - a*c*4;
-    return disc > Num::new(0);
+    let disc = b_half*b_half - a*c;
+
+    if disc < I14F18::from_num(0.0) {
+        return I14F18::from_num(-1.0);
+    } else {
+        return ((b_half.overflowing_neg().0) - trig_num::trig_num::sqrt(&disc)) / a;
+    }
 }
 
 fn ray_color(timer: &Timer, ray: &Ray) -> Color {
-    if hit_sphere(timer, Vec3::newi(0, 0, -1), num!(0.5), ray) {
-        return Color::new_01_range(Num::new(0), Num::new(1), Num::new(0));
-    }
-    if hit_sphere(timer, Vec3::newi(1, 0, -1), num!(0.5), ray) {
-        return Color::new_01_range(Num::new(0), Num::new(0), Num::new(1));
-    }
-    if hit_sphere(timer, Vec3::newi(-1, 0, -1), num!(0.5), ray) {
-        return Color::new_01_range(Num::new(1), Num::new(0), Num::new(0));
+    let mut t = hit_sphere(timer, Vec3::newi(0, 0, -1), I14F18::from_num(0.5), ray);
+    if t > I14F18::from_num(0.0) {
+        let N = (ray.at(t) - Vec3::newi(0, 0, -1)).unit_vector();
+        return Color::new_01_range((N.x + I14F18::from_num(1)) >> 1, (N.y + I14F18::from_num(1)) >> 1, (N.z + I14F18::from_num(1)) >> 1);
+        //return Color::new_01_range(I14F18::from_num(1.0), I14F18::from_num(0.0), I14F18::from_num(0.0));
     }
     let unit_dir = ray.dir.unit_vector();
-    let t = num!(0.5) * (unit_dir.y + 1);
+    t = (unit_dir.y + I14F18::from_num(1)) >> 1;
     return Color::new_01_range(
-        (num!(1.0)-t) * num!(1.0) + t*num!(0.5),
-        (num!(1.0)-t) * num!(1.0) + t*num!(0.7),
-        (num!(1.0)-t) * num!(1.0) + t*num!(1.0)
+        (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(0.5),
+        (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(0.7),
+        (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(1.0)
     );
 }
 
@@ -75,23 +78,23 @@ fn main(mut gba: agb::Gba) -> ! {
     //    input.update();
     //}
 
-    let aspect_ratio = Num::<i64, 20>::new(display::WIDTH as i64) / Num::<i64, 20>::new(display::HEIGHT as i64);
-    let img_width = Num::<i64, 20>::new(display::WIDTH as i64);
-    let img_height = Num::<i64, 20>::new(display::HEIGHT as i64);
+    let aspect_ratio = I14F18::from_num(display::WIDTH as i32) / I14F18::from_num(display::HEIGHT as i32);
+    let img_width = I14F18::from_num(display::WIDTH as i32);
+    let img_height = I14F18::from_num(display::HEIGHT as i32);
 
-    let viewport_height = num!(2.0);
+    let viewport_height = I14F18::from_num(2.0);
     let viewport_width = viewport_height * aspect_ratio;
-    let focal_length = num!(1.0);
+    let focal_length = I14F18::from_num(1.0);
 
     let orig = Vec3::newi(0, 0, 0);
-    let horiz = Vec3::new(viewport_width, num!(0.0), num!(0.0));
-    let vert = Vec3::new(num!(0.0), viewport_height, num!(0.0));
-    let lower_left = orig - horiz/2 - vert/2 - Vec3::new(num!(0.0), num!(0.0), focal_length);
+    let horiz = Vec3::new(viewport_width, I14F18::from_num(0.0), I14F18::from_num(0.0));
+    let vert = Vec3::new(I14F18::from_num(0.0), viewport_height, I14F18::from_num(0.0));
+    let lower_left = orig - (horiz >> 1) - (vert >> 1) - Vec3::new(I14F18::from_num(0.0), I14F18::from_num(0.0), focal_length);
 
-    for y in 0..display::HEIGHT as i64 {
-        for x in 0..display::WIDTH as i64 {
-            let u = Num::<i64, 20>::new(x) / (img_width-1);
-            let v = Num::<i64, 20>::new(display::HEIGHT as i64-y) / (img_height-1);
+    for y in 0..display::HEIGHT as i32 {
+        for x in 0..display::WIDTH as i32 {
+            let u = I14F18::from_num(x) / (img_width-I14F18::from_num(1));
+            let v = I14F18::from_num(display::HEIGHT as i32-y) / (img_height-I14F18::from_num(1));
             let ray = Ray{
                 orig,
                 dir: lower_left + u*horiz + v*vert - orig
@@ -102,7 +105,7 @@ fn main(mut gba: agb::Gba) -> ! {
                 x as i32,
                 y as i32,
                 //oc
-                (((pc.b * Num::new(31)).floor() as u16) << 10) + (((pc.g * Num::new(31)).floor() as u16) << 5) + (((pc.r * Num::new(31)).floor() as u16))
+                (((pc.b * I14F18::from_num(31)).floor().to_num::<u16>() as u16) << 10) + (((pc.g * I14F18::from_num(31)).floor().to_num::<u16>() as u16) << 5) + (((pc.r * I14F18::from_num(31)).floor().to_num::<u16>() as u16))
             );
         }
     }
