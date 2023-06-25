@@ -23,6 +23,20 @@ To the extent possible under law, [Kali/Wintersys/Vortetty](https://github.com/V
 
 *Why not lmao*, really though this is just a side project, i stand to gain nothing from this and a public license is the best way to do it. This is the closest i can get to public domain that works in 99.99999% of places so, y'all enjoy it :3
 
+As always, credits are appreciated on redistributions/forks, but ultimately if you don't add them or even pass it off as your own work, i cannot stop you, nor do i want to. All i can say is should you do the latter you may damage your integrity.
+
+It would also be cool to see any forks or otherwise also released under CC0 as opposed to public domain, [which is not what most think](https://wiki.creativecommons.org/wiki/CC0_PDM_comparison_chart). Another good alternative if you want to retain rights would be the extremely permissive licenses such as the MIT license.
+
+Below is a list of licenses i recommend against using both here and elsewhere with links to why:
+
+- [The Unlicense](https://softwareengineering.stackexchange.com/questions/147111/what-is-wrong-with-the-unlicense)
+- [The WTFPL](https://cubicspot.blogspot.com/2017/04/wtfpl-is-harmful-to-software-developers.html).
+- [No license](https://choosealicense.com/no-permission/)
+- [CC licenses other than CC0](https://creativecommons.org/faq/#can-i-apply-a-creative-commons-license-to-software)
+- [And many others](https://github.com/ErikMcClure/bad-licenses)
+
+The above requests have no legal obligation or otherwise, and you are free to do as you wish. Following them would only garner some appreciation from me, but the value of that is up to you.
+
 ## Building
 
 ### Prerequisites
