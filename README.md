@@ -86,12 +86,6 @@ or in release mode
 cargo run --release
 ```
 
-## Starting development
-
-You can find the documentation for agb [here](https://docs.rs/agb/latest/agb/).
-
-You may also want to change the package name and version in `Cargo.toml` before you start.
-
 ## Shipping a .gba file for real hardware
 
 To make a game run on real hardware, you will need to convert the built file into a file suitable for
