@@ -1,4 +1,4 @@
-use fixed::types::I14F18;
+use fixed::types::I20F12;
 
 pub trait trig_num {
     fn sqrt(&self) -> Self;
@@ -28,7 +28,7 @@ fn integer_sqrt(v: i32) -> i32 {
     return q;
 }
 
-impl trig_num for I14F18 {
+impl trig_num for I20F12 {
     fn sqrt(&self) -> Self { // Works for any 32 bit fixed points
         //self.sqrt_iters(2) // Should be 10 for accuracy but this is a gameboy so... fuck it lol
 
@@ -47,14 +47,14 @@ impl trig_num for I14F18 {
         //    b >>= 1;
         //}
         //q >>= 8;
-        //return I16F16::from_ne_bytes(q.to_ne_bytes());
+        //return I20F12::from_ne_bytes(q.to_ne_bytes());
 
         // Ok so this is just as fast as the previous but supports more fp types soooo, we'll use this!
         return Self::from_ne_bytes((integer_sqrt(i32::from_ne_bytes(self.to_ne_bytes())) << (Self::FRAC_BITS >> 1) ).to_ne_bytes());
     }
 
     fn sin(&self) -> Self { // Bhaskara I approximation
-        return (16 * self * (Self::PI - self)) / (5 * (Self::PI * Self::PI) - 4 * self * (I14F18::PI - self));
+        return (16 * self * (Self::PI - self)) / (5 * (Self::PI * Self::PI) - 4 * self * (I20F12::PI - self));
     }
     fn cos(&self) -> Self {
         Self::sin(&(self + Self::FRAC_PI_2))

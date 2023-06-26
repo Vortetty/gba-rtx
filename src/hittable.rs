@@ -1,6 +1,6 @@
 use agb::timer::Timer;
 use alloc::{boxed::Box, vec::Vec};
-use fixed::types::I14F18;
+use fixed::types::I20F12;
 
 
 use crate::{vec3::Vec3, ray::Ray};
@@ -9,7 +9,7 @@ use crate::{vec3::Vec3, ray::Ray};
 pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
-    pub trace_len: I14F18,
+    pub trace_len: I20F12,
     pub front_face: bool,
 }
 
@@ -25,23 +25,23 @@ impl HitRecord {
     pub fn default() -> HitRecord {
         HitRecord {
             point: Vec3 {
-                x: I14F18::from_num(0.0),
-                y: I14F18::from_num(0.0),
-                z: I14F18::from_num(0.0),
+                x: I20F12::from_num(0.0),
+                y: I20F12::from_num(0.0),
+                z: I20F12::from_num(0.0),
             },
             normal: Vec3 {
-                x: I14F18::from_num(0.0),
-                y: I14F18::from_num(0.0),
-                z: I14F18::from_num(0.0),
+                x: I20F12::from_num(0.0),
+                y: I20F12::from_num(0.0),
+                z: I20F12::from_num(0.0),
             },
-            trace_len: I14F18::from_num(0.0),
+            trace_len: I20F12::from_num(0.0),
             front_face: false
         }
     }
 }
 
 pub trait Hittable {
-    fn hit(&self, timer: &Timer, ray: &Ray, trace_min_len: I14F18, trace_max_len: I14F18, rec: &mut HitRecord) -> bool;
+    fn hit(&self, timer: &Timer, ray: &Ray, trace_min_len: I20F12, trace_max_len: I20F12, rec: &mut HitRecord) -> bool;
 }
 
 pub struct HittableList {
@@ -52,8 +52,8 @@ impl HittableList {
         &self,
         timer: &Timer,
         ray: &Ray,
-        trace_len_min: I14F18,
-        trace_len_max: I14F18,
+        trace_len_min: I20F12,
+        trace_len_max: I20F12,
         rec: &mut HitRecord,
     ) -> bool {
         let mut hit_anything = false;
@@ -100,14 +100,14 @@ impl HittableList {
     //fn surrounding_box(&self, b1: &AABB, b2: &AABB) -> AABB {
     //    return AABB {
     //        min: Vec3::new(
-    //            I14F18::min(b1.min.x, b2.min.x),
-    //            I14F18::min(b1.min.y, b2.min.y),
-    //            I14F18::min(b1.min.z, b2.min.z)
+    //            I20F12::min(b1.min.x, b2.min.x),
+    //            I20F12::min(b1.min.y, b2.min.y),
+    //            I20F12::min(b1.min.z, b2.min.z)
     //        ),
     //        max: Vec3::new(
-    //            I14F18::max(b1.max.x, b2.max.x),
-    //            I14F18::max(b1.max.y, b2.max.y),
-    //            I14F18::max(b1.max.z, b2.max.z)
+    //            I20F12::max(b1.max.x, b2.max.x),
+    //            I20F12::max(b1.max.y, b2.max.y),
+    //            I20F12::max(b1.max.z, b2.max.z)
     //        )
     //    }
     //}
