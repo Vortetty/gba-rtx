@@ -50,7 +50,7 @@ impl trig_num for I14F18 {
         //return I16F16::from_ne_bytes(q.to_ne_bytes());
 
         // Ok so this is just as fast as the previous but supports more fp types soooo, we'll use this!
-        return Self::from_ne_bytes((integer_sqrt(i32::from_ne_bytes(self.to_ne_bytes())) << (Self::FRAC_NBITS >> 1) ).to_ne_bytes());
+        return Self::from_ne_bytes((integer_sqrt(i32::from_ne_bytes(self.to_ne_bytes())) << (Self::FRAC_BITS >> 1) ).to_ne_bytes());
     }
 
     fn sin(&self) -> Self { // Bhaskara I approximation

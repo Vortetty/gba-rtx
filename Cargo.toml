@@ -1,5 +1,5 @@
 [package]
-name = "GBA RTX"
+name = "GBA_RTX"
 version = "0.0.1"
 authors = [""]
 edition = "2021"
@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies]
 agb = "0.15.0"
 agb_fixnum = "0.15.0"
-fixed = "1.23.1"
+fixed = "2.0.0-alpha.11"
 
 [profile.dev]
 opt-level = 3

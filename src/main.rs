@@ -19,6 +19,8 @@
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, test_runner(agb::test_runner::test_runner))]
+#![feature(allocator_api)]
+#![feature(generic_const_exprs)]
 
 mod vec3;
 mod rand;
@@ -28,43 +30,43 @@ mod ray;
 mod utils;
 mod trig_num;
 mod hittable;
+mod hittables;
 
-use agb::{display, syscall, timer::{TimerController, Timer}, input::Button};
+pub extern crate alloc;
+
+use agb::{display, syscall, timer::{TimerController, Timer}, input::Button, ExternalAllocator};
 use agb_fixnum::{Num, num};
+use alloc::{boxed::Box, vec::Vec};
 use color::Color;
+use hittable::{HitRecord, HittableList, Hittable};
+use hittables::sphere::Sphere;
 use rand::{rand_u32};
 use ray::Ray;
 use fixed::types::I14F18;
 use vec3::Vec3;
 
-fn hit_sphere(timer: &Timer, center: Vec3, radius: I14F18, ray: &Ray) -> I14F18 {
-    let oc = ray.orig - center;
-    let a = ray.dir.length_squared();
-    let b_half = oc.dot_prod(ray.dir);
-    let c = oc.length_squared() - radius*radius;
-    let disc = b_half*b_half - a*c;
-
-    if disc < I14F18::from_num(0.0) {
-        return I14F18::from_num(-1.0);
-    } else {
-        return ((b_half.overflowing_neg().0) - trig_num::trig_num::sqrt(&disc)) / a;
-    }
-}
-
-fn ray_color(timer: &Timer, ray: &Ray) -> Color {
-    let mut t = hit_sphere(timer, Vec3::newi(0, 0, -1), I14F18::from_num(0.5), ray);
-    if t > I14F18::from_num(0.0) {
-        let N = (ray.at(t) - Vec3::newi(0, 0, -1)).unit_vector();
-        return Color::new_01_range((N.x + I14F18::from_num(1)) >> 1, (N.y + I14F18::from_num(1)) >> 1, (N.z + I14F18::from_num(1)) >> 1);
-        //return Color::new_01_range(I14F18::from_num(1.0), I14F18::from_num(0.0), I14F18::from_num(0.0));
+fn ray_color(timer: &Timer, ray: &Ray, world: &HittableList) -> Color {
+    let mut rec: HitRecord = HitRecord::default();
+    if world.hit(timer, ray, I14F18::from_num(0), I14F18::MAX, &mut rec) {
+        return Color::new_01_range(
+            (rec.normal.x + I14F18::from_num(1)) >> 1,
+            (rec.normal.y + I14F18::from_num(1)) >> 1,
+            (rec.normal.z + I14F18::from_num(1)) >> 1
+        );
     }
     let unit_dir = ray.dir.unit_vector();
-    t = (unit_dir.y + I14F18::from_num(1)) >> 1;
+    let t = (unit_dir.y + I14F18::from_num(1)) >> 1;
     return Color::new_01_range(
         (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(0.5),
         (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(0.7),
         (I14F18::from_num(1.0)-t) * I14F18::from_num(1.0) + t*I14F18::from_num(1.0)
     );
+}
+
+macro_rules! new_box {
+    ($v: expr) => {
+        Box::new($v)
+    };
 }
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
@@ -97,6 +99,19 @@ fn main(mut gba: agb::Gba) -> ! {
     let vert = Vec3::new(I14F18::from_num(0.0), viewport_height, I14F18::from_num(0.0));
     let lower_left = orig - (horiz >> 1) - (vert >> 1) - Vec3::new(I14F18::from_num(0.0), I14F18::from_num(0.0), focal_length);
 
+    let mut world: HittableList = HittableList {
+        objs: Vec::new()
+    };
+
+    world.add(
+        new_box!(
+            Sphere {
+                center: Vec3::newi(0, 0, -1),
+                radius: I14F18::from_num(0.5)
+            }
+        )
+    );
+
     for y in 0..display::HEIGHT as i32 {
         for x in 0..display::WIDTH as i32 {
             let u = I14F18::from_num(x) / (img_width-I14F18::from_num(1));
@@ -105,7 +120,7 @@ fn main(mut gba: agb::Gba) -> ! {
                 orig,
                 dir: lower_left + u*horiz + v*vert - orig
             };
-            let pc = ray_color(&t2, &ray);
+            let pc = ray_color(&t2, &ray, &world);
 
             bitmap.draw_point(
                 x as i32,

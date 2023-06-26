@@ -188,18 +188,18 @@ impl Vec3 {
         };
     }
 
-    pub fn new(_x: I14F18, _y: I14F18, _z: I14F18) -> Vec3 {
+    pub const fn new(_x: I14F18, _y: I14F18, _z: I14F18) -> Vec3 {
         return Vec3 {
             x: _x,
             y: _y,
             z: _z,
         };
     }
-    pub fn newi(_x: i32, _y: i32, _z: i32) -> Vec3 {
+    pub const fn newi(_x: i32, _y: i32, _z: i32) -> Vec3 {
         return Vec3 {
-            x: I14F18::from_num(_x as i32),
-            y: I14F18::from_num(_y as i32),
-            z: I14F18::from_num(_z as i32),
+            x: I14F18::const_from_int(_x as i32),
+            y: I14F18::const_from_int(_y as i32),
+            z: I14F18::const_from_int(_z as i32),
         };
     }
 
