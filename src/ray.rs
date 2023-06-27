@@ -1,5 +1,5 @@
 use agb_fixnum::Num;
-use fixed::types::I20F12;
+use fixed::types::I34F30;
 
 use crate::vec3::Vec3;
 
@@ -10,7 +10,7 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn at(&self, t: I20F12) -> Vec3 {
+    pub fn at(&self, t: I34F30) -> Vec3 {
         return self.orig + t*self.dir;
     }
 

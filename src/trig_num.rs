@@ -1,6 +1,6 @@
-use fixed::types::I20F12;
+use fixed::types::I34F30;
 
-pub trait trig_num {
+pub trait TrigNum {
     fn sqrt(&self) -> Self;
     fn sin(&self) -> Self;
     fn cos(&self) -> Self;
@@ -8,7 +8,7 @@ pub trait trig_num {
     fn abs(&self) -> Self;
 }
 
-fn integer_sqrt(v: i32) -> i32 {
+fn integer_sqrt(v: i64) -> i64 {
     let mut b = 1 << 30;
     let mut q = 0;
     let mut r = v;
@@ -28,7 +28,7 @@ fn integer_sqrt(v: i32) -> i32 {
     return q;
 }
 
-impl trig_num for I20F12 {
+impl TrigNum for I34F30 {
     fn sqrt(&self) -> Self { // Works for any 32 bit fixed points
         //self.sqrt_iters(2) // Should be 10 for accuracy but this is a gameboy so... fuck it lol
 
@@ -47,20 +47,20 @@ impl trig_num for I20F12 {
         //    b >>= 1;
         //}
         //q >>= 8;
-        //return I20F12::from_ne_bytes(q.to_ne_bytes());
+        //return I34F30::from_ne_bytes(q.to_ne_bytes());
 
         // Ok so this is just as fast as the previous but supports more fp types soooo, we'll use this!
-        return Self::from_ne_bytes((integer_sqrt(i32::from_ne_bytes(self.to_ne_bytes())) << (Self::FRAC_BITS >> 1) ).to_ne_bytes());
+        return Self::from_ne_bytes((integer_sqrt(i64::from_ne_bytes(self.to_ne_bytes())) << (Self::FRAC_BITS >> 1) ).to_ne_bytes());
     }
 
     fn sin(&self) -> Self { // Bhaskara I approximation
-        return (16 * self * (Self::PI - self)) / (5 * (Self::PI * Self::PI) - 4 * self * (I20F12::PI - self));
+        return (16 * self * (Self::PI - self)).checked_div((5 * (Self::PI * Self::PI) - 4 * self * (I34F30::PI - self))).ok_or_else(|| 0).unwrap();
     }
     fn cos(&self) -> Self {
         Self::sin(&(self + Self::FRAC_PI_2))
     }
     fn tan(&self) -> Self {
-        Self::sin(self)/Self::cos(self)
+        Self::sin(self).checked_div(Self::cos(self)).ok_or_else(|| 0).unwrap()
     }
 
     fn abs(&self) -> Self {
@@ -69,6 +69,6 @@ impl trig_num for I20F12 {
         //} else {
         //    self.checked_neg().unwrap()
         //}
-        return Self::from_ne_bytes(i32::from_ne_bytes(self.to_ne_bytes()).abs().to_ne_bytes());
+        return Self::from_ne_bytes(i64::from_ne_bytes(self.to_ne_bytes()).abs().to_ne_bytes());
     }
 }
