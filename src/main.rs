@@ -31,50 +31,69 @@ mod utils;
 mod trig_num;
 mod hittable;
 mod hittables;
+mod material;
+mod mats;
 
 pub extern crate alloc;
 
-use agb::{display::{self, busy_wait_for_vblank}, syscall, timer::{TimerController, Timer, self}, input::Button, ExternalAllocator, println};
-use agb_fixnum::{Num, num};
+use core::f32::INFINITY;
+
+use agb::{display::{self}, syscall, timer::{Timer}, mgba::{Mgba, DebugLevel}};
+
 use alloc::{boxed::Box, vec::Vec};
 use color::Color;
-use hittable::{HitRecord, HittableList, Hittable};
+use hittable::{HitRecord, HittableList};
 use hittables::sphere::Sphere;
-use rand::{rand_u32, rand_double};
+use mats::{MatManager, lambertian::LambertianMat, dielectric::DielectricMat, metal::MetalMat};
+use rand::{rand_double};
 use ray::Ray;
-use fixed::types::I34F30;
-use utils::{random_in_unit_sphere, random_in_hemisphere};
+use utils::{random_in_hemisphere};
 use vec3::Vec3;
 use trig_num::TrigNum;
 
 #[inline(always)]
-fn ray_color(timer: &Timer, ray: &Ray, world: &HittableList, maxdepth: u32) -> Color {
+fn ray_color(timer: &Timer, ray: &Ray, world: &HittableList, mats: &MatManager, maxdepth: u32) -> Color {
     let mut rec: HitRecord = HitRecord::default();
     if maxdepth <= 0 {
-        return Color::new_01_range(I34F30::from_num(0), I34F30::from_num(0), I34F30::from_num(0));
+        return Color::new_01_range(0.0, 0.0, 0.0);
     }
 
-    if world.hit(timer, ray, I34F30::from_num(0.001), I34F30::MAX, &mut rec) {
+    if world.hit(timer, ray, 0.001, INFINITY, &mut rec) {
         //return Color::new_01_range(
-        //    (rec.normal.x + I34F30::from_num(1)) >> 1,
-        //    (rec.normal.y + I34F30::from_num(1)) >> 1,
-        //    (rec.normal.z + I34F30::from_num(1)) >> 1
+        //    (rec.normal.x + (1.0)) * 0.5,
+        //    (rec.normal.y + (1.0)) * 0.5,
+        //    (rec.normal.z + (1.0)) * 0.5
         //);
-        let tgt = rec.point + random_in_hemisphere(&rec.normal, timer);
-        let newray = Ray::new(rec.point, tgt-rec.point);
-        let lascol = ray_color(timer, &newray, world, maxdepth.clone()-1);
-        return Color {
-            r: lascol.r >> 1,
-            g: lascol.g >> 1,
-            b: lascol.b >> 1
-        };
+
+        //let mut tgt = rec.point + random_in_hemisphere(&rec.normal, timer);
+        //if tgt.near_zero() {
+        //    tgt = rec.point;
+        //}
+        //let newray = Ray::new(rec.point, tgt-rec.point);
+        //let lascol = ray_color(timer, &newray, world, maxdepth.clone()-1);
+        //return Color {
+        //    r: lascol.r * 0.5,
+        //    g: lascol.g * 0.5,
+        //    b: lascol.b * 0.5
+        //};
+        let mut scattered: Ray = Ray::new(Vec3::newi(0,0,0), Vec3::newi(0,0,0));
+        let mut attenuation: Color = Color::new_01_range(0.0, 0.0, 0.0);
+        if mats.get_mat(&rec.material).scatter(&ray, &mut rec, &mut attenuation, &mut scattered, timer) {
+            let oc = ray_color(timer, &scattered, world, mats, maxdepth);
+            return Color::new_01_range(
+                oc.r * attenuation.r,
+                oc.g * attenuation.g,
+                oc.b * attenuation.b
+            )
+        }
+        return Color::new_01_range(0.0, 0.0, 0.0);
     }
     let unit_dir = ray.dir.unit_vector();
-    let t = (unit_dir.y + I34F30::from_num(1)) >> 1;
+    let t = (unit_dir.y + (1.0)) * 0.5;
     return Color::new_01_range(
-        (I34F30::from_num(1.0)-t) * I34F30::from_num(1.0) + t*I34F30::from_num(0.5),
-        (I34F30::from_num(1.0)-t) * I34F30::from_num(1.0) + t*I34F30::from_num(0.7),
-        (I34F30::from_num(1.0)-t) * I34F30::from_num(1.0) + t*I34F30::from_num(1.0)
+        ((1.0)-t) * (1.0) + t*0.5,
+        ((1.0)-t) * (1.0) + t*(0.7),
+        ((1.0)-t) * (1.0) + t*(1.0)
     );
 }
 
@@ -93,52 +112,35 @@ fn main(mut gba: agb::Gba) -> ! {
 
     let mut t2 = gba.timers.timers().timer2;
 
-    t2.set_divider(agb::timer::Divider::Divider1024);
+    t2.set_divider(agb::timer::Divider::Divider64);
     t2.set_enabled(true);
-
-
-    let start = t2.value();
-    let mut a: f32 = 5.0;
-    for _i in 0..4096 {
-        a = (a*1.01 - a) + a/1.01;
-    }
-    let end = t2.value();
-    println!("F32 time:    {} ({})", end-start, a);
-
-    let start1 = t2.value();
-    let mut a1 = I34F30::from_num(5.0);
-    for _i in 0..4096 {
-        a1 = (a1*I34F30::from_num(1.01) - a1) + a1/I34F30::from_num(1.01);
-    }
-    let end1 = t2.value();
-    println!("I34F30 time: {} ({})", end1-start1, a1);
 
     //let mut input = agb::input::ButtonController::new();
     //while !input.is_pressed(Button::START) {
     //    input.update();
     //}
 
-    let aspect_ratio = I34F30::from_num(display::WIDTH as i32) / I34F30::from_num(display::HEIGHT as i32);
-    let img_width = I34F30::from_num(display::WIDTH as i32);
-    let img_height = I34F30::from_num(display::HEIGHT as i32);
-    const ITERS: i64 = 10;
-    const MAX_BOUNCES: u32 = 5;
+    let aspect_ratio = (display::WIDTH as f32) / (display::HEIGHT as f32);
+    let img_width = display::WIDTH as f32;
+    let img_height = display::HEIGHT as f32;
+    const ITERS: i32 = 5;
+    const MAX_BOUNCES: u32 = 10;
 
-    let viewport_height = I34F30::from_num(2.0);
+    let viewport_height = 2.0;
     let viewport_width = viewport_height * aspect_ratio;
-    let focal_length = I34F30::from_num(1.0);
+    let focal_length = 1.0;
 
     let orig = Vec3::newi(0, 0, 0);
-    let horiz = Vec3::new(viewport_width, I34F30::from_num(0.0), I34F30::from_num(0.0));
-    let vert = Vec3::new(I34F30::from_num(0.0), viewport_height, I34F30::from_num(0.0));
-    let lower_left = orig - (horiz >> 1) - (vert >> 1) - Vec3::new(I34F30::from_num(0.0), I34F30::from_num(0.0), focal_length);
-    let mut cam = camera::Camera::new(
+    let horiz = Vec3::new(viewport_width, 0.0, 0.0);
+    let vert = Vec3::new(0.0, viewport_height, 0.0);
+    let _lower_left = orig - (horiz * 0.5) - (vert * 0.5) - Vec3::new(0.0, 0.0, focal_length);
+    let cam = camera::Camera::new(
         Vec3::newi(3, 3, 2),
         Vec3::newi(0, 0, -1),
         Vec3::newi(0, 1, 0),
-        I34F30::from_num(20),
+        20.0,
         aspect_ratio,
-        I34F30::from_num(0),
+        0.0,
         (Vec3::newi(3, 3, 2) - Vec3::newi(0, 0, -1)).length(),
         &t2
     );
@@ -146,12 +148,18 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut world: HittableList = HittableList {
         objs: Vec::new()
     };
+    let mut mats: MatManager = MatManager::new();
 
     world.add(
         new_box!(
             Sphere {
                 center: Vec3::newi(0, 0, -1),
-                radius: I34F30::from_num(0.5)
+                radius: 0.5,
+                material: mats.gen_mat(Box::new(
+                    LambertianMat {
+                        albedo: Color::new_01_range(0.1, 0.2, 0.5)
+                    }
+                ))
             }
         )
     );
@@ -159,7 +167,25 @@ fn main(mut gba: agb::Gba) -> ! {
         new_box!(
             Sphere {
                 center: Vec3::newi(-1, 0, -1),
-                radius: I34F30::from_num(0.5)
+                radius: 0.5,
+                material: mats.gen_mat(Box::new(
+                    DielectricMat {
+                        refract_index: 1.5
+                    }
+                ))
+            }
+        )
+    );
+    world.add(
+        new_box!(
+            Sphere {
+                center: Vec3::newi(-1, 0, -1),
+                radius: -0.45,
+                material: mats.gen_mat(Box::new(
+                    DielectricMat {
+                        refract_index: 1.5
+                    }
+                ))
             }
         )
     );
@@ -167,7 +193,13 @@ fn main(mut gba: agb::Gba) -> ! {
         new_box!(
             Sphere {
                 center: Vec3::newi(1, 0, -1),
-                radius: I34F30::from_num(0.5)
+                radius: 0.5,
+                material: mats.gen_mat(Box::new(
+                    MetalMat {
+                        albedo: Color::new_01_range(0.8, 0.6, 0.2),
+                        fuzz: 0.0
+                    }
+                ))
             }
         )
     );
@@ -175,25 +207,30 @@ fn main(mut gba: agb::Gba) -> ! {
         new_box!(
             Sphere {
                 center: Vec3::new(
-                    I34F30::from_num(0),
-                    I34F30::from_num(-100.5),
-                    I34F30::from_num(-1)
+                    0.0,
+                    -100.5,
+                    -1.0
                 ),
-                radius: I34F30::from_num(100)
+                radius: 100.0,
+                material: mats.gen_mat(Box::new(
+                    LambertianMat {
+                        albedo: Color::new_01_range(0.8, 0.8, 0.0)
+                    }
+                ))
             }
         )
     );
 
     for y in 0..display::HEIGHT as i32 {
         for x in 0..display::WIDTH as i32 {
-            let mut tc = Color::new(I34F30::from_num(0), I34F30::from_num(0), I34F30::from_num(0));
+            let mut tc = Color::new(0.0, 0.0, 0.0);
             for _i in 0..ITERS {
-                let u = (I34F30::from_num(x) + (rand_double(&t2) >> 1)) / (img_width-I34F30::from_num(1));
-                let v = (I34F30::from_num(display::HEIGHT as i32-y-1) + (rand_double(&t2) >> 1)) / (img_height-I34F30::from_num(1));
-                //let u = (I34F30::from_num(x)) / (img_width-I34F30::from_num(1));
-                //let v = (I34F30::from_num(display::HEIGHT as i32-y)) / (img_height-I34F30::from_num(1));
+                //let u = ((x as f32) + (rand_double(&t2))) / (img_width-(1.0));
+                //let v = ((display::HEIGHT as f32-y as f32-1.0) + rand_double(&t2)) / (img_height-(1.0));
+                let u = ((x as f32)) / (img_width-(1.0));
+                let v = ((display::HEIGHT as i32-y) as f32 - 1.0) / (img_height-(1.0));
                 let ray = cam.get_ray(u, v, &t2);
-                let pc = ray_color(&t2, &ray, &world, MAX_BOUNCES);
+                let pc = ray_color(&t2, &ray, &world, &mats, MAX_BOUNCES);
 
                 tc = Color::new_01_range(
                     tc.r + pc.r,
@@ -204,9 +241,9 @@ fn main(mut gba: agb::Gba) -> ! {
             bitmap.draw_point(
                 x as i32,
                 y as i32,
-                ((((tc.b/ITERS).sqrt() * I34F30::from_num(31)).floor().to_num::<u16>() as u16) << 10) +
-                    ((((tc.g/ITERS).sqrt() * I34F30::from_num(31)).floor().to_num::<u16>() as u16) << 5) +
-                    ((((tc.r/ITERS).sqrt() * I34F30::from_num(31)).floor().to_num::<u16>() as u16))
+                ((((tc.b/ITERS as f32).sqrt() * (31.0)) as u16) << 10) +
+                    ((((tc.g/ITERS as f32).sqrt() * (31.0)) as u16) << 5) +
+                    ((((tc.r/ITERS as f32).sqrt() * (31.0)) as u16))
             );
         }
     }

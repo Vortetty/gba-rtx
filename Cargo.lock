@@ -3,15 +3,6 @@
 version = 3
 
 [[package]]
-name = "GBA_RTX"
-version = "0.0.1"
-dependencies = [
- "agb",
- "agb_fixnum",
- "fixed",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -228,6 +219,15 @@ checksum = "0793f5137567643cf65ea42043a538804ff0fbf288649e2141442b602d81f9bc"
 dependencies = [
  "hashbrown",
  "ttf-parser",
+]
+
+[[package]]
+name = "gba_rtx"
+version = "0.0.1"
+dependencies = [
+ "agb",
+ "agb_fixnum",
+ "fixed",
 ]
 
 [[package]]

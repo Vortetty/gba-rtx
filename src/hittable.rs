@@ -1,6 +1,5 @@
 use agb::timer::Timer;
 use alloc::{boxed::Box, vec::Vec};
-use fixed::types::I34F30;
 
 
 use crate::{vec3::Vec3, ray::Ray};
@@ -9,8 +8,11 @@ use crate::{vec3::Vec3, ray::Ray};
 pub struct HitRecord {
     pub point: Vec3,
     pub normal: Vec3,
-    pub trace_len: I34F30,
+    pub trace_len: f32,
     pub front_face: bool,
+    pub material: i32,
+    pub tex_u: f32,
+    pub tex_v: f32
 }
 
 impl HitRecord {
@@ -25,23 +27,26 @@ impl HitRecord {
     pub fn default() -> HitRecord {
         HitRecord {
             point: Vec3 {
-                x: I34F30::from_num(0.0),
-                y: I34F30::from_num(0.0),
-                z: I34F30::from_num(0.0),
+                x: (0.0),
+                y: (0.0),
+                z: (0.0),
             },
             normal: Vec3 {
-                x: I34F30::from_num(0.0),
-                y: I34F30::from_num(0.0),
-                z: I34F30::from_num(0.0),
+                x: (0.0),
+                y: (0.0),
+                z: (0.0),
             },
-            trace_len: I34F30::from_num(0.0),
-            front_face: false
+            trace_len: (0.0),
+            front_face: false,
+            material: 0,
+            tex_u: 0.0,
+            tex_v: 0.0
         }
     }
 }
 
 pub trait Hittable {
-    fn hit(&self, timer: &Timer, ray: &Ray, trace_min_len: I34F30, trace_max_len: I34F30, rec: &mut HitRecord) -> bool;
+    fn hit(&self, timer: &Timer, ray: &Ray, trace_min_len: f32, trace_max_len: f32, rec: &mut HitRecord) -> bool;
 }
 
 pub struct HittableList {
@@ -52,8 +57,8 @@ impl HittableList {
         &self,
         timer: &Timer,
         ray: &Ray,
-        trace_len_min: I34F30,
-        trace_len_max: I34F30,
+        trace_len_min: f32,
+        trace_len_max: f32,
         rec: &mut HitRecord,
     ) -> bool {
         let mut hit_anything = false;
@@ -100,14 +105,14 @@ impl HittableList {
     //fn surrounding_box(&self, b1: &AABB, b2: &AABB) -> AABB {
     //    return AABB {
     //        min: Vec3::new(
-    //            I34F30::min(b1.min.x, b2.min.x),
-    //            I34F30::min(b1.min.y, b2.min.y),
-    //            I34F30::min(b1.min.z, b2.min.z)
+    //            f32::min(b1.min.x, b2.min.x),
+    //            f32::min(b1.min.y, b2.min.y),
+    //            f32::min(b1.min.z, b2.min.z)
     //        ),
     //        max: Vec3::new(
-    //            I34F30::max(b1.max.x, b2.max.x),
-    //            I34F30::max(b1.max.y, b2.max.y),
-    //            I34F30::max(b1.max.z, b2.max.z)
+    //            f32::max(b1.max.x, b2.max.x),
+    //            f32::max(b1.max.y, b2.max.y),
+    //            f32::max(b1.max.z, b2.max.z)
     //        )
     //    }
     //}

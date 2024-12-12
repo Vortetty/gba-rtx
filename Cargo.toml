@@ -1,5 +1,5 @@
 [package]
-name = "GBA_RTX"
+name = "gba_rtx"
 version = "0.0.1"
 authors = [""]
 edition = "2021"
