@@ -231,14 +231,13 @@ dependencies = [
 
 [[package]]
 name = "fixed"
-version = "1.28.0"
+version = "2.0.0-alpha.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85c6e0b89bf864acd20590dbdbad56f69aeb898abfc9443008fd7bd48b2cc85a"
+checksum = "8276713fe97d959ae66a91bdac60a9a1b9e39d25513ccca4555fe1cf2571567f"
 dependencies = [
  "az",
  "bytemuck",
  "half",
- "typenum",
 ]
 
 [[package]]
@@ -458,12 +457,6 @@ name = "ttf-parser"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c591d83f69777866b9126b24c6dd9a18351f177e49d625920d19f989fd31cf8"
-
-[[package]]
-name = "typenum"
-version = "1.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "unicode-ident"

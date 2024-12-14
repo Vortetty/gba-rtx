@@ -10,7 +10,7 @@ edition = "2021"
 
 [dependencies]
 agb = "0.21.1"
-fixed = "1.28.0"
+fixed = { version = "2.0.0-alpha.28.0" }
 
 [profile.dev]
 opt-level = 3
