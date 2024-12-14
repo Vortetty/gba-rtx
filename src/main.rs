@@ -18,6 +18,8 @@
 mod utils;
 mod get_render_config;
 
+extern crate alloc;
+
 use core::arch::asm;
 use fixed::types::I14F18;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
