@@ -16,6 +16,7 @@
 #![feature(generic_const_exprs)]
 
 mod utils;
+mod text;
 mod get_render_config;
 
 extern crate alloc;
