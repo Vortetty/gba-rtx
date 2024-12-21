@@ -14,6 +14,7 @@
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, test_runner(agb::test_runner::test_runner))]
 #![feature(generic_const_exprs)]
+#![feature(core_intrinsics)]
 
 mod utils;
 mod text;
