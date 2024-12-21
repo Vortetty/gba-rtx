@@ -1,5 +1,7 @@
-use agb::display::object::Graphics;
+use agb::{display::object::Graphics, include_aseprite};
 use alloc::{format,string::{String, ToString}, vec, vec::Vec};
+
+use crate::text::SpriteFont;
 
 #[derive(Clone, Copy)]
 pub enum Scenes {
@@ -23,11 +25,14 @@ static SELECTABLE_SCENES: [Scenes; 1] = [
     Scenes::SPHERES
 ];
 
+static simpleFont: &'static Graphics = include_aseprite!("resources/text.aseprite");
+
 pub fn get_render_config(mut gba: agb::Gba) -> RenderConfig {
     let scene = SELECTABLE_SCENES[0];
     let iters = 4;
     let depth = 8;
 
+    let fnt = SpriteFont::load_font(simpleFont);
 
     return RenderConfig {
         iters_per_pixel: iters,

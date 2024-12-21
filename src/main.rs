@@ -21,7 +21,8 @@ mod get_render_config;
 
 extern crate alloc;
 
-use core::arch::asm;
+use core::{arch::asm, hint::black_box};
+use agb::timer::{Divider, TimerController};
 use fixed::types::I14F18;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 
@@ -30,7 +31,20 @@ use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCRE
 // and interrupt handlers correctly. It will also handle creating the `Gba` struct for you.
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
+    use utils::I14F18_VAL_1;
+    let mut timer2 = gba.timers.timers().timer2;
     let mut bitmap = gba.display.video.bitmap3();
+    bitmap.clear(0);
+
+    timer2.set_divider(Divider::Divider1024);
+    timer2.set_overflow_amount((2u32.pow(16)-1) as u16);
+    timer2.set_enabled(true);
+    loop {
+        if timer2.value() > 16383 {
+            break;
+        }
+    }
+    timer2.set_enabled(false);
 
     for y in 0..GBA_SCREEN_Y_I32 {
         let y_fix: I14F18 = y*GBA_SCREEN_1_OVER_Y;
@@ -39,7 +53,7 @@ fn main(mut gba: agb::Gba) -> ! {
 
             let mut px = 0;
 
-            px += ((I14F18::lit("1") - x_fix) * 31).round().to_num::<u16>() << 10;
+            px += ((I14F18_VAL_1 - x_fix) * 31).round().to_num::<u16>() << 10;
             px += (x_fix * 31).round().to_num::<u16>() << 5;
             px += (y_fix * 31).round().to_num::<u16>();
 
