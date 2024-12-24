@@ -33,7 +33,7 @@ pub fn get_render_config() -> RenderConfig {
     let iters = 4;
     let depth = 8;
 
-    
+    SIMPLE_FONT.
 
     return RenderConfig {
         iters_per_pixel: iters,
