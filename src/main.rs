@@ -23,7 +23,7 @@ mod get_render_config;
 extern crate alloc;
 
 use core::{arch::asm, hint::black_box};
-use agb::timer::{Divider, TimerController};
+use agb::{display::object::OamUnmanaged, timer::{Divider, TimerController}};
 use fixed::types::I14F18;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 
@@ -37,11 +37,13 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut bitmap = gba.display.video.bitmap3();
     bitmap.clear(0);
 
+    get_render_config::get_render_config();
+
     timer2.set_divider(Divider::Divider1024);
     timer2.set_overflow_amount((2u32.pow(16)-1) as u16);
     timer2.set_enabled(true);
     loop {
-        if timer2.value() > 16383 {
+        if timer2.value() > 16383*4 {
             break;
         }
     }

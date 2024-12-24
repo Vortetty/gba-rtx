@@ -1,7 +1,6 @@
-use agb::{display::object::Graphics, include_aseprite};
-use alloc::{format,string::{String, ToString}, vec, vec::Vec};
-
-use crate::text::SpriteFont;
+use agb::{display::{object::{OamUnmanaged, ObjectTextRender, PaletteVram, Size}, palette16::Palette16, Font}, include_font};
+use alloc::string::{String, ToString};
+use core::fmt::Write;
 
 #[derive(Clone, Copy)]
 pub enum Scenes {
@@ -17,6 +16,8 @@ pub struct RenderConfig {
 fn get_scene_name(scene: Scenes) -> String {
     match scene {
         Scenes::SPHERES => "Random Spheres",
+
+        #[allow(unreachable_patterns)]
         _ => "Unimplemented"
     }.to_string()
 }
@@ -25,14 +26,14 @@ static SELECTABLE_SCENES: [Scenes; 1] = [
     Scenes::SPHERES
 ];
 
-static simpleFont: &'static Graphics = include_aseprite!("resources/text.aseprite");
+static SIMPLE_FONT: Font = include_font!("resources/font/NEScentricities.ttf", 16);
 
-pub fn get_render_config(mut gba: agb::Gba) -> RenderConfig {
+pub fn get_render_config() -> RenderConfig {
     let scene = SELECTABLE_SCENES[0];
     let iters = 4;
     let depth = 8;
 
-    let fnt = SpriteFont::load_font(simpleFont);
+    
 
     return RenderConfig {
         iters_per_pixel: iters,
