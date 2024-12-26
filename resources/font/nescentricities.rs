@@ -1835,4 +1835,4 @@ static chars: [[[u8; YSIZE]; XSIZE]; 96] = [
     ],
 ];
 
-pub static NESCENTRICITIES: Font<XSIZE, YSIZE> = Font::new(&palette, &chars);
+pub static NESCENTRICITIES: Font<XSIZE, YSIZE, 96> = Font::new(&palette, &chars);

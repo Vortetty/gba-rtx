@@ -45,7 +45,7 @@ with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
         f.write(k)
     f.write("];\n")
     f.write("\n")
-    f.write(f"pub static {FONT_NAME.upper()}: Font<XSIZE, YSIZE> = Font::new(&palette, &chars);\n")
+    f.write(f"pub static {FONT_NAME.upper()}: Font<XSIZE, YSIZE, {imagestrings.__len__()}> = Font::new(&palette, &chars);\n")
 
 print(f"""Generated font: {FONT_NAME.lower()}.rs
     Characters: {CHARACTERS.__len__()} (\033[3m\033[7m{CHARACTERS}\033[0m)
