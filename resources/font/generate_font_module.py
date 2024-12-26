@@ -20,7 +20,7 @@ imarr.resize((imarr.shape[0] // 16, 16, 16))
 imagestrings = []
 for i in imarr:
     out = "    [\n"
-    im = Image.fromarray(i).rotate(90)
+    im = Image.fromarray(i).rotate(180)
     for k in np.array(im):
         out += "        " + str([int(i) for i in list(k)]) + ",\n"
     imagestrings.append(out + "    ],\n")
@@ -28,7 +28,7 @@ for i in imarr:
 if imagestrings.__len__() != CHARACTERS.__len__():
     raise ValueError(f"Wrong number of images ({imagestrings.__len__()}) compared to characters ({CHARACTERS.__len__()}). Expected equal counts")
 
-with open(f"{FONT_NAME}.rs", 'w') as f:
+with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
     f.write("use crate::text::Font;\n")
     f.write("\n")
     f.write("const XSIZE: usize = 16;\n")
@@ -45,8 +45,8 @@ with open(f"{FONT_NAME}.rs", 'w') as f:
         f.write(k)
     f.write("];\n")
     f.write("\n")
-    f.write("pub static FONT_NAME: Font<XSIZE, YSIZE> = Font::new(&palette, &chars);\n")
+    f.write(f"pub static {FONT_NAME.upper()}: Font<XSIZE, YSIZE> = Font::new(&palette, &chars);\n")
 
-print(f"""Generated font: {FONT_NAME}.rs
+print(f"""Generated font: {FONT_NAME.lower()}.rs
     Characters: {CHARACTERS.__len__()} (\033[3m\033[7m{CHARACTERS}\033[0m)
         Colors: { ''.join('\n          - ({}, {}, {})'.format(*i) for i in im_indexed_backgrounded.palette.colors) }""")
