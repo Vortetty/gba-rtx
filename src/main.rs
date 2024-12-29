@@ -13,17 +13,21 @@
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, test_runner(agb::test_runner::test_runner))]
+#![allow(incomplete_features)]
+#![allow(internal_features)]
 #![feature(generic_const_exprs)]
 #![feature(core_intrinsics)]
+#![feature(variant_count)]
 
 mod utils;
 mod text;
 mod get_render_config;
+mod nescentricities;
 
 extern crate alloc;
 
-use core::{arch::asm, hint::black_box};
-use agb::{display::object::OamUnmanaged, timer::{Divider, TimerController}};
+use core::arch::asm;
+use agb::{input, timer::Divider};
 use fixed::types::I14F18;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 
@@ -35,15 +39,16 @@ fn main(mut gba: agb::Gba) -> ! {
     use utils::I14F18_VAL_1;
     let mut timer2 = gba.timers.timers().timer2;
     let mut bitmap = gba.display.video.bitmap3();
+    let mut input = agb::input::ButtonController::new();
     bitmap.clear(0);
 
-    get_render_config::get_render_config();
+    get_render_config::get_render_config(&mut input, &mut bitmap);
 
     timer2.set_divider(Divider::Divider1024);
     timer2.set_overflow_amount((2u32.pow(16)-1) as u16);
     timer2.set_enabled(true);
     loop {
-        if timer2.value() > 16383*4 {
+        if timer2.value() > 16383*1 {
             break;
         }
     }
