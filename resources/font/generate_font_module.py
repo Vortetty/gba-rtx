@@ -29,6 +29,9 @@ if imagestrings.__len__() != CHARACTERS.__len__():
     raise ValueError(f"Wrong number of images ({imagestrings.__len__()}) compared to characters ({CHARACTERS.__len__()}). Expected equal counts")
 
 with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
+    f.write("//\n")
+    f.write(f"// {FONT_NAME} (c) 2024 by Kali H. is licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)\n")
+    f.write("//\n")
     f.write("use crate::text::Font;\n")
     f.write("\n")
     f.write("const XSIZE: usize = 16;\n")
