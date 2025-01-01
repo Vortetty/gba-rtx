@@ -29,6 +29,7 @@ static SELECTABLE_SCENES: [Scenes; 1] = [
     Scenes::SPHERES
 ];
 
+#[allow(dead_code)]
 #[repr(i8)]
 enum MenuSelection {
     SceneSelect=0,
@@ -60,7 +61,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
             one_true = false;
         }
 
-        if (one_true) {
+        if one_true {
             NESCENTRICITIES.print_str(match menu_selection {
                 MenuSelection::SceneSelect => "Scene Select    ",
                 MenuSelection::IterationsSelect => "Iter Select     ",
