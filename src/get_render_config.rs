@@ -1,9 +1,9 @@
 use core::mem;
 
 use agb::{display::bitmap3::{self, Bitmap3}, input::{Button, ButtonController}};
-use alloc::string::{String, ToString};
+use alloc::{string::{String, ToString}, vec::Vec};
 
-use crate::pixelara::{self, PIXELARA};
+use crate::{images::IMAGES, pixelara::{self, PIXELARA}};
 
 #[repr(i8)]
 #[allow(dead_code)]
@@ -78,9 +78,8 @@ fn get_scene_name(scene: Scenes) -> String {
 //  so we get 30x20 characters
 //  let the box be the image/description for each option
 //  each character is represented by a character followed by a space for a more accurate spacing
-//  title should be a new
-//                        10  12  14  16  18  20  22  24  26  28
-//     0 1 2 3 4 5 6 7 8 9  11  13  15  17  19  21  23  25  27  29
+//                         10  12  14  16  18  20  22  24  26  28
+//     0 1 2 3 4 5 6 7 8 9   11  13  15  17  19  21  23  25  27  29
 //    +------------------------------------------------------------+
 //  0 |G B A - R T   C o n f i g u r a t i o n                     |
 //  1 |                                                            |
@@ -88,28 +87,31 @@ fn get_scene_name(scene: Scenes) -> String {
 //  3 |I t e r s :   < 4 >                                         |
 //  4 |D e p t h :   < 8 >                                         |
 //  5 |                                                            |
-//  6 |████████████████████████████████████████████████████████████|
-//  7 |████████████████████████████████████████████████████████████|
-//  8 |████████████████████████████████████████████████████████████|
-//  9 |████████████████████████████████████████████████████████████|
-// 10 |████████████████████████████████████████████████████████████|
-// 11 |████████████████████████████████████████████████████████████|
-// 12 |████████████████████████████████████████████████████████████|
-// 13 |████████████████████████████████████████████████████████████|
-// 14 |████████████████████████████████████████████████████████████|
-// 15 |████████████████████████████████████████████████████████████|
-// 16 |████████████████████████████████████████████████████████████|
-// 17 |████████████████████████████████████████████████████████████|
+//  6 |████████████@@%******************************%@@████████████|
+//  7 |████████████@+   +%@@@@@@@@@@@@@@@@@@@@@@%+   =@████████████|
+//  8 |████████████@:  =@@@@@@@@@@@@@@@@@@@@@@@@@@=  .@████████████|
+//  9 |████████████@:  =@@@@@@@@*::=@@@@@@@@@@@@@@=  .@████████████|
+// 10 |████████████@:  =@@@@@@@@-   @@@@@@@@@@@@@@=  .@████████████|
+// 11 |████████████@:  =@@@@@@@@@%%@@@@+:*@@@@@@@@=  .@████████████|
+// 12 |████████████@:  =@@@@@@@=+@@@@*.   :%@@@@@@=  .@████████████|
+// 13 |████████████@:  =@@@@@+   :*#:       =@@@@@=  .@████████████|
+// 14 |████████████@:  =@@@*                  *@@@=  .@████████████|
+// 15 |████████████@:  =@@@%##################@@@@=  .@████████████|
+// 16 |████████████@+   +%@@@@@@@@@@@@@@@@@@@@@@%+   =@████████████|
+// 17 |████████████@@%*++++++++++++++++++++++++++++*%@@████████████|
 // 18 |                                                            |
-// 19 |C o n f i r m                                               |
+// 19 |> C o n f i r m   S e t t i n g s <                         |
 //    +------------------------------------------------------------+
 //
-macro_rules! rFillText {
+macro_rules! rFillText { // Same as python's ljust with pad as " " and length as 30
+                         // Make the string 30 chars long, fill with spaces
+                         // Wipes background to prevent overwriting
     ($text: expr) => {
         format!("{: <30}", $text)
     };
 }
-macro_rules! fmtOption {
+macro_rules! fmtOption {// This macro also pads but handles the "name: <selection>" format
+                        // also avoids repeated inline if statement clutter
     ($name: expr, $value: expr, $selected: expr) => {
         if $selected {
             format!("{: <30}", format!("{}: <{}>", $name, $value))
@@ -118,13 +120,33 @@ macro_rules! fmtOption {
         }
     };
 }
-fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3) {
-    //PIXELARA.print_str(match selection {
-    //    MenuSelection::SceneSelect => "Scene Select    ",
-    //    MenuSelection::IterationsSelect => "Iter Select     ",
-    //    MenuSelection::DepthSelect => "Depth Select    ",
-    //    MenuSelection::ConfirmButton => "Confirm Settings",
-    //}, bitmap, 0, 0);
+fn split_text(text: impl Into<String>) -> Vec<String> {
+    let mut output: Vec<String> = vec![];
+    let text: String = text.into();
+    let mut iter: Vec<&str> = text.split_ascii_whitespace().collect::<Vec<&str>>();
+
+    let mut tmp = "".to_string();
+    loop {
+        if iter.len() > 0 {
+            if tmp.len() + iter[0].len() < 30 {
+                tmp.push_str(iter.remove(0));
+                tmp.push_str(" ");
+            } else {
+                output.push(rFillText!(tmp));
+                tmp = "".to_string();
+            }
+        } else {
+            break
+        }
+    }
+
+    while output.len() < 12 {
+        output.push(" ".repeat(30));
+    }
+
+    output
+}
+fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool) {
     PIXELARA.print_str_rel(rFillText!("GBA-RT Configuration"), bitmap, 0, 0);
     PIXELARA.print_str_rel(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2);
     PIXELARA.print_str_rel(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3);
@@ -134,8 +156,44 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
     } else {
         "Confirm Settings"
     }), bitmap, 0, 19);
+
+    if rewrite_info {
+        match selection {
+            MenuSelection::SceneSelect => {
+                for x in 0*8..6*8 {
+                    for y in 6*8..17*8 {
+                        bitmap.draw_point(x, y, 0);
+                    }
+                }
+                IMAGES.print_nth(3, bitmap, 6*8, 6*8);
+                for x in 24*8..29*8 {
+                    for y in 6*8..17*8 {
+                        bitmap.draw_point(x, y, 0);
+                    }
+                }
+            },
+            MenuSelection::IterationsSelect => {
+                for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() {
+                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
+                }
+            },
+            MenuSelection::DepthSelect => {
+                for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() {
+                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
+                }
+            },
+            MenuSelection::ConfirmButton => {
+                for x in 0..240 {
+                    for y in 6*8..17*8 {
+                        bitmap.draw_point(x, y, 0);
+                    }
+                }
+            },
+        }
+    }
 }
 
+// Spawn gui for render config fetching.
 pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> RenderConfig {
     let vblank = agb::interrupt::VBlank::get();
 
@@ -148,15 +206,18 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
     let mut menu_selection = MenuSelection::SceneSelect;
 
     bitmap.clear(0);
-    render_menu(&data, &menu_selection, bitmap);
+    render_menu(&data, &menu_selection, bitmap, true);
 
     loop {
         let mut one_true = true;
+        let mut change_menu_text = false;
         agb::interrupt::VBlank::wait_for_vblank(&vblank);
         if input.is_just_pressed(Button::UP) {
             menu_selection = menu_selection.prev();
+            change_menu_text = true;
         } else if input.is_just_pressed(Button::DOWN) {
             menu_selection = menu_selection.next();
+            change_menu_text = true;
         } else if input.is_just_pressed(Button::RIGHT) {
             match menu_selection {
                 MenuSelection::SceneSelect => {
@@ -172,7 +233,9 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
                         data.max_depth += 1;
                     }
                 },
-                MenuSelection::ConfirmButton => {}
+                MenuSelection::ConfirmButton => {
+                    one_true = false;
+                }
             }
         } else if input.is_just_pressed(Button::LEFT) {
             match menu_selection {
@@ -189,18 +252,22 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
                         data.max_depth -= 1;
                     }
                 },
-                MenuSelection::ConfirmButton => {}
+                MenuSelection::ConfirmButton => {
+                    one_true = false;
+                }
             }
         } else if input.is_just_pressed(Button::A) {
             if menu_selection == MenuSelection::ConfirmButton {
                 break
+            } else {
+                one_true = false;
             }
         } else {
             one_true = false;
         }
 
         if one_true {
-            render_menu(&data, &menu_selection, bitmap);
+            render_menu(&data, &menu_selection, bitmap, change_menu_text);
         }
 
         input.update();

@@ -1,5 +1,5 @@
 //
-// Pixelara (c) 2024 by Kali H. is licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+// Based on the IBM BIOS Font from The Ultimate Oldschool PC Font Pack (http://int10h.org/oldschool-pc-fonts/) which is licensed under the CC BY-SA 4.0
 //
 use crate::text::Font;
 

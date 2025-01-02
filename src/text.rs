@@ -16,17 +16,17 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
         }
     }
 
-    pub fn print_char(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
-        let chr = chr.wrapping_sub(32).min(CHARCNT as u8 - 1) as usize; // Offset into the space of our font and ensure the range puts printable characters as 0
-
+    pub fn print_nth(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         for x in 0..XSIZE {
             let dx = x + pos_x;
             for y in 0..YSIZE {
-                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[self.chars[chr][XSIZE-1-x][y] as usize]);
+                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[self.chars[chr as usize][XSIZE-1-x][y] as usize]);
             }
         }
     }
-
+    pub fn print_char(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
+        self.print_nth(chr.wrapping_sub(32).min(CHARCNT as u8 - 1), bitmap, pos_x, pos_y);
+    }
     pub fn print_str(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         let mut pos_x = pos_x;
         let mut pos_y = pos_y;

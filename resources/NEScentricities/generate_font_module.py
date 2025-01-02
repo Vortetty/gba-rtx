@@ -39,7 +39,7 @@ with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
     f.write("\n")
     f.write(f"static palette: [u16; {im_indexed_backgrounded.palette.colors.__len__()}] = [\n")
     for i in im_indexed_backgrounded.palette.colors:
-        f.write(f"    0b0_{str(bin(i[0] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[1] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[2] >> 3)[2:]).rjust(5, "0")},\n")
+        f.write(f"    0b0_{str(bin(i[2] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[1] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[0] >> 3)[2:]).rjust(5, "0")},\n")
     f.write("];\n")
     f.write("\n")
     f.write(f"static chars: [[[u8; YSIZE]; XSIZE]; {imagestrings.__len__()}] = [\n")
