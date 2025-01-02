@@ -25,13 +25,16 @@ mod get_render_config;
 mod nescentricities;
 mod pixelara;
 mod images;
+mod music;
 
 #[macro_use]
 extern crate alloc;
 
 use core::arch::asm;
 use fixed::types::I14F18;
+use music::LOFI_LOOP;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
+use agb::{interrupt::VBlank, sound::mixer::{Frequency, SoundChannel}};
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
 // ensures that everything is in order. `agb` will call this after setting up the stack
@@ -42,9 +45,13 @@ fn main(mut gba: agb::Gba) -> ! {
     //let mut timer2 = gba.timers.timers().timer2;
     let mut bitmap = gba.display.video.bitmap3();
     let mut input = agb::input::ButtonController::new();
-    bitmap.clear(0);
+    let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
+    mixer.enable();
+    let mut channel = SoundChannel::new(LOFI_LOOP);
+    mixer.play_sound(channel).unwrap();
+    let vblank = agb::interrupt::VBlank::get();
 
-    get_render_config::get_render_config(&mut input, &mut bitmap);
+    get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
     bitmap.clear(0);
 
     //timer2.set_divider(Divider::Divider1024);
@@ -70,13 +77,10 @@ fn main(mut gba: agb::Gba) -> ! {
 
             bitmap.draw_point(x as i32, y as i32, px);
         }
+        mixer.frame();
     }
 
     loop {
-        unsafe {
-            asm!(
-                "nop"
-            )
-        }
+        mixer.frame();
     }
 }

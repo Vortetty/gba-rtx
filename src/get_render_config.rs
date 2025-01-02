@@ -1,6 +1,6 @@
 use core::mem;
 
-use agb::{display::bitmap3::{self, Bitmap3}, input::{Button, ButtonController}};
+use agb::{display::bitmap3::{self, Bitmap3}, input::{Button, ButtonController}, sound::mixer::Mixer};
 use alloc::{string::{String, ToString}, vec::Vec};
 
 use crate::{images::IMAGES, pixelara::{self, PIXELARA}};
@@ -146,7 +146,7 @@ fn split_text(text: impl Into<String>) -> Vec<String> {
 
     output
 }
-fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool) {
+fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, mixer: &mut Mixer) {
     PIXELARA.print_str_rel(rFillText!("GBA-RT Configuration"), bitmap, 0, 0);
     PIXELARA.print_str_rel(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2);
     PIXELARA.print_str_rel(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3);
@@ -160,29 +160,38 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
     if rewrite_info {
         match selection {
             MenuSelection::SceneSelect => {
+                mixer.frame();
                 for x in 0*8..6*8 {
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
                 }
+                mixer.frame();
                 IMAGES.print_nth(3, bitmap, 6*8, 6*8);
+                mixer.frame();
                 for x in 24*8..29*8 {
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
                 }
+                mixer.frame();
             },
             MenuSelection::IterationsSelect => {
+                mixer.frame();
                 for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() {
                     PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
+                    mixer.frame();
                 }
             },
             MenuSelection::DepthSelect => {
+                mixer.frame();
                 for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() {
                     PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
+                    mixer.frame();
                 }
             },
             MenuSelection::ConfirmButton => {
+                mixer.frame();
                 for x in 0..240 {
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
@@ -194,7 +203,7 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
 }
 
 // Spawn gui for render config fetching.
-pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> RenderConfig {
+pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mixer: &mut Mixer) -> RenderConfig {
     let vblank = agb::interrupt::VBlank::get();
 
     let mut data = RenderConfig {
@@ -206,11 +215,12 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
     let mut menu_selection = MenuSelection::SceneSelect;
 
     bitmap.clear(0);
-    render_menu(&data, &menu_selection, bitmap, true);
+    render_menu(&data, &menu_selection, bitmap, true, mixer);
 
     loop {
         let mut one_true = true;
         let mut change_menu_text = false;
+        mixer.frame();
         agb::interrupt::VBlank::wait_for_vblank(&vblank);
         if input.is_just_pressed(Button::UP) {
             menu_selection = menu_selection.prev();
@@ -267,7 +277,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
         }
 
         if one_true {
-            render_menu(&data, &menu_selection, bitmap, change_menu_text);
+            render_menu(&data, &menu_selection, bitmap, change_menu_text, mixer);
         }
 
         input.update();
