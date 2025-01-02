@@ -24,34 +24,34 @@ pub enum Scenes {
 impl MenuSelection {
     pub fn next(&self) -> Self {
         unsafe {
-            mem::transmute((self.clone() as u8).wrapping_add(1) % (mem::variant_count::<Self>() as u8))
+            mem::transmute((self.clone() as u8).wrapping_add(1) % (mem::variant_count::<Self>() as u8)) // Easiest way to never need a list of what's in the enum
         }
     }
     pub fn prev(&self) -> Self {
         unsafe {
-            mem::transmute((self.clone() as u8).wrapping_sub(1) % (mem::variant_count::<Self>() as u8))
+            mem::transmute((self.clone() as u8).wrapping_sub(1) % (mem::variant_count::<Self>() as u8)) // Easiest way to never need a list of what's in the enum
         }
     }
     pub fn from_i8(n: i8) -> Self {
         unsafe {
-            mem::transmute(n)
+            mem::transmute(n)  // Easiest way to never need a list of what's in the enum
         }
     }
 }
 impl Scenes {
     pub fn next(&self) -> Self {
         unsafe {
-            mem::transmute((self.clone() as u8).wrapping_add(1) % (mem::variant_count::<Self>() as u8))
+            mem::transmute((self.clone() as u8).wrapping_add(1) % (mem::variant_count::<Self>() as u8)) // Easiest way to never need a list of what's in the enum
         }
     }
     pub fn prev(&self) -> Self {
         unsafe {
-            mem::transmute((self.clone() as u8).wrapping_sub(1) % (mem::variant_count::<Self>() as u8))
+            mem::transmute((self.clone() as u8).wrapping_sub(1) % (mem::variant_count::<Self>() as u8)) // Easiest way to never need a list of what's in the enum
         }
     }
     pub fn from_i8(n: i8) -> Self {
         unsafe {
-            mem::transmute(n)
+            mem::transmute(n) // Easiest way to never need a list of what's in the enum
         }
     }
 }
