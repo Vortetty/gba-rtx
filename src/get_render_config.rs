@@ -120,15 +120,17 @@ macro_rules! fmtOption {// This macro also pads but handles the "name: <selectio
         }
     };
 }
-fn split_text(text: impl Into<String>) -> Vec<String> {
+fn split_text(text: impl Into<String>) -> Vec<String> { // Break on whitespace rather than mid-word
     let mut output: Vec<String> = vec![];
     let text: String = text.into();
-    let mut iter: Vec<&str> = text.split_ascii_whitespace().collect::<Vec<&str>>();
+    let mut iter: Vec<&str> = text.split_ascii_whitespace().collect::<Vec<&str>>(); // Split on spaces
 
     let mut tmp = "".to_string();
     loop {
         if iter.len() > 0 {
-            if tmp.len() + iter[0].len() < 30 {
+            if tmp.len() + iter[0].len() < 30 { // Append each word with a trailing space until it would be too long to print. Using <30
+                                                //  means spaces do not matter at the end since the space would make it 30, so those are unaccounted for here
+                                                //  after we reach length just push the string to the end of the output, padded to 30 to clear any underlying text.
                 tmp.push_str(iter.remove(0));
                 tmp.push_str(" ");
             } else {
@@ -140,13 +142,14 @@ fn split_text(text: impl Into<String>) -> Vec<String> {
         }
     }
 
-    while output.len() < 12 {
+    while output.len() < 12 { // Just fill out all 12 lines with text since this is only used here
         output.push(" ".repeat(30));
     }
 
     output
 }
 fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, mixer: &mut Mixer) {
+    // Render the basic menuing stuff
     PIXELARA.print_str_rel(rFillText!("GBA-RT Configuration"), bitmap, 0, 0);
     PIXELARA.print_str_rel(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2);
     PIXELARA.print_str_rel(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3);
@@ -157,19 +160,20 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
         "Confirm Settings"
     }), bitmap, 0, 19);
 
+    // Rewrite_info is about 70% of the text rendered and by far the longest to render since we use bitmap mode, so it is rendered only if 100% needed (if you change your menu selection)
     if rewrite_info {
         match selection {
             MenuSelection::SceneSelect => {
                 mixer.frame();
-                for x in 0*8..6*8 {
+                for x in 0*8..6*8 { // Clear left padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
                 }
                 mixer.frame();
-                IMAGES.print_nth(3, bitmap, 6*8, 6*8);
+                IMAGES.print_nth(3, bitmap, 6*8, 6*8); // Print image
                 mixer.frame();
-                for x in 24*8..29*8 {
+                for x in 24*8..29*8 { // Clear right padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
@@ -178,21 +182,23 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
             },
             MenuSelection::IterationsSelect => {
                 mixer.frame();
-                for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() {
+                for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() { // Print each line of the help message, updating the music between each print
+                    mixer.frame();
                     PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
                     mixer.frame();
                 }
             },
             MenuSelection::DepthSelect => {
                 mixer.frame();
-                for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() {
+                for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() { // Print each line of the help message, updating the music between each print
+                    mixer.frame();
                     PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
                     mixer.frame();
                 }
             },
             MenuSelection::ConfirmButton => {
                 mixer.frame();
-                for x in 0..240 {
+                for x in 0..240 { // No help message, clear the text area
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
@@ -214,21 +220,20 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
 
     let mut menu_selection = MenuSelection::SceneSelect;
 
-    bitmap.clear(0);
+    bitmap.clear(0); // Initial screen clear and populate, force render help message since it would not otherwise
     render_menu(&data, &menu_selection, bitmap, true, mixer);
 
     loop {
-        let mut one_true = true;
-        let mut change_menu_text = false;
+        let mut one_true = true;          // If any button was pressed
+        let mut change_menu_text = false; // If that button was up or down, thus requiring a rewrite of the help message.
         mixer.frame();
-        agb::interrupt::VBlank::wait_for_vblank(&vblank);
-        if input.is_just_pressed(Button::UP) {
+        if input.is_just_pressed(Button::UP) { // Moves to the previous config option
             menu_selection = menu_selection.prev();
             change_menu_text = true;
-        } else if input.is_just_pressed(Button::DOWN) {
+        } else if input.is_just_pressed(Button::DOWN) { // Moves to the next config potion
             menu_selection = menu_selection.next();
             change_menu_text = true;
-        } else if input.is_just_pressed(Button::RIGHT) {
+        } else if input.is_just_pressed(Button::RIGHT) { // Will select the next value on all but the confirm button, where it tells the system no button was pressed as nothing actually changed
             match menu_selection {
                 MenuSelection::SceneSelect => {
                     data.scene = data.scene.next();
@@ -247,7 +252,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
                     one_true = false;
                 }
             }
-        } else if input.is_just_pressed(Button::LEFT) {
+        } else if input.is_just_pressed(Button::LEFT) { // Will select the previous value on all but the confirm button, where it tells the system no button was pressed as nothing actually changed
             match menu_selection {
                 MenuSelection::SceneSelect => {
                     data.scene = data.scene.prev();
@@ -266,7 +271,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
                     one_true = false;
                 }
             }
-        } else if input.is_just_pressed(Button::A) {
+        } else if input.is_just_pressed(Button::A) { // If on the confirm button will leave the loop, otherwise tells the system no button was pressed as nothing actually happened
             if menu_selection == MenuSelection::ConfirmButton {
                 break
             } else {
@@ -276,11 +281,13 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
             one_true = false;
         }
 
-        if one_true {
+        if one_true { // If a button was pressesd render the menu
             render_menu(&data, &menu_selection, bitmap, change_menu_text, mixer);
         }
 
-        input.update();
+        mixer.frame();
+        agb::interrupt::VBlank::wait_for_vblank(&vblank); // Wait for vblank, not really needed but good practice
+        input.update(); // Update pressed buttons
     }
 
     return data;

@@ -2,7 +2,7 @@ use agb::display::bitmap3::Bitmap3;
 
 pub struct Font<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> {
     palette: &'static [u16], // Up to 256 colors
-    chars: &'static [[[u8; YSIZE]; XSIZE]; CHARCNT] // chars 32-255 supported
+    chars: &'static [[[u8; YSIZE]; XSIZE]; CHARCNT] // chars 32-255 supported, or 0-255 if using print_nth
     // for reference that is, in this order:
     //~ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~�
     // excluding the first tilde, and the `del` char will be used
@@ -18,29 +18,28 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
 
     pub fn print_nth(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         for x in 0..XSIZE {
-            let dx = x + pos_x;
+            let dx = x + pos_x; // offset the x position
             for y in 0..YSIZE {
-                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[self.chars[chr as usize][XSIZE-1-x][y] as usize]);
+                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[self.chars[chr as usize][XSIZE-1-x][y] as usize]); // Gba's x/y is bottom left, the font's is top left. flip the y coord and then get that color from the palette
             }
         }
     }
     pub fn print_char(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
-        self.print_nth(chr.wrapping_sub(32).min(CHARCNT as u8 - 1), bitmap, pos_x, pos_y);
+        self.print_nth(chr.wrapping_sub(32).min(CHARCNT as u8 - 1), bitmap, pos_x, pos_y); // Offset the char by 32 since " " is the first char in the list
     }
-    pub fn print_str(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
+    pub fn print_str(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) { // Iterates a string and prints, with rudimentary line breaking!
         let mut pos_x = pos_x;
         let mut pos_y = pos_y;
         for chr in text.as_ref().chars() {
-            if pos_x + XSIZE > 240 {
+            if pos_x + XSIZE > 240 { // Break line automagically :3
                 pos_y += YSIZE;
                 pos_x = 0;
             }
             self.print_char(chr as u8, bitmap, pos_x, pos_y);
-            pos_x += XSIZE;
+            pos_x += XSIZE; // move right
         }
     }
-    // Prints a string but interprets the coords as a grid of tiles of XSIZE*YSIZE
-    pub fn print_str_rel(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
+    pub fn print_str_rel(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) { // Prints a string but interprets the coords as a grid of tiles of XSIZE*YSIZE
         self.print_str(text, bitmap, pos_x * XSIZE, pos_y * YSIZE);
     }
 }

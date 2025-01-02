@@ -30,40 +30,32 @@ mod music;
 #[macro_use]
 extern crate alloc;
 
-use core::arch::asm;
 use fixed::types::I14F18;
 use music::LOFI_LOOP;
 use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
-use agb::{interrupt::VBlank, sound::mixer::{Frequency, SoundChannel}};
+use agb::sound::mixer::{Frequency, SoundChannel};
+use utils::I14F18_VAL_1;
 
 // The main function must take 1 arguments and never return. The agb::entry decorator
 // ensures that everything is in order. `agb` will call this after setting up the stack
 // and interrupt handlers correctly. It will also handle creating the `Gba` struct for you.
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
-    use utils::I14F18_VAL_1;
-    //let mut timer2 = gba.timers.timers().timer2;
+    // Basics needed for gui
     let mut bitmap = gba.display.video.bitmap3();
     let mut input = agb::input::ButtonController::new();
-    let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
-    mixer.enable();
-    let mut channel = SoundChannel::new(LOFI_LOOP);
-    mixer.play_sound(channel).unwrap();
-    let vblank = agb::interrupt::VBlank::get();
 
-    get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
+    // Music setup
+    let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
+    let channel = SoundChannel::new(LOFI_LOOP);
+    mixer.enable();
+    mixer.play_sound(channel).unwrap();
+
+    // Get configuration for renderer
+    let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
     bitmap.clear(0);
 
-    //timer2.set_divider(Divider::Divider1024);
-    //timer2.set_overflow_amount((2u32.pow(16)-1) as u16);
-    //timer2.set_enabled(true);
-    //loop {
-    //    if timer2.value() > 16383*1 {
-    //        break;
-    //    }
-    //}
-    //timer2.set_enabled(false);
-
+    // Color test screen
     for y in 0..GBA_SCREEN_Y_I32 {
         let y_fix: I14F18 = y*GBA_SCREEN_1_OVER_Y;
         for x in  0..GBA_SCREEN_X_I32 {
@@ -81,6 +73,6 @@ fn main(mut gba: agb::Gba) -> ! {
     }
 
     loop {
-        mixer.frame();
+        mixer.frame(); // Play music forever
     }
 }
