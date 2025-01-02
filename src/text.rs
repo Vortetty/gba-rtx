@@ -27,10 +27,10 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
         }
     }
 
-    pub fn print_str(self: &Self, text: &str, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
+    pub fn print_str(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         let mut pos_x = pos_x;
         let mut pos_y = pos_y;
-        for chr in text.chars() {
+        for chr in text.as_ref().chars() {
             if pos_x + XSIZE > 240 {
                 pos_y += YSIZE;
                 pos_x = 0;
@@ -38,6 +38,10 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
             self.print_char(chr as u8, bitmap, pos_x, pos_y);
             pos_x += XSIZE;
         }
+    }
+    // Prints a string but interprets the coords as a grid of tiles of XSIZE*YSIZE
+    pub fn print_str_rel(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
+        self.print_str(text, bitmap, pos_x * XSIZE, pos_y * YSIZE);
     }
 }
 
