@@ -9,6 +9,7 @@ pub struct Font<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> {
 }
 
 impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, YSIZE, CHARCNT> {
+    #[inline(always)]
     pub const fn new(palette: &'static [u16], chars: &'static [[[u8; YSIZE]; XSIZE]; CHARCNT]) -> Self {
         Self {
             palette: palette,
@@ -16,19 +17,22 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
         }
     }
 
+    #[inline(always)]
     pub fn print_nth(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         let chr_ref = &self.chars[chr as usize];
 
-        for x in 0..XSIZE {
+        for (x, x_array) in chr_ref.iter().rev().enumerate() {
             let dx = x + pos_x; // offset the x position
-            for y in 0..YSIZE {
-                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[chr_ref[XSIZE-1-x][y] as usize]); // Gba's x/y is bottom left, the font's is top left. flip the y coord and then get that color from the palette
+            for (y, y_val) in x_array.iter().enumerate() {
+                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[*y_val as usize]); // Gba's x/y is bottom left, the font's is top left. flip the y coord and then get that color from the palette
             }
         }
     }
+    #[inline(always)]
     pub fn print_char(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
         self.print_nth(chr.wrapping_sub(32).min(CHARCNT as u8 - 1), bitmap, pos_x, pos_y); // Offset the char by 32 since " " is the first char in the list
     }
+    #[inline(always)]
     pub fn print_str(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) { // Iterates a string and prints, with rudimentary line breaking!
         let mut pos_x = pos_x;
         let mut pos_y = pos_y;
@@ -41,22 +45,25 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
             pos_x += XSIZE; // move right
         }
     }
+    #[inline(always)]
     pub fn print_str_rel(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) { // Prints a string but interprets the coords as a grid of tiles of XSIZE*YSIZE
         self.print_str(text, bitmap, pos_x * XSIZE, pos_y * YSIZE);
     }
 
 
+    #[inline(always)]
     pub fn print_nth_music(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize, mixer: &mut Mixer) {
         let chr_ref = &self.chars[chr as usize];
 
-        for x in 0..XSIZE {
+        for (x, x_array) in chr_ref.iter().rev().enumerate() {
             let dx = x + pos_x; // offset the x position
-            for y in 0..YSIZE {
-                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[chr_ref[XSIZE-1-x][y] as usize]); // Gba's x/y is bottom left, the font's is top left. flip the y coord and then get that color from the palette
+            for (y, y_val) in x_array.iter().enumerate() {
+                bitmap.draw_point(dx as i32, (y + pos_y) as i32, self.palette[*y_val as usize]); // Gba's x/y is bottom left, the font's is top left. flip the y coord and then get that color from the palette
             }
             mixer.frame();
         }
     }
+    #[inline(always)]
     pub fn print_str_music(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize, mixer: &mut Mixer) { // Iterates a string and prints, with rudimentary line breaking!
         let mut pos_x = pos_x;
         let mut pos_y = pos_y;
@@ -70,6 +77,7 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
             mixer.frame();
         }
     }
+    #[inline(always)]
     pub fn print_str_rel_music(self: &Self, text: impl AsRef<str>, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize, mixer: &mut Mixer) { // Prints a string but interprets the coords as a grid of tiles of XSIZE*YSIZE
         self.print_str_music(text, bitmap, pos_x * XSIZE, pos_y * YSIZE, mixer);
     }

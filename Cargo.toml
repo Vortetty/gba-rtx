@@ -13,8 +13,18 @@ agb = "0.21.1"
 fixed = { version = "2.0.0-alpha.28.0" }
 
 [profile.dev]
+strip = "symbols"
 opt-level = 3
-debug = true
+panic = "abort"
+lto = "fat"
+incremental = true
+rustflags = ["-Z", "location-detail=none"]
+
+[profile.dev.package."*"]
+strip = "symbols"
+opt-level = 3
+incremental = true
+rustflags = ["-Z", "location-detail=none"]
 
 [profile.release]
 strip = "symbols"
@@ -24,7 +34,6 @@ panic = "abort"
 lto = "fat"
 incremental = true
 rustflags = ["-Z", "location-detail=none"]
-debug=true
 
 [profile.release.package."*"]
 strip = "symbols"
@@ -32,4 +41,3 @@ opt-level = 3
 codegen-units = 1
 incremental = true
 rustflags = ["-Z", "location-detail=none"]
-debug=true
