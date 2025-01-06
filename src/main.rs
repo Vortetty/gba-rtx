@@ -36,9 +36,6 @@ use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCRE
 use agb::sound::mixer::{Frequency, SoundChannel};
 use utils::I14F18_VAL_1;
 
-// The main function must take 1 arguments and never return. The agb::entry decorator
-// ensures that everything is in order. `agb` will call this after setting up the stack
-// and interrupt handlers correctly. It will also handle creating the `Gba` struct for you.
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui

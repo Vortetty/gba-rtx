@@ -1,9 +1,9 @@
 use core::mem;
 
-use agb::{display::bitmap3::{self, Bitmap3}, input::{Button, ButtonController}, sound::mixer::Mixer};
+use agb::{display::bitmap3::Bitmap3, input::{Button, ButtonController}, sound::mixer::Mixer};
 use alloc::{string::{String, ToString}, vec::Vec};
 
-use crate::{images::IMAGES, pixelara::{self, PIXELARA}};
+use crate::{images::IMAGES, pixelara::PIXELARA};
 
 #[repr(i8)]
 #[allow(dead_code)]
@@ -103,7 +103,14 @@ fn get_scene_name(scene: Scenes) -> String {
 // 19 |> C o n f i r m   S e t t i n g s <                         |
 //    +------------------------------------------------------------+
 //
-macro_rules! rFillText { // Same as python's ljust with pad as " " and length as 30
+macro_rules! rFillText30 { // Same as python's ljust with pad as " " and length as 30
+// Make the string 30 chars long, fill with spaces
+// Wipes background to prevent overwriting
+($text: expr) => {
+format!("{: <30}", $text)
+};
+}
+macro_rules! rFillText22 { // Same as python's ljust with pad as " " and length as 30
                          // Make the string 30 chars long, fill with spaces
                          // Wipes background to prevent overwriting
     ($text: expr) => {
@@ -120,45 +127,59 @@ macro_rules! fmtOption {// This macro also pads but handles the "name: <selectio
         }
     };
 }
-fn split_text(text: impl Into<String>) -> Vec<String> { // Break on whitespace rather than mid-word
+fn split_text(text: impl Into<String>) -> Vec<String> {
     let mut output: Vec<String> = vec![];
     let text: String = text.into();
     let mut iter: Vec<&str> = text.split_ascii_whitespace().collect::<Vec<&str>>(); // Split on spaces
 
     let mut tmp = "".to_string();
-    loop {
-        if iter.len() > 0 {
-            if tmp.len() + iter[0].len() < 30 { // Append each word with a trailing space until it would be too long to print. Using <30
-                                                //  means spaces do not matter at the end since the space would make it 30, so those are unaccounted for here
-                                                //  after we reach length just push the string to the end of the output, padded to 30 to clear any underlying text.
-                tmp.push_str(iter.remove(0));
-                tmp.push_str(" ");
-            } else {
-                output.push(rFillText!(tmp));
-                tmp = "".to_string();
-            }
-        } else {
-            break
+    while let Some(word) = iter.pop() { // Using pop to avoid having a borrow conflict with iter and tmp
+        if tmp.len() + word.len() + 1 <= 30 { // Add a word if it fits
+            tmp.push_str(word);
+            tmp.push_str(" ");
+        } else { // If it doesn't fit, push the current line and start a new one
+            output.push(rFillText30!(tmp));
+            tmp = word.to_string() + " "; // Start a new line with the word
         }
     }
 
-    while output.len() < 12 { // Just fill out all 12 lines with text since this is only used here
+    // Push any remaining text to the output
+    if !tmp.is_empty() {
+        output.push(rFillText30!(tmp));
+    }
+
+    // Ensure there are at least 12 lines, filling with empty lines as needed
+    while output.len() < 12 {
         output.push(" ".repeat(30));
     }
 
     output
 }
-fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, mixer: &mut Mixer) {
+fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, render_all: bool, mixer: &mut Mixer) {
     // Render the basic menuing stuff
-    PIXELARA.print_str_rel(rFillText!("GBA-RT Configuration"), bitmap, 0, 0);
-    PIXELARA.print_str_rel(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2);
-    PIXELARA.print_str_rel(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3);
-    PIXELARA.print_str_rel(fmtOption!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4);
-    PIXELARA.print_str_rel(rFillText!(if *selection == MenuSelection::ConfirmButton {
-        "> Confirm Settings <"
+
+    if render_all || rewrite_info {
+        PIXELARA.print_str_rel_music(rFillText30!("GBA-RT Configuration"), bitmap, 0, 0, mixer);
+        PIXELARA.print_str_rel_music(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer);
+        PIXELARA.print_str_rel_music(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer);
+        PIXELARA.print_str_rel_music(fmtOption!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer);
+        PIXELARA.print_str_rel_music(rFillText30!(if *selection == MenuSelection::ConfirmButton {
+            "> Confirm Settings <"
+        } else {
+            "Confirm Settings"
+        }), bitmap, 0, 19, mixer);
     } else {
-        "Confirm Settings"
-    }), bitmap, 0, 19);
+        match selection {
+            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer),
+            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer),
+            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOption!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer),
+            MenuSelection::ConfirmButton => PIXELARA.print_str_rel_music(rFillText30!(if *selection == MenuSelection::ConfirmButton {
+                "> Confirm Settings <"
+            } else {
+                "Confirm Settings"
+            }), bitmap, 0, 19, mixer),
+        }
+    }
 
     // Rewrite_info is about 70% of the text rendered and by far the longest to render since we use bitmap mode, so it is rendered only if 100% needed (if you change your menu selection)
     if rewrite_info {
@@ -170,9 +191,7 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
                         bitmap.draw_point(x, y, 0);
                     }
                 }
-                mixer.frame();
-                IMAGES.print_nth(3, bitmap, 6*8, 6*8); // Print image
-                mixer.frame();
+                IMAGES.print_nth_music(3, bitmap, 6*8, 6*8, mixer); // Print image
                 for x in 24*8..29*8 { // Clear right padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
@@ -183,17 +202,13 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
             MenuSelection::IterationsSelect => {
                 mixer.frame();
                 for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    mixer.frame();
-                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
-                    mixer.frame();
+                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
                 }
             },
             MenuSelection::DepthSelect => {
                 mixer.frame();
                 for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    mixer.frame();
-                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
-                    mixer.frame();
+                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
                 }
             },
             MenuSelection::ConfirmButton => {
@@ -218,10 +233,10 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
         max_depth: 8
     };
 
-    let mut menu_selection = MenuSelection::SceneSelect;
+    let mut menu_selection = MenuSelection::from_i8(0);
 
     bitmap.clear(0); // Initial screen clear and populate, force render help message since it would not otherwise
-    render_menu(&data, &menu_selection, bitmap, true, mixer);
+    render_menu(&data, &menu_selection, bitmap, true, true, mixer);
 
     loop {
         let mut one_true = true;          // If any button was pressed
@@ -282,7 +297,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
         }
 
         if one_true { // If a button was pressesd render the menu
-            render_menu(&data, &menu_selection, bitmap, change_menu_text, mixer);
+            render_menu(&data, &menu_selection, bitmap, change_menu_text, false, mixer);
         }
 
         mixer.frame();
