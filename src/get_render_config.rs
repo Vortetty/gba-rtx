@@ -106,18 +106,22 @@ fn get_scene_name(scene: Scenes) -> String {
 macro_rules! rFillText30 { // Same as python's ljust with pad as " " and length as 30
 // Make the string 30 chars long, fill with spaces
 // Wipes background to prevent overwriting
-($text: expr) => {
-format!("{: <30}", $text)
-};
-}
-macro_rules! rFillText22 { // Same as python's ljust with pad as " " and length as 30
-                         // Make the string 30 chars long, fill with spaces
-                         // Wipes background to prevent overwriting
     ($text: expr) => {
         format!("{: <30}", $text)
     };
 }
-macro_rules! fmtOption {// This macro also pads but handles the "name: <selection>" format
+macro_rules! fmtOptionNoName { // Same as python's ljust with pad as " " and length as 30
+// Make the string 30 chars long, fill with spaces
+// Wipes background to prevent overwriting
+    ($value: expr, $selected: expr) => {
+        if $selected {
+            format!("<{}>", $value)
+        } else {
+            format!("{}  ", $value)
+        }
+    };
+}
+macro_rules! fmtOptionNew {// This macro also pads but handles the "name: <selection>" format
                         // also avoids repeated inline if statement clutter
     ($name: expr, $value: expr, $selected: expr) => {
         if $selected {
@@ -160,24 +164,24 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
 
     if render_all || rewrite_info {
         PIXELARA.print_str_rel_music(rFillText30!("GBA-RT Configuration"), bitmap, 0, 0, mixer);
-        PIXELARA.print_str_rel_music(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer);
-        PIXELARA.print_str_rel_music(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer);
-        PIXELARA.print_str_rel_music(fmtOption!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer);
-        PIXELARA.print_str_rel_music(rFillText30!(if *selection == MenuSelection::ConfirmButton {
-            "> Confirm Settings <"
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer);
+        PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
+            "     > Confirm Settings <     "
         } else {
-            "Confirm Settings"
-        }), bitmap, 0, 19, mixer);
+            "       Confirm Settings       "
+        }, bitmap, 0, 19, mixer);
     } else {
         match selection {
-            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOption!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer),
-            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOption!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer),
-            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOption!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer),
-            MenuSelection::ConfirmButton => PIXELARA.print_str_rel_music(rFillText30!(if *selection == MenuSelection::ConfirmButton {
+            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 7, 2, mixer),
+            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 7, 3, mixer),
+            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 7, 4, mixer),
+            MenuSelection::ConfirmButton => PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
                 "> Confirm Settings <"
             } else {
-                "Confirm Settings"
-            }), bitmap, 0, 19, mixer),
+                "  Confirm Settings  "
+            }, bitmap, 7, 19, mixer),
         }
     }
 

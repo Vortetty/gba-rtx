@@ -42,7 +42,8 @@ fn main(mut gba: agb::Gba) -> ! {
 
     // Music setup
     let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
-    let channel = SoundChannel::new(LOFI_LOOP);
+    let mut channel = SoundChannel::new(LOFI_LOOP);
+    channel.should_loop();
     mixer.enable();
     mixer.play_sound(channel).unwrap();
 

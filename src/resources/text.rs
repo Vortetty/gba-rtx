@@ -72,7 +72,7 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
                 pos_y += YSIZE;
                 pos_x = 0;
             }
-            self.print_char(chr as u8, bitmap, pos_x, pos_y);
+            self.print_char(chr as u8, bitmap, pos_x, pos_y); // Since this shouldn't be used for anything large like print_nth_music will be, we are not really worried about the music being called every line rendered like we are for images which use print_nth_music
             pos_x += XSIZE; // move right
             mixer.frame();
         }
