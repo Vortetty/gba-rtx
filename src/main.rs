@@ -22,21 +22,22 @@
 mod vars;
 mod get_render_config;
 mod resources;
+mod vecmath;
 
 #[macro_use]
 extern crate alloc;
 
-use fixed::types::I14F18;
-use resources::music::LOFI_LOOP;
+use get_render_config::{RenderConfig, Scenes};
+use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
 use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 use agb::sound::mixer::{Frequency, SoundChannel};
-use vars::I14F18_VAL_1;
-
-pub type Float = I14F18;
+use vecmath::FixFlt;
 
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
+
+    use vecmath::FixFlt;
     let mut bitmap = gba.display.video.bitmap3();
     let mut input = agb::input::ButtonController::new();
 
@@ -48,27 +49,32 @@ fn main(mut gba: agb::Gba) -> ! {
     mixer.play_sound(channel).unwrap();
 
     // Get configuration for renderer
-    let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
+    //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
+    let conf = RenderConfig {
+        scene: Scenes::SPHERES,
+        iters_per_pixel: 4,
+        max_depth: 8
+    };
     bitmap.clear(0);
 
     // Color test screen
-    for y in 0..GBA_SCREEN_Y_I32 {
-        let y_fix: Float = y*GBA_SCREEN_1_OVER_Y;
-        let y_fix_31_round = (y_fix * 31).round().to_num::<u16>();
-        for x in  0..GBA_SCREEN_X_I32 {
-            let x_fix: Float = x*GBA_SCREEN_1_OVER_X;
-            let x_fix_31_round = (x_fix * 31).round().to_num::<u16>();
-            
-            let mut px = 0;
+    //for y in 0..GBA_SCREEN_Y_I32 {
+    //    let y_fix: FixFlt = y*GBA_SCREEN_1_OVER_Y;
+    //    let y_fix_31_round = (y_fix * 31).round().to_num::<u16>();
+    //    for x in  0..GBA_SCREEN_X_I32 {
+    //        let x_fix: FixFlt = x*GBA_SCREEN_1_OVER_X;
+    //        let x_fix_31_round = (x_fix * 31).round().to_num::<u16>();
 
-            px += (31-x_fix_31_round) << 10;
-            px += x_fix_31_round << 5;
-            px += y_fix_31_round;
+    //        let mut px = 0;
 
-            bitmap.draw_point(x as i32, y as i32, px);
-        }
-        mixer.frame();
-    }
+    //        px |= (31-x_fix_31_round) << 10;
+    //        px |= x_fix_31_round << 5;
+    //        px |= y_fix_31_round;
+
+    //        bitmap.draw_point(x as i32, y as i32, px);
+    //    }
+    //    mixer.frame();
+    //}
 
     loop {
         mixer.frame(); // Play music forever

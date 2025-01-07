@@ -58,9 +58,9 @@ impl Scenes {
 
 #[derive(Clone, Copy)]
 pub struct RenderConfig {
-    scene: Scenes,
-    iters_per_pixel: u8,
-    max_depth: u8
+    pub scene: Scenes,
+    pub iters_per_pixel: u8,
+    pub max_depth: u8
 }
 
 fn get_scene_name(scene: Scenes) -> String {
