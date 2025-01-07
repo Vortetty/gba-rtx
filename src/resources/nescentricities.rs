@@ -1,7 +1,7 @@
 //
 // NEScentricities (c) 2024 by Kali H. is licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
 //
-use crate::resources::text::Font;
+use super::text::Font;
 
 const XSIZE: usize = 16;
 const YSIZE: usize = 16;

@@ -1,4 +1,4 @@
-use crate::vecmath::FixFlt;
+use crate::math::types::FixFlt;
 
 pub const GBA_SCREEN_X_I32: i32 = 240;
 pub const GBA_SCREEN_Y_I32: i32 = 160;

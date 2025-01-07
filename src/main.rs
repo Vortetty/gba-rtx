@@ -22,7 +22,7 @@
 mod vars;
 mod get_render_config;
 mod resources;
-mod vecmath;
+mod math;
 
 #[macro_use]
 extern crate alloc;
@@ -31,13 +31,11 @@ use get_render_config::{RenderConfig, Scenes};
 use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
 use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 use agb::sound::mixer::{Frequency, SoundChannel};
-use vecmath::FixFlt;
+use math::types::FixFlt;
 
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
-
-    use vecmath::FixFlt;
     let mut bitmap = gba.display.video.bitmap3();
     let mut input = agb::input::ButtonController::new();
 
