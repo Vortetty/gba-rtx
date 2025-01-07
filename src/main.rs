@@ -54,14 +54,16 @@ fn main(mut gba: agb::Gba) -> ! {
     // Color test screen
     for y in 0..GBA_SCREEN_Y_I32 {
         let y_fix: Float = y*GBA_SCREEN_1_OVER_Y;
+        let y_fix_31_round = (y_fix * 31).round().to_num::<u16>();
         for x in  0..GBA_SCREEN_X_I32 {
             let x_fix: Float = x*GBA_SCREEN_1_OVER_X;
-
+            let x_fix_31_round = (x_fix * 31).round().to_num::<u16>();
+            
             let mut px = 0;
 
-            px += ((I14F18_VAL_1 - x_fix) * 31).round().to_num::<u16>() << 10;
-            px += (x_fix * 31).round().to_num::<u16>() << 5;
-            px += (y_fix * 31).round().to_num::<u16>();
+            px += (31-x_fix_31_round) << 10;
+            px += x_fix_31_round << 5;
+            px += y_fix_31_round;
 
             bitmap.draw_point(x as i32, y as i32, px);
         }
