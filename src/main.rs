@@ -19,22 +19,20 @@
 #![feature(core_intrinsics)]
 #![feature(variant_count)]
 
-mod utils;
-mod text;
+mod vars;
 mod get_render_config;
-mod nescentricities;
-mod pixelara;
-mod images;
-mod music;
+mod resources;
 
 #[macro_use]
 extern crate alloc;
 
 use fixed::types::I14F18;
-use music::LOFI_LOOP;
-use utils::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
+use resources::music::LOFI_LOOP;
+use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 use agb::sound::mixer::{Frequency, SoundChannel};
-use utils::I14F18_VAL_1;
+use vars::I14F18_VAL_1;
+
+pub type Float = I14F18;
 
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
@@ -54,9 +52,9 @@ fn main(mut gba: agb::Gba) -> ! {
 
     // Color test screen
     for y in 0..GBA_SCREEN_Y_I32 {
-        let y_fix: I14F18 = y*GBA_SCREEN_1_OVER_Y;
+        let y_fix: Float = y*GBA_SCREEN_1_OVER_Y;
         for x in  0..GBA_SCREEN_X_I32 {
-            let x_fix: I14F18 = x*GBA_SCREEN_1_OVER_X;
+            let x_fix: Float = x*GBA_SCREEN_1_OVER_X;
 
             let mut px = 0;
 

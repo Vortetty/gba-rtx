@@ -32,7 +32,7 @@ with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
     f.write("//\n")
     f.write(f"// Based on the IBM BIOS Font from The Ultimate Oldschool PC Font Pack (http://int10h.org/oldschool-pc-fonts/) which is licensed under the CC BY-SA 4.0\n")
     f.write("//\n")
-    f.write("use crate::text::Font;\n")
+    f.write("use crate::resources::text::Font;\n")
     f.write("\n")
     f.write("const XSIZE: usize = 8;\n")
     f.write("const YSIZE: usize = 8;\n")

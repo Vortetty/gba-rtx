@@ -3,7 +3,7 @@ use core::mem;
 use agb::{display::bitmap3::Bitmap3, input::{Button, ButtonController}, sound::mixer::Mixer};
 use alloc::{string::{String, ToString}, vec::Vec};
 
-use crate::{images::IMAGES, pixelara::PIXELARA};
+use crate::resources::{images::IMAGES, pixelara::PIXELARA};
 
 #[repr(i8)]
 #[allow(dead_code)]

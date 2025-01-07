@@ -49,7 +49,7 @@ for i in imarr:
     imagestrings.append(out + "    ],\n")
 
 with open(f"images.rs", 'w') as f:
-    f.write("use crate::text::Font;\n")
+    f.write("use crate::resources::text::Font;\n")
     f.write("\n")
     f.write(f"const XSIZE: usize = {SIZE[0]};\n")
     f.write(f"const YSIZE: usize = {SIZE[1]};\n")

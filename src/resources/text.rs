@@ -87,7 +87,7 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
 // Example code for a font
 //
 
-// use crate::text::Font;
+// use crate::resources::text::Font;
 //
 // const XSIZE: usize = 16;
 // const YSIZE: usize = 16;

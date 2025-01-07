@@ -1,4 +1,4 @@
-use crate::text::Font;
+use crate::resources::text::Font;
 
 const XSIZE: usize = 144;
 const YSIZE: usize = 96;
