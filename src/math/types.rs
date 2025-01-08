@@ -1,4 +1,4 @@
-use fixed::types::I14F18;
+use fixed::types::{I14F18, I28F36};
 
 pub type FixFlt = I14F18; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
 
@@ -36,7 +36,7 @@ impl FixFltOnce {
     }
 
     #[inline(always)]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             inner: FixFlt::lit("0"),
             initialized: false

@@ -23,6 +23,7 @@ mod vars;
 mod get_render_config;
 mod resources;
 mod math;
+mod tracer;
 
 #[macro_use]
 extern crate alloc;
@@ -36,6 +37,9 @@ use math::types::FixFlt;
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
+
+    use tracer::render;
+    use vars::GBA_SCREEN_X;
     let mut bitmap = gba.display.video.bitmap3();
     let mut input = agb::input::ButtonController::new();
 
@@ -44,7 +48,7 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut channel = SoundChannel::new(LOFI_LOOP);
     channel.should_loop();
     mixer.enable();
-    mixer.play_sound(channel).unwrap();
+    let channel_id = mixer.play_sound(channel).unwrap();
 
     // Get configuration for renderer
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
@@ -73,6 +77,16 @@ fn main(mut gba: agb::Gba) -> ! {
     //    }
     //    mixer.frame();
     //}
+
+    // Disable to re-enable music, we can take care of music later
+    mixer.channel(&channel_id).unwrap().stop();
+
+    let focal_length = FixFlt::lit("1.0");
+
+    let viewport_height = FixFlt::lit("2.0");
+    let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
+
+    render(&mut bitmap, viewport_height, viewport_width, focal_length);
 
     loop {
         mixer.frame(); // Play music forever

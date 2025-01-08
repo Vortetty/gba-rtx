@@ -12,10 +12,10 @@ pub struct Vec3 {
     length: FixFltOnce
 }
 
-struct Color {
-    r: FixFlt,
-    g: FixFlt,
-    b: FixFlt,
+pub struct Color {
+    pub r: FixFlt,
+    pub g: FixFlt,
+    pub b: FixFlt,
 }
 
 impl From<Vec3> for Color {
@@ -103,6 +103,15 @@ impl_ops!(Sub, sub, -);
 impl_ops!(Mul, mul, *);
 impl_ops!(Div, div, /);
 
+fn approximate_sqrt(value: FixFlt) -> FixFlt {
+    // Simple Newton-Raphson approximation for fixed-point values
+    let mut guess = value >> 1; // Initial guess (divide by 2)
+    for _ in 0..3 { // Iterative refinement (adjust iterations as needed)
+        guess = (guess + value / guess) >> 1;
+    }
+    guess
+}
+
 impl Vec3 {
     #[inline(always)]
     pub fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
@@ -125,7 +134,7 @@ impl Vec3 {
     pub fn length(&mut self) -> FixFlt {
         self.length_squared();
         self.length.init_and_get(|| -> FixFlt {
-            self.length_square.inner.sqrt()
+            approximate_sqrt(self.length_square.inner)
         })
     }
 
@@ -150,9 +159,18 @@ impl Vec3 {
 }
 
 impl Color {
+    #[inline(always)]
     pub fn to_gba_color(&self) -> u16 {
-        (31 * self.b).round().to_num::<u16>() << 10 |
-        (31 * self.g).round().to_num::<u16>() << 5 |
-        (31 * self.r).round().to_num::<u16>()
+        (31 * self.b).to_num::<u16>() << 10 |
+        (31 * self.g).to_num::<u16>() << 5 |
+        (31 * self.r).to_num::<u16>()
+    }
+    #[inline(always)]
+    pub const fn new(r: FixFlt, g: FixFlt, b: FixFlt) -> Self {
+        Self {
+            r,
+            g,
+            b
+        }
     }
 }

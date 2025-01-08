@@ -7,4 +7,5 @@ pub const GBA_SCREEN_Y: FixFlt = FixFlt::lit("160");
 pub const GBA_SCREEN_1_OVER_X: FixFlt = FixFlt::lit("0.0041666");
 pub const GBA_SCREEN_1_OVER_Y: FixFlt = FixFlt::lit("0.00625");
 
-pub const FixedType_VAL_1: FixFlt = FixFlt::lit("1");
+pub const FIXFLT_VAL_1: FixFlt = FixFlt::lit("1");
+pub const FIXFLT_VAL_HALF1: FixFlt = FixFlt::lit("0.5");
