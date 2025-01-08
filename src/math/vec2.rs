@@ -8,11 +8,6 @@ pub struct Vec2 {
     pub y: FixFlt
 }
 
-struct Ray {
-    yaw: FixFlt,
-    pitch: FixFlt,
-}
-
 macro_rules! impl_ops {
     ($trait:ident, $method:ident, $op:tt) => {
         // Element-wise operations for Vec2 (Vect) and Vec2
@@ -37,32 +32,6 @@ macro_rules! impl_ops {
                 Self {
                     x: self.x $op rhs,
                     y: self.y $op rhs,
-                }
-            }
-        }
-
-        // Element-wise operations for Ray and Ray
-        impl $trait<Self> for Ray {
-            type Output = Self;
-
-            #[inline(always)]
-            fn $method(self, rhs: Self) -> Self {
-                Self {
-                    yaw: self.yaw $op rhs.yaw,
-                    pitch: self.pitch $op rhs.pitch,
-                }
-            }
-        }
-
-        // Scalar operations for Ray and FixFlt
-        impl $trait<FixFlt> for Ray {
-            type Output = Self;
-
-            #[inline(always)]
-            fn $method(self, rhs: FixFlt) -> Self {
-                Self {
-                    yaw: self.yaw $op rhs,
-                    pitch: self.pitch $op rhs,
                 }
             }
         }

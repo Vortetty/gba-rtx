@@ -1,12 +1,15 @@
-use core::ops::{Add, Div, Mul, Sub};
+use core::{iter::Once, ops::{Add, Div, Mul, Sub}};
 
-use super::types::FixFlt;
+use super::types::{FixFlt, FixFltOnce};
 
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub struct Vec3 {
     pub x: FixFlt,
     pub y: FixFlt,
-    pub z: FixFlt
+    pub z: FixFlt,
+
+    length_square: FixFltOnce,
+    length: FixFltOnce
 }
 
 struct Color {
@@ -27,11 +30,11 @@ impl From<Vec3> for Color {
 
 impl From<Color> for Vec3 {
     fn from(color: Color) -> Self {
-        Self {
-            x: color.r,
-            y: color.g,
-            z: color.b,
-        }
+        Self::new(
+            color.r,
+            color.g,
+            color.b
+        )
     }
 }
 macro_rules! impl_ops {
@@ -42,11 +45,11 @@ macro_rules! impl_ops {
 
             #[inline(always)]
             fn $method(self, rhs: Self) -> Self {
-                Self {
-                    x: self.x $op rhs.x,
-                    y: self.y $op rhs.y,
-                    z: self.z $op rhs.z,
-                }
+                Self::new(
+                    self.x $op rhs.x,
+                    self.y $op rhs.y,
+                    self.z $op rhs.z
+                )
             }
         }
 
@@ -56,11 +59,11 @@ macro_rules! impl_ops {
 
             #[inline(always)]
             fn $method(self, rhs: FixFlt) -> Self {
-                Self {
-                    x: self.x $op rhs,
-                    y: self.y $op rhs,
-                    z: self.z $op rhs,
-                }
+                Self::new(
+                    self.x $op rhs,
+                    self.y $op rhs,
+                    self.z $op rhs
+                )
             }
         }
 
@@ -94,8 +97,62 @@ macro_rules! impl_ops {
     };
 }
 
-// Macro invocation for the arithmetic traits
+// Basic arithmetic!
 impl_ops!(Add, add, +);
 impl_ops!(Sub, sub, -);
 impl_ops!(Mul, mul, *);
 impl_ops!(Div, div, /);
+
+impl Vec3 {
+    #[inline(always)]
+    pub fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
+        Self {
+            x,
+            y,
+            z,
+            length: FixFltOnce::new(),
+            length_square: FixFltOnce::new()
+        }
+    }
+
+    #[inline(always)]
+    pub fn length_squared(&mut self) -> FixFlt {
+        self.length_square.init_and_get(|| -> FixFlt {
+            self.x*self.x + self.y*self.y + self.z*self.z
+        })
+    }
+    #[inline(always)]
+    pub fn length(&mut self) -> FixFlt {
+        self.length_squared();
+        self.length.init_and_get(|| -> FixFlt {
+            self.length_square.inner.sqrt()
+        })
+    }
+
+    #[inline(always)]
+    pub fn dot_prod(&self, rhs: &Self) -> FixFlt {
+        self.x * rhs.x +
+        self.y * rhs.y +
+        self.z * rhs.z
+    }
+    #[inline(always)]
+    pub fn cross_prod(&self, rhs: &Self) -> Self {
+        Self::new(
+            self.y * rhs.z - self.z * rhs.y,
+            self.z * rhs.x - self.x * rhs.z,
+            self.x * rhs.y - self.y * rhs.x
+        )
+    }
+    #[inline(always)]
+    pub fn unit_vec(&mut self) -> Self {
+        *self / self.length()
+    }
+}
+
+impl Color {
+    pub fn to_gba_color(&self) -> u16 {
+        (31 * self.b).round().to_num::<u16>() << 10 |
+        (31 * self.g).round().to_num::<u16>() << 5 |
+        (31 * self.r).round().to_num::<u16>()
+    }
+}
