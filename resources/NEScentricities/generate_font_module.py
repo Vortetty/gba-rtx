@@ -37,18 +37,18 @@ with open(f"{FONT_NAME.lower()}.rs", 'w') as f:
     f.write("const XSIZE: usize = 16;\n")
     f.write("const YSIZE: usize = 16;\n")
     f.write("\n")
-    f.write(f"static palette: [u16; {im_indexed_backgrounded.palette.colors.__len__()}] = [\n")
+    f.write(f"static PALETTE: [u16; {im_indexed_backgrounded.palette.colors.__len__()}] = [\n")
     for i in im_indexed_backgrounded.palette.colors:
         f.write(f"    0b0_{str(bin(i[2] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[1] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[0] >> 3)[2:]).rjust(5, "0")},\n")
     f.write("];\n")
     f.write("\n")
-    f.write(f"static chars: [[[u8; YSIZE]; XSIZE]; {imagestrings.__len__()}] = [\n")
+    f.write(f"static CHARS: [[[u8; YSIZE]; XSIZE]; {imagestrings.__len__()}] = [\n")
     for (i, k) in zip(CHARACTERS, imagestrings):
         f.write(f"    // Char: {i}\n")
         f.write(k)
     f.write("];\n")
     f.write("\n")
-    f.write(f"pub static {FONT_NAME.upper()}: Font<XSIZE, YSIZE, {imagestrings.__len__()}> = Font::new(&palette, &chars);\n")
+    f.write(f"pub static {FONT_NAME.upper()}: Font<XSIZE, YSIZE, {imagestrings.__len__()}> = Font::new(&PALETTE, &CHARS);\n")
 
 print(f"""Generated font: {FONT_NAME.lower()}.rs
     Characters: {CHARACTERS.__len__()} (\033[3m\033[7m{CHARACTERS}\033[0m)

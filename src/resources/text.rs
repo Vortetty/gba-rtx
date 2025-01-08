@@ -92,13 +92,13 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
 // const XSIZE: usize = 16;
 // const YSIZE: usize = 16;
 //
-// static palette: [u16; 2] = [
+// static PALETTE: [u16; 2] = [
 //     // Valid gba colors here, 2 of them
 // ];
 //
-// static chars: [[[u8; YSIZE]; XSIZE]; 96] = [
+// static CHARS: [[[u8; YSIZE]; XSIZE]; 96] = [
 //     // each image as a 16x16 grid. must be indexed as chars[x][y]
 // ];
 //
-// pub static FONT_NAME: Font<XSIZE, YSIZE> = Font::new(&palette, &chars);
+// pub static FONT_NAME: Font<XSIZE, YSIZE> = Font::new(&PALETTE, &CHARS);
 //

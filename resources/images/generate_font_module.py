@@ -54,18 +54,18 @@ with open(f"images.rs", 'w') as f:
     f.write(f"const XSIZE: usize = {SIZE[0]};\n")
     f.write(f"const YSIZE: usize = {SIZE[1]};\n")
     f.write("\n")
-    f.write(f"static palette: [u16; {im_indexed_backgrounded.palette.colors.__len__()}] = [\n")
+    f.write(f"static PALETTE: [u16; {im_indexed_backgrounded.palette.colors.__len__()}] = [\n")
     for i in im_indexed_backgrounded.palette.colors:
         f.write(f"    0b0_{str(bin(i[2] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[1] >> 3)[2:]).rjust(5, "0")}_{str(bin(i[0] >> 3)[2:]).rjust(5, "0")},\n")
     f.write("];\n")
     f.write("\n")
-    f.write(f"static chars: [[[u8; YSIZE]; XSIZE]; {imagestrings.__len__()}] = [\n")
+    f.write(f"static CHARS: [[[u8; YSIZE]; XSIZE]; {imagestrings.__len__()}] = [\n")
     for (i, k) in zip(filter(lambda y:y.endswith(".png") or y.endswith(".jpg"),os.listdir("input")), imagestrings):
         f.write(f"    // File: {i}\n")
         f.write(k)
     f.write("];\n")
     f.write("\n")
-    f.write(f"pub static IMAGES: Font<XSIZE, YSIZE, {imagestrings.__len__()}> = Font::new(&palette, &chars);\n")
+    f.write(f"pub static IMAGES: Font<XSIZE, YSIZE, {imagestrings.__len__()}> = Font::new(&PALETTE, &CHARS);\n")
 
 print(f"""Generated font: images.rs
     Characters: {images.__len__()} (\033[3m\033[7m{list(filter(lambda y:y.endswith(".png") or y.endswith(".jpg"),os.listdir("input")))}\033[0m)

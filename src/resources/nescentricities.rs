@@ -6,12 +6,12 @@ use super::text::Font;
 const XSIZE: usize = 16;
 const YSIZE: usize = 16;
 
-static palette: [u16; 2] = [
+static PALETTE: [u16; 2] = [
     0b0_11101_11101_11100,
     0b0_00000_00000_00000,
 ];
 
-static chars: [[[u8; YSIZE]; XSIZE]; 96] = [
+static CHARS: [[[u8; YSIZE]; XSIZE]; 96] = [
     // Char:  
     [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -1838,4 +1838,4 @@ static chars: [[[u8; YSIZE]; XSIZE]; 96] = [
     ],
 ];
 
-pub static NESCENTRICITIES: Font<XSIZE, YSIZE, 96> = Font::new(&palette, &chars);
+pub static NESCENTRICITIES: Font<XSIZE, YSIZE, 96> = Font::new(&PALETTE, &CHARS);
