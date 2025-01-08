@@ -81,9 +81,9 @@ fn main(mut gba: agb::Gba) -> ! {
     // Disable to re-enable music, we can take care of music later
     mixer.channel(&channel_id).unwrap().stop();
 
-    let focal_length = FixFlt::lit("1.0");
+    let focal_length = 1.0;
 
-    let viewport_height = FixFlt::lit("2.0");
+    let viewport_height = 2.0;
     let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
     render(&mut bitmap, viewport_height, viewport_width, focal_length);

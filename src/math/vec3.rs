@@ -2,7 +2,7 @@ use core::{iter::Once, ops::{Add, Div, Mul, Sub}};
 
 use super::types::{FixFlt, FixFltOnce};
 
-#[derive(Clone, Copy, Eq, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub struct Vec3 {
     pub x: FixFlt,
     pub y: FixFlt,
@@ -105,9 +105,9 @@ impl_ops!(Div, div, /);
 
 fn approximate_sqrt(value: FixFlt) -> FixFlt {
     // Simple Newton-Raphson approximation for fixed-point values
-    let mut guess = value >> 1; // Initial guess (divide by 2)
+    let mut guess = value * 0.5; // Initial guess (divide by 2)
     for _ in 0..3 { // Iterative refinement (adjust iterations as needed)
-        guess = (guess + value / guess) >> 1;
+        guess = (guess + value / guess)  * 0.5;
     }
     guess
 }
@@ -161,9 +161,9 @@ impl Vec3 {
 impl Color {
     #[inline(always)]
     pub fn to_gba_color(&self) -> u16 {
-        (31 * self.b).to_num::<u16>() << 10 |
-        (31 * self.g).to_num::<u16>() << 5 |
-        (31 * self.r).to_num::<u16>()
+        ((31.0 * self.b) as u16) << 10 |
+        ((31.0 * self.g) as u16) << 5 |
+        ((31.0 * self.r) as u16)
     }
     #[inline(always)]
     pub const fn new(r: FixFlt, g: FixFlt, b: FixFlt) -> Self {

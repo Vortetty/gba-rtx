@@ -2,14 +2,14 @@ use crate::{math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}}, vars::{FIXFLT_
 
 
 const SKY_TOP_COLOR: Color = Color::new(
-    FixFlt::lit(".459"),
-    FixFlt::lit(".478"),
-    FixFlt::lit(".749")
+    0.459,
+    0.478,
+    0.749
 );
 const SKY_BOTTOM_COLOR: Color = Color::new(
-    FixFlt::lit(".918"),
-    FixFlt::lit(".69"),
-    FixFlt::lit(".82")
+    0.918,
+    0.69,
+    0.82
 );
 
 pub fn ray_color(r: &mut Ray) -> Color {

@@ -1,8 +1,8 @@
 use fixed::types::{I14F18, I28F36};
 
-pub type FixFlt = I14F18; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
+pub type FixFlt = f32; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
 
-#[derive(Clone, Copy, Eq)]
+#[derive(Clone, Copy)]
 pub struct FixFltOnce {
     pub inner: FixFlt,
     initialized: bool
@@ -38,7 +38,7 @@ impl FixFltOnce {
     #[inline(always)]
     pub const fn new() -> Self {
         Self {
-            inner: FixFlt::lit("0"),
+            inner: 0.0,
             initialized: false
         }
     }
