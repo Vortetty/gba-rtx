@@ -1,5 +1,4 @@
 use agb::display::bitmap3::Bitmap3;
-use fixed::traits::ToFixed;
 use raycolor::ray_color;
 
 use crate::{math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}}, vars::{FIXFLT_VAL_HALF1, GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};

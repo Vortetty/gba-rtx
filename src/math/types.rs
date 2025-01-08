@@ -1,5 +1,3 @@
-use fixed::types::{I14F18, I28F36};
-
 pub type FixFlt = f32; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
 
 #[derive(Clone, Copy)]

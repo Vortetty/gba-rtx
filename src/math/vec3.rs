@@ -1,4 +1,5 @@
 use core::{iter::Once, ops::{Add, Div, Mul, Sub}};
+use micromath::F32Ext;
 
 use super::types::{FixFlt, FixFltOnce};
 
@@ -103,15 +104,6 @@ impl_ops!(Sub, sub, -);
 impl_ops!(Mul, mul, *);
 impl_ops!(Div, div, /);
 
-fn approximate_sqrt(value: FixFlt) -> FixFlt {
-    // Simple Newton-Raphson approximation for fixed-point values
-    let mut guess = value * 0.5; // Initial guess (divide by 2)
-    for _ in 0..3 { // Iterative refinement (adjust iterations as needed)
-        guess = (guess + value / guess)  * 0.5;
-    }
-    guess
-}
-
 impl Vec3 {
     #[inline(always)]
     pub fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
@@ -134,7 +126,7 @@ impl Vec3 {
     pub fn length(&mut self) -> FixFlt {
         self.length_squared();
         self.length.init_and_get(|| -> FixFlt {
-            approximate_sqrt(self.length_square.inner)
+            f32::sqrt(self.length_square.inner)
         })
     }
 
