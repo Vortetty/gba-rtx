@@ -11,6 +11,7 @@ edition = "2021"
 [dependencies]
 agb = "0.21.1"
 micromath = "2.1.0"
+sm64-gba-math = { path = "../sm64-gba/math" }
 
 [profile.dev]
 strip = "symbols"

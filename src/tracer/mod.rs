@@ -4,25 +4,29 @@ mod sphere;
 use agb::{display::bitmap3::Bitmap3, sound::mixer::Mixer};
 use raycolor::ray_color;
 
-use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
+use crate::{math::{/*ray::Ray,*/ types::FixFlt, /*vec3::Vec3*/}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
 
-pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer) {
+use sm64_gba_math::{F32, vek::*};
+
+#[link_section = ".iwram"]
+#[inline(never)]
+pub fn render(bitmap: &mut Bitmap3, viewport_height: F32, viewport_width: F32, focal_length: F32, mixer: &mut Mixer) {
     let viewport_height_neg = -viewport_height;
-    let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // These two should be vectors, but i am doing the math manually
-    let pixel_width_x = viewport_width / GBA_SCREEN_X;       // For speed and memory efficiency
+    let pixel_height_y = viewport_height_neg / F32::from_f32(GBA_SCREEN_Y); // These two should be vectors, but i am doing the math manually
+    let pixel_width_x = viewport_width / F32::from_f32(GBA_SCREEN_X);       // For speed and memory efficiency
     let camera_center = Vec3::new(
-        0.0,
-        0.0,
-        0.0
+        F32::zero(),
+        F32::zero(),
+        F32::zero()
     );
     let viewport_upper_left = Vec3::new( // Original code uses alot more clear code, but it would require 3x as much math
-        camera_center.x - viewport_width * 0.5, // Multiply not divide to save cpu cycles
-        camera_center.y - viewport_height_neg * 0.5,
+        camera_center.x - viewport_width / 2, // Multiply not divide to save cpu cycles
+        camera_center.y - viewport_height_neg / 2,
         camera_center.z - focal_length
     );
     let pixel00_location = Vec3::new( // Same story here, just more efficient to do it this way :)
-        viewport_upper_left.x + 0.5 * pixel_width_x,
-        viewport_upper_left.y + 0.5 * pixel_height_y,
+        viewport_upper_left.x + pixel_width_x / 2,
+        viewport_upper_left.y + pixel_height_y / 2,
         focal_length
     );
 
@@ -34,7 +38,11 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
         for x in 0..GBA_SCREEN_X_I32 {
             pixel_center.x += pixel_width_x;
             ray.direction = pixel_center - camera_center;
-            bitmap.draw_point(x, y, ray_color(&mut ray).to_gba_color());
+            let col = ray_color(&mut ray);
+            let col = ((F32::from_int(31) * col.z).int() as u16) << 10 |
+                ((F32::from_int(31) * col.y).int() as u16) << 5 |
+                ((F32::from_int(31) * col.x).int() as u16);
+            bitmap.draw_point(x, y, col);
             mixer.frame();
         }
     }
