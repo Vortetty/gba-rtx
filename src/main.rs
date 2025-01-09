@@ -34,7 +34,9 @@ use get_render_config::{RenderConfig, Scenes};
 use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
 use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
 use agb::{sound::mixer::{Frequency, SoundChannel}, timer::{self, Timer}};
-use math::types::FixFlt;
+// use math::types::FixFlt;
+
+use sm64_gba_math::{F32, vek::*};
 
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
@@ -74,10 +76,10 @@ fn main(mut gba: agb::Gba) -> ! {
     // Disable to re-enable music, we can take care of music later
     // mixer.channel(&channel_id).unwrap().stop();
 
-    let focal_length = 1.0;
+    let focal_length = F32::one();
 
-    let viewport_height = 2.0;
-    let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
+    let viewport_height = F32::from_int(2);
+    let viewport_width = viewport_height * F32::from_f32(GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
     render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer);
 
