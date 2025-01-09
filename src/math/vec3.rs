@@ -1,5 +1,5 @@
 use core::{iter::Once, ops::{Add, Div, Mul, Sub}};
-use micromath::F32Ext;
+
 
 use super::types::{FixFlt, FixFltOnce};
 
@@ -160,9 +160,9 @@ impl Vec3 {
 impl Color {
     #[inline(always)]
     pub fn to_gba_color(&self) -> u16 {
-        ((31.0 * self.b) as u16) << 10 |
-        ((31.0 * self.g) as u16) << 5 |
-        ((31.0 * self.r) as u16)
+        ((31.0 * self.b).as_f32() as u16) << 10 |
+        ((31.0 * self.g).as_f32() as u16) << 5 |
+        ((31.0 * self.r).as_f32() as u16)
     }
     #[inline(always)]
     pub const fn new(r: FixFlt, g: FixFlt, b: FixFlt) -> Self {

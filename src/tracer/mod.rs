@@ -11,18 +11,18 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
     let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // These two should be vectors, but i am doing the math manually
     let pixel_width_x = viewport_width / GBA_SCREEN_X;       // For speed and memory efficiency
     let camera_center = Vec3::new(
-        0.0,
-        0.0,
-        0.0
+        FixFlt::zero(),
+        FixFlt::zero(),
+        FixFlt::zero()
     );
     let viewport_upper_left = Vec3::new( // Original code uses alot more clear code, but it would require 3x as much math
-        camera_center.x - viewport_width * 0.5, // Multiply not divide to save cpu cycles
-        camera_center.y - viewport_height_neg * 0.5,
+        camera_center.x - viewport_width * FixFlt::half_one(), // Multiply not divide to save cpu cycles
+        camera_center.y - viewport_height_neg * FixFlt::half_one(),
         camera_center.z - focal_length
     );
     let pixel00_location = Vec3::new( // Same story here, just more efficient to do it this way :)
-        viewport_upper_left.x + 0.5 * pixel_width_x,
-        viewport_upper_left.y + 0.5 * pixel_height_y,
+        viewport_upper_left.x + FixFlt::half_one() * pixel_width_x,
+        viewport_upper_left.y + FixFlt::half_one() * pixel_height_y,
         focal_length
     );
 

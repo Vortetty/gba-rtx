@@ -1,4 +1,6 @@
-pub type FixFlt = f32; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
+use super::fixed32::Fixed32;
+
+pub type FixFlt = Fixed32<12>; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it. 
 
 #[derive(Clone, Copy)]
 pub struct FixFltOnce {
@@ -36,7 +38,7 @@ impl FixFltOnce {
     #[inline(always)]
     pub const fn new() -> Self {
         Self {
-            inner: 0.0,
+            inner: FixFlt::from_f32(0.0),
             initialized: false
         }
     }

@@ -1,33 +1,33 @@
 use agb::println;
 
-use crate::math::{ray::Ray, vec3::{Color, Vec3}};
+use crate::math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}};
 
 use super::sphere::hit_sphere;
 
 
 const SKY_TOP_COLOR: Color = Color::new(
-    0.459,
-    0.478,
-    0.749
+    FixFlt::from_f32(0.459),
+    FixFlt::from_f32(0.478),
+    FixFlt::from_f32(0.749)
 );
 const SKY_BOTTOM_COLOR: Color = Color::new(
-    0.918,
-    0.69,
-    0.82
+    FixFlt::from_f32(0.918),
+    FixFlt::from_f32(0.69),
+    FixFlt::from_f32(0.82)
 );
 
 pub fn ray_color(r: &mut Ray) -> Color {
-    let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, *r);
-    if t > 0.0 {
+    let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
+    if t > FixFlt::zero() {
         //return Color::new(1.0, 0.4, 0.55);
         let mut n = r.at(t);
-        n.z += 1.0;
+        n.z += FixFlt::one();
         n = n.unit_vec();
         let color = Color::new(
-            n.x + 1.0,
-            n.y + 1.0,
-            n.z + 1.0
-        ) * 0.5;
+            n.x + FixFlt::one(),
+            n.y + FixFlt::one(),
+            n.z + FixFlt::one()
+        ) * FixFlt::half_one();
 
         return color;
     }

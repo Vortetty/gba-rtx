@@ -72,11 +72,11 @@ fn main(mut gba: agb::Gba) -> ! {
     timer2.set_enabled(true);
 
     // Disable to re-enable music, we can take care of music later
-    // mixer.channel(&channel_id).unwrap().stop();
+    mixer.channel(&channel_id).unwrap().stop();
 
-    let focal_length = 1.0;
+    let focal_length = FixFlt::one();
 
-    let viewport_height = 2.0;
+    let viewport_height = FixFlt::from_i32(2);
     let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
     render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer);
@@ -89,6 +89,9 @@ fn main(mut gba: agb::Gba) -> ! {
     let total_time = total_cycles * time_per_1024_cycles;
 
     PIXELARA.print_str(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
+
+    PIXELARA.print_str_rel(format!("{:?}", (FixFlt::from_i32(2)>>1u32).as_f32()), &mut bitmap, 0, 1);
+    PIXELARA.print_str_rel(format!("{:?}", (FixFlt::from_i32(2)<<1u32).as_f32()), &mut bitmap, 0, 1);
 
     loop {
         mixer.frame(); // Play music forever
