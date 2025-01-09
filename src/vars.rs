@@ -6,6 +6,3 @@ pub const GBA_SCREEN_X: FixFlt = 240.0;
 pub const GBA_SCREEN_Y: FixFlt = 160.0;
 pub const GBA_SCREEN_1_OVER_X: FixFlt = 0.0041666;
 pub const GBA_SCREEN_1_OVER_Y: FixFlt = 0.00625;
-
-pub const FIXFLT_VAL_1: FixFlt = 1.0;
-pub const FIXFLT_VAL_HALF1: FixFlt = 0.5;

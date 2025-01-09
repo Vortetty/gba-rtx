@@ -13,6 +13,7 @@ pub struct Vec3 {
     length: FixFltOnce
 }
 
+#[derive(Debug)]
 pub struct Color {
     pub r: FixFlt,
     pub g: FixFlt,
@@ -124,9 +125,9 @@ impl Vec3 {
     }
     #[inline(always)]
     pub fn length(&mut self) -> FixFlt {
-        self.length_squared();
+        let lensqr = self.length_squared();
         self.length.init_and_get(|| -> FixFlt {
-            f32::sqrt(self.length_square.inner)
+            lensqr.sqrt()
         })
     }
 
@@ -147,6 +148,12 @@ impl Vec3 {
     #[inline(always)]
     pub fn unit_vec(&mut self) -> Self {
         *self / self.length()
+    }
+
+    #[inline(always)]
+    pub fn reset_cached(&mut self) {
+        self.length = FixFltOnce::new();
+        self.length_square = FixFltOnce::new();
     }
 }
 

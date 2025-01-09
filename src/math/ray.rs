@@ -19,4 +19,10 @@ impl Ray {
             direction
         }
     }
+
+    #[inline(always)]
+    pub fn reset_cached(&mut self) {
+        self.origin.reset_cached();
+        self.direction.reset_cached();
+    }
 }
