@@ -18,7 +18,9 @@ const SKY_BOTTOM_COLOR: Color = Color::new(
 
 #[link_section = ".iwram"]
 pub fn ray_color(r: &mut Ray) -> Color {
+
     let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
+
     if t.is_some() {
         //return Color::new(1.0, 0.4, 0.55);
         let mut n = r.at(t.unwrap());

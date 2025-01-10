@@ -54,3 +54,4 @@ mod predefines;
 mod neg;
 mod sqrt;
 mod reciprocal;
+mod sqrtlut;

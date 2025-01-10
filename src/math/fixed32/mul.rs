@@ -1,11 +1,14 @@
 use core::ops::Mul;
 
+use agb::println;
+
 use super::Fixed32;
 
 impl<const FRACTIONAL: usize> Mul<Self> for Fixed32<FRACTIONAL> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
+
         Self::Output {
             inner: (self.inner * rhs.inner) >> FRACTIONAL
         }

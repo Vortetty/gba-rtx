@@ -13,18 +13,14 @@ agb = "0.21.1"
 micromath = "2.1.0"
 
 [profile.dev]
-strip = "symbols"
 opt-level = 3
-panic = "abort"
+#panic = "abort"
 lto = "fat"
 incremental = true
-rustflags = ["-Z", "location-detail=none"]
 
 [profile.dev.package."*"]
-strip = "symbols"
 opt-level = 3
 incremental = true
-rustflags = ["-Z", "location-detail=none"]
 
 [profile.release]
 strip = "symbols"

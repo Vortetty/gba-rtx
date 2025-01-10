@@ -1,29 +1,3 @@
-use super::Fixed32;
-use agb::println;
-use micromath::F32Ext;
-
-impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
-    #[inline]
-    #[link_section = ".iwram"]
-    pub fn recip(&self) -> Self {
-        let mut scale = 0usize;
-        let mut x = if self.inner <= 0 {
-            panic!("GRRR NEGATIVE NUMBER");
-        } else {
-            self.inner
-        };
-
-        while x >= (Self::RECIP_LUT.len()) as i32 {
-            x = x >> 1;
-            scale += 1;
-        }
-
-        Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] << const { FRACTIONAL / 2 } >> scale
-    }
-
-    // python3:
-    // python -c "for i in range((2**12)*4): print(f'        Self::from_f32({1.0/float((i+1)/4)}),')" > RECIP_LUT.txt
-    const RECIP_LUT: [Self; (1 << 12) * 4] = [
         Self::from_f32(4.0),
         Self::from_f32(2.0),
         Self::from_f32(1.3333333333333333),
@@ -16407,6 +16381,4 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
         Self::from_f32(0.00024418533667053293),
         Self::from_f32(0.00024417043096081065),
         Self::from_f32(0.00024415552707074406),
-        Self::from_f32(0.000244140625)
-    ];
-}
+        Self::from_f32(0.000244140625),

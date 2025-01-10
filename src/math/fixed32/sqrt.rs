@@ -4,6 +4,7 @@ use micromath::F32Ext;
 
 impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
     #[inline]
+    #[link_section = ".iwram"]
     pub fn sqrt(&self) -> Self {
         let mut scale = 0usize;
         let mut x = if self.inner < 0 {
@@ -17,15 +18,13 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
             scale += 1;
         }
 
-        let val0 = Self::SQRT_LUT[x as usize] << scale;
-        let val1 = (Self::SQRT_LUT[(x+1) as usize] << scale) - val0;
-        let frac = (*self << (32-FRACTIONAL-1)) >> FRACTIONAL;
+        let val0 = Self::SQRT_LUT[(x) as usize] << scale;
 
-        (val0 + (val1*frac)) >> const { FRACTIONAL / 2 }
+        val0 >> const { FRACTIONAL / 2 }
     }
 
     // python3:
-    // python -c 'for i in range(4096): print(f"        Self::from_f32({__import__("math").sqrt(i)}),")' > SQRT_LUT.txt
+    // python -c 'for i in range(4096): print(f"        Self::from_f32({__import__("math").sqrt(i+1)}),")' > SQRT_LUT.txt
     const SQRT_LUT: [Self; 4096 + 1] = [
         Self::from_f32(0.0),
         Self::from_f32(1.0),
