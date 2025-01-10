@@ -49,4 +49,3 @@ impl<const FRACTIONAL: usize> Div<Fixed32<FRACTIONAL>> for i32 {
         }
     }
 }
-

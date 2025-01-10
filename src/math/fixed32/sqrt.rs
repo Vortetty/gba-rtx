@@ -12,17 +12,21 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
             self.inner
         };
 
-        while x >= Self::SQRT_LUT.len() as i32 {
+        while x >= (Self::SQRT_LUT.len()) as i32 {
             x = x >> 2;
             scale += 1;
         }
 
-        Self::SQRT_LUT[x as usize] << scale << const { FRACTIONAL / 2 } >> FRACTIONAL
+        let val0 = Self::SQRT_LUT[x as usize] << scale;
+        let val1 = (Self::SQRT_LUT[(x+1) as usize] << scale) - val0;
+        let frac = (*self << (32-FRACTIONAL-1)) >> FRACTIONAL;
+
+        (val0 + (val1*frac)) >> const { FRACTIONAL / 2 }
     }
 
     // python3:
     // python -c 'for i in range(4096): print(f"        Self::from_f32({__import__("math").sqrt(i)}),")' > SQRT_LUT.txt
-    const SQRT_LUT: [Self; 4096] = [
+    const SQRT_LUT: [Self; 4096 + 1] = [
         Self::from_f32(0.0),
         Self::from_f32(1.0),
         Self::from_f32(1.4142135623730951),
@@ -4119,5 +4123,6 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
         Self::from_f32(63.97655820689325),
         Self::from_f32(63.984373092185564),
         Self::from_f32(63.99218702310463),
+        Self::from_f32(64.0),
     ];
 }
