@@ -26,7 +26,7 @@ impl<const FRACTIONAL: usize> Mul<i32> for Fixed32<FRACTIONAL> {
 
     fn mul(self, rhs: i32) -> Self::Output {
         Self::Output {
-            inner: (self.inner * rhs << FRACTIONAL) >> FRACTIONAL
+            inner: self.inner * rhs
         }
     }
 }
@@ -45,7 +45,7 @@ impl<const FRACTIONAL: usize> Mul<Fixed32<FRACTIONAL>> for i32 {
 
     fn mul(self, rhs: Fixed32<FRACTIONAL>) -> Self::Output {
         Self::Output {
-            inner: ((self << FRACTIONAL) * rhs.inner) >> FRACTIONAL
+            inner: self * rhs.inner
         }
     }
 }

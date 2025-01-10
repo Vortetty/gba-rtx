@@ -29,6 +29,7 @@ mod tracer;
 extern crate alloc;
 
 use core::time::Duration;
+use micromath::F32Ext;
 
 use get_render_config::{RenderConfig, Scenes};
 use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
@@ -36,6 +37,7 @@ use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREE
 use agb::{sound::mixer::{Frequency, SoundChannel}, timer::{self, Timer}};
 use math::types::FixFlt;
 
+#[link_section = ".iwram"]
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
@@ -90,8 +92,8 @@ fn main(mut gba: agb::Gba) -> ! {
 
     PIXELARA.print_str(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
 
-    PIXELARA.print_str_rel(format!("{:?}", (FixFlt::from_i32(2)>>1u32).as_f32()), &mut bitmap, 0, 1);
-    PIXELARA.print_str_rel(format!("{:?}", (FixFlt::from_i32(2)<<1u32).as_f32()), &mut bitmap, 0, 1);
+    //PIXELARA.print_str_rel(format!("{:}", FixFlt::from_f32(3.0+2047.0/2048.0).sqrt().as_f32()), &mut bitmap, 0, 0);
+    //PIXELARA.print_str_rel(format!("{:}", (3.0+2047.0/2048.0).sqrt()), &mut bitmap, 0, 1);
 
     loop {
         mixer.frame(); // Play music forever

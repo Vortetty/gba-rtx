@@ -42,7 +42,7 @@ impl<const FRACTIONAL: usize> AddAssign<f32> for Fixed32<FRACTIONAL> {
 }
 impl<const FRACTIONAL: usize> AddAssign<i32> for Fixed32<FRACTIONAL> {
     fn add_assign(&mut self, rhs: i32) {
-        self.inner += rhs << FRACTIONAL
+        self.inner += (rhs << FRACTIONAL)
     }
 }
 

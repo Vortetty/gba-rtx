@@ -25,7 +25,22 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
 
     #[inline(always)]
     pub const fn as_f32(&self) -> f32 {
-        self.inner as f32 * 1.0 / (1 << FRACTIONAL) as f32
+        self.inner as f32 * (1.0 / (1 << FRACTIONAL) as f32)
+    }
+    #[inline(always)]
+    pub const fn to_bits(&self) -> i32 {
+        self.inner
+    }
+    #[inline(always)]
+    pub const fn fractional(&self) -> usize {
+        FRACTIONAL
+    }
+
+    #[inline(always)]
+    pub fn abs(&self) -> Self {
+        Self {
+            inner: self.inner.abs()
+        }
     }
 }
 

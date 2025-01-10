@@ -16,11 +16,12 @@ const SKY_BOTTOM_COLOR: Color = Color::new(
     FixFlt::from_f32(0.82)
 );
 
+#[link_section = ".iwram"]
 pub fn ray_color(r: &mut Ray) -> Color {
     let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
-    if t > FixFlt::zero() {
+    if t.is_some() {
         //return Color::new(1.0, 0.4, 0.55);
-        let mut n = r.at(t);
+        let mut n = r.at(t.unwrap());
         n.z += FixFlt::one();
         n = n.unit_vec();
         let color = Color::new(

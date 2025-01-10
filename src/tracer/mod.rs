@@ -6,6 +6,7 @@ use raycolor::ray_color;
 
 use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
 
+#[link_section = ".iwram"]
 pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer) {
     let viewport_height_neg = -viewport_height;
     let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // These two should be vectors, but i am doing the math manually

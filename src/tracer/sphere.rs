@@ -1,8 +1,8 @@
 use crate::math::{ray::Ray, types::FixFlt, vec3::Vec3};
 use agb::println;
 
-
-pub fn hit_sphere(center: Vec3, radius: FixFlt, r: Ray) -> FixFlt {
+#[link_section = ".iwram"]
+pub fn hit_sphere(center: Vec3, radius: FixFlt, r: Ray) -> Option<FixFlt> {
     let mut r = r.clone();
     r.reset_cached();
     let mut ray_to_sphere = center - r.origin;
@@ -12,8 +12,8 @@ pub fn hit_sphere(center: Vec3, radius: FixFlt, r: Ray) -> FixFlt {
     let discriminant = projection_length * projection_length - dir_length_squared * center_to_ray_distance_squared;
 
     if discriminant < FixFlt::zero() {
-        FixFlt::neg_one()
+        None
     } else {
-        (-projection_length - discriminant.sqrt()) / dir_length_squared
+        Some((-projection_length - discriminant.sqrt()) / dir_length_squared)
     }
 }
