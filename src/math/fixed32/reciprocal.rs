@@ -1,6 +1,5 @@
 use super::Fixed32;
 use agb::println;
-use micromath::F32Ext;
 
 impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
     #[inline]
@@ -19,6 +18,26 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
         }
 
         Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] << const { FRACTIONAL / 2 } >> scale
+    }
+
+    #[inline]
+    #[link_section = ".iwram"]
+    pub const fn const_recip(&self) -> Self {
+        let mut scale = 0usize;
+        let mut x = if self.inner <= 0 {
+            panic!("GRRR NEGATIVE NUMBER");
+        } else {
+            self.inner
+        };
+
+        while x >= (Self::RECIP_LUT.len()) as i32 {
+            x = x >> 1;
+            scale += 1;
+        }
+
+        Self{
+            inner: (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize].inner) << const { FRACTIONAL / 2 } >> scale
+        }
     }
 
     // python3:

@@ -1,4 +1,4 @@
-use core::{iter::Once, ops::{Add, Div, Mul, Sub}};
+use core::{iter::Once, ops::{Add, Div, Mul, Neg, Sub}};
 
 
 use super::types::{FixFlt, FixFltOnce};
@@ -104,6 +104,18 @@ impl_ops!(Add, add, +);
 impl_ops!(Sub, sub, -);
 impl_ops!(Mul, mul, *);
 impl_ops!(Div, div, /);
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Self::new(
+            -self.x,
+            -self.y,
+            -self.z
+        )
+    }
+}
 
 impl Vec3 {
     #[inline(always)]
