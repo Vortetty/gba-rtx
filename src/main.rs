@@ -30,7 +30,6 @@ extern crate alloc;
 
 use core::{any::Any, intrinsics, panic::UnwindSafe, time::Duration};
 use alloc::boxed::Box;
-use micromath::F32Ext;
 
 use get_render_config::{RenderConfig, Scenes};
 use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
@@ -54,10 +53,10 @@ fn main(mut gba: agb::Gba) -> ! {
 
     // Music setup
     let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
-    let mut channel = SoundChannel::new(LOFI_LOOP);
-    channel.should_loop();
-    mixer.enable();
-    let channel_id = mixer.play_sound(channel).unwrap();
+    //let mut channel = SoundChannel::new(LOFI_LOOP);
+    //channel.should_loop();
+    //mixer.enable();
+    //let channel_id = mixer.play_sound(channel).unwrap();
 
     // Get configuration for renderer
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);

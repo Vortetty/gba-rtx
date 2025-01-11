@@ -4,19 +4,20 @@ use agb::println;
 use super::HitRecord;
 
 pub struct Sphere {
-    center: Vec3,
-    radius: FixFlt
+    pub center: Vec3,
+    pub radius: FixFlt
 }
 
-#[link_section = ".iwram"]
 impl Sphere {
+    #[link_section = ".iwram"]
     pub fn hit(&self, r: &Ray, dist_min: FixFlt, dist_max: FixFlt, hitrec: &mut HitRecord) -> bool {
         let mut r = r.clone();
         r.reset_cached();
-        let mut ray_to_sphere = self.center - r.origin;
-        let dir_length_squared = r.direction.length_squared(); // Ensures intersection is accurate regardless of magnitude
-        let projection_length = r.direction.dot_prod(&ray_to_sphere);
-        let center_to_ray_distance_squared = ray_to_sphere.length_squared() - self.radius * self.radius;
+        let mut ray_to_sphere = self.center - r.origin; // oc
+        let dir_length_squared = r.direction.length_squared(); // a
+        let projection_length = r.direction.dot_prod(&ray_to_sphere); // h
+        let center_to_ray_distance_squared = ray_to_sphere.length_squared() - self.radius * self.radius; // c
+
         let discriminant = projection_length * projection_length - dir_length_squared * center_to_ray_distance_squared;
 
         if discriminant < FixFlt::zero() {
@@ -25,9 +26,9 @@ impl Sphere {
 
         let discriminant_sqrt = discriminant.sqrt();
         let mut root = (projection_length - discriminant_sqrt) / dir_length_squared;
-        if root <= dist_min || dist_max <= root {
+        if root <= dist_min || root > dist_max {
             root = (projection_length + discriminant_sqrt) / dir_length_squared;
-            if root <= dist_min || dist_max <= root {
+            if root <= dist_min || root > dist_max {
                 return false;
             }
         }

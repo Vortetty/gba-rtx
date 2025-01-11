@@ -4,7 +4,7 @@ use super::objects::{sphere::Sphere, HitRecord};
 
 use crate::math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}};
 
-struct Scene {
+pub struct Scene {
     pub spheres: Vec<Sphere>
 }
 
@@ -46,21 +46,21 @@ impl Scene {
     }
 
     #[link_section = ".iwram"]
-    pub fn ray_color(&mut self, r: &mut Ray, dist_min: FixFlt, dist_max: FixFlt) -> Color {
-        let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
+    pub fn ray_color(&mut self, r: &mut Ray) -> Color {
+        //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
 
-        if t.is_some() {
-            //return Color::new(1.0, 0.4, 0.55);
-            let mut n = r.at(t.unwrap());
-            n.z += FixFlt::one();
-            n = n.unit_vec();
-            let color = Color::new(
-                n.x + FixFlt::one(),
-                n.y + FixFlt::one(),
-                n.z + FixFlt::one()
+        let mut hitrec = HitRecord {
+            point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
+            normal: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
+            dist: FixFlt::max(),
+            front_face: false
+        };
+        if self.calc_hit(r, FixFlt::zero(), FixFlt::max(), &mut hitrec) {
+            return Color::new(
+                hitrec.normal.x + FixFlt::one(),
+                hitrec.normal.y + FixFlt::one(),
+                hitrec.normal.z + FixFlt::one()
             ) * FixFlt::half_one();
-
-            return color;
         }
 
         let unit_dir = r.direction.unit_vec();

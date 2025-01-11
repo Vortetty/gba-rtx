@@ -1,6 +1,5 @@
 use super::Fixed32;
 use agb::println;
-use micromath::F32Ext;
 
 impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
     #[inline]

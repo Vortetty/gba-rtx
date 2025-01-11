@@ -25,6 +25,8 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
     }
     #[inline]
     pub const fn max() -> Self {
-        Self::from_i32(0xffffffff)
+        Self {
+            inner: i32::MAX
+        }
     }
 }

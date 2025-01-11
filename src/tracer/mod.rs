@@ -2,7 +2,9 @@ mod scene;
 mod objects;
 
 use agb::{display::bitmap3::Bitmap3, println, sound::mixer::Mixer};
-use scene::ray_color;
+use alloc::vec::Vec;
+use objects::sphere::Sphere;
+use scene::Scene;
 
 use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
 
@@ -24,10 +26,29 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
     let pixel00_location = Vec3::new( // Same story here, just more efficient to do it this way :)
         viewport_upper_left.x + FixFlt::half_one() * pixel_width_x,
         viewport_upper_left.y + FixFlt::half_one() * pixel_height_y,
-        focal_length
+        viewport_upper_left.z + FixFlt::half_one()
     );
 
-    
+    let mut scene = Scene {
+        spheres: vec![
+            Sphere {
+                center: Vec3::new(
+                    FixFlt::zero(),
+                    FixFlt::zero(),
+                    FixFlt::neg_one()
+                ),
+                radius: FixFlt::half_one()
+            },
+            //Sphere {
+            //    center: Vec3::new(
+            //        FixFlt::zero(),
+            //        FixFlt::from_f32(-50.5),
+            //        FixFlt::neg_one()
+            //    ),
+            //    radius: FixFlt::from_i32(50)
+            //}
+        ]
+    };
 
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location-camera_center);
@@ -38,7 +59,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
 
             pixel_center.x += pixel_width_x;
             ray.direction = pixel_center - camera_center;
-            bitmap.draw_point(x, y, ray_color(&mut ray).to_gba_color());
+            bitmap.draw_point(x, y, scene.ray_color(&mut ray).to_gba_color());
             mixer.frame();
         }
     }

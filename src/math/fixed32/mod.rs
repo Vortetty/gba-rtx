@@ -1,5 +1,5 @@
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Fixed32<const FRACTIONAL: usize> {
     inner: i32
 }
@@ -55,3 +55,4 @@ mod neg;
 mod sqrt;
 mod reciprocal;
 mod anglemath;
+mod ord;
