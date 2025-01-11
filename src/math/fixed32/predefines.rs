@@ -1,4 +1,4 @@
-use core::f32::consts::PI;
+use core::{f32::consts::PI, i32};
 
 use super::Fixed32;
 
@@ -24,9 +24,15 @@ impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
         Self::from_f32(PI)
     }
     #[inline]
-    pub const fn max() -> Self {
+    pub const fn max_val() -> Self {
         Self {
             inner: i32::MAX
+        }
+    }
+    #[inline]
+    pub const fn min_val() -> Self {
+        Self {
+            inner: i32::MIN
         }
     }
 }

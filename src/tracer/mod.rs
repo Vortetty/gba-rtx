@@ -1,8 +1,8 @@
 mod scene;
 mod objects;
+mod interval;
 
-use agb::{display::bitmap3::Bitmap3, println, sound::mixer::Mixer};
-use alloc::vec::Vec;
+use agb::{display::bitmap3::Bitmap3, sound::mixer::Mixer};
 use objects::sphere::Sphere;
 use scene::Scene;
 

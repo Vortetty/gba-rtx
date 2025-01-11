@@ -1,6 +1,6 @@
 use agb::println;
 use alloc::vec::Vec;
-use super::objects::{sphere::Sphere, HitRecord};
+use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
 
 use crate::math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}};
 
@@ -21,20 +21,20 @@ const SKY_BOTTOM_COLOR: Color = Color::new(
 );
 
 impl Scene {
-    fn calc_hit(&mut self, r: &mut Ray, dist_min: FixFlt, dist_max: FixFlt, rec: &mut HitRecord) -> bool {
+    fn calc_hit(&mut self, r: &mut Ray, ray_dist: Interval, rec: &mut HitRecord) -> bool {
         let mut temp_record = HitRecord {
             point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
             normal: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
-            dist: dist_max,
+            dist: ray_dist.max,
             front_face: false
         };
         let mut has_hit = false;
-        let mut closest = dist_max;
+        let mut closest = ray_dist;
 
         for sph in self.spheres.iter() {
-            if sph.hit(r, dist_min, closest, &mut temp_record) {
+            if sph.hit(r, closest, &mut temp_record) {
                 has_hit = true;
-                closest = temp_record.dist;
+                closest.max = temp_record.dist;
                 rec.point = temp_record.point;
                 rec.normal = temp_record.normal;
                 rec.dist = temp_record.dist;
@@ -52,10 +52,10 @@ impl Scene {
         let mut hitrec = HitRecord {
             point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
             normal: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
-            dist: FixFlt::max(),
+            dist: FixFlt::max_val(),
             front_face: false
         };
-        if self.calc_hit(r, FixFlt::zero(), FixFlt::max(), &mut hitrec) {
+        if self.calc_hit(r, Interval::new(FixFlt::zero(), FixFlt::max_val()), &mut hitrec) {
             return Color::new(
                 hitrec.normal.x + FixFlt::one(),
                 hitrec.normal.y + FixFlt::one(),

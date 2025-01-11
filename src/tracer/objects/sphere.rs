@@ -1,7 +1,8 @@
-use crate::math::{ray::Ray, types::FixFlt, vec3::Vec3};
+use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, tracer};
 use agb::println;
 
 use super::HitRecord;
+use crate::tracer::interval::Interval;
 
 pub struct Sphere {
     pub center: Vec3,
@@ -10,7 +11,7 @@ pub struct Sphere {
 
 impl Sphere {
     #[link_section = ".iwram"]
-    pub fn hit(&self, r: &Ray, dist_min: FixFlt, dist_max: FixFlt, hitrec: &mut HitRecord) -> bool {
+    pub fn hit(&self, r: &Ray, ray_dist: Interval, hitrec: &mut HitRecord) -> bool {
         let mut r = r.clone();
         r.reset_cached();
         let mut ray_to_sphere = self.center - r.origin; // oc
@@ -26,9 +27,9 @@ impl Sphere {
 
         let discriminant_sqrt = discriminant.sqrt();
         let mut root = (projection_length - discriminant_sqrt) / dir_length_squared;
-        if root <= dist_min || root > dist_max {
+        if !ray_dist.surrounds(root) {
             root = (projection_length + discriminant_sqrt) / dir_length_squared;
-            if root <= dist_min || root > dist_max {
+            if !ray_dist.surrounds(root) {
                 return false;
             }
         }
