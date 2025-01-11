@@ -1,10 +1,11 @@
+use crate::math::types::FRACTIONAL;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub struct Fixed32<const FRACTIONAL: usize> {
+pub struct Fixed32 {
     inner: i32
 }
 
-impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
+impl Fixed32 {
     #[inline(always)]
     pub fn from(rhs: impl Into<f32>) -> Self {
         Self {

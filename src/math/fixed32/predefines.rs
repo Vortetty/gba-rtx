@@ -1,8 +1,9 @@
 use core::{f32::consts::PI, i32};
 
 use super::Fixed32;
+use crate::math::types::FRACTIONAL;
 
-impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
+impl Fixed32 {
     #[inline]
     pub const fn zero() -> Self {
         Self::from_i32(0)

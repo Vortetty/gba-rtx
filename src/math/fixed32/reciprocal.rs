@@ -1,7 +1,8 @@
 use super::Fixed32;
+use crate::math::types::FRACTIONAL;
 use agb::println;
 
-impl<const FRACTIONAL: usize> Fixed32<FRACTIONAL> {
+impl Fixed32 {
     #[inline]
     #[link_section = ".iwram"]
     pub fn recip(&self) -> Self {

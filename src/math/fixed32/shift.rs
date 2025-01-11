@@ -1,8 +1,9 @@
 use core::ops::{Shl, Shr};
 
 use super::Fixed32;
+use crate::math::types::FRACTIONAL;
 
-impl<const FRACTIONAL: usize> Shl<u32> for Fixed32<FRACTIONAL> {
+impl Shl<u32> for Fixed32 {
     type Output = Self;
 
     fn shl(self, rhs: u32) -> Self::Output {
@@ -11,7 +12,7 @@ impl<const FRACTIONAL: usize> Shl<u32> for Fixed32<FRACTIONAL> {
         }
     }
 }
-impl<const FRACTIONAL: usize> Shl<usize> for Fixed32<FRACTIONAL> {
+impl Shl<usize> for Fixed32 {
     type Output = Self;
 
     fn shl(self, rhs: usize) -> Self::Output {
@@ -21,7 +22,7 @@ impl<const FRACTIONAL: usize> Shl<usize> for Fixed32<FRACTIONAL> {
     }
 }
 
-impl<const FRACTIONAL: usize> Shr<u32> for Fixed32<FRACTIONAL> {
+impl Shr<u32> for Fixed32 {
     type Output = Self;
 
     fn shr(self, rhs: u32) -> Self::Output {
@@ -30,7 +31,7 @@ impl<const FRACTIONAL: usize> Shr<u32> for Fixed32<FRACTIONAL> {
         }
     }
 }
-impl<const FRACTIONAL: usize> Shr<usize> for Fixed32<FRACTIONAL> {
+impl Shr<usize> for Fixed32 {
     type Output = Self;
 
     fn shr(self, rhs: usize) -> Self::Output {

@@ -1,8 +1,9 @@
 use core::ops::Div;
 
 use super::Fixed32;
+use crate::math::types::FRACTIONAL;
 
-impl<const FRACTIONAL: usize> Div<Self> for Fixed32<FRACTIONAL> {
+impl Div<Self> for Fixed32 {
     type Output = Self;
 
     fn div(self, rhs: Self) -> Self::Output {
@@ -13,7 +14,7 @@ impl<const FRACTIONAL: usize> Div<Self> for Fixed32<FRACTIONAL> {
     }
 }
 
-impl<const FRACTIONAL: usize> Div<f32> for Fixed32<FRACTIONAL> {
+impl Div<f32> for Fixed32 {
     type Output = Self;
 
     fn div(self, rhs: f32) -> Self::Output {
@@ -23,7 +24,7 @@ impl<const FRACTIONAL: usize> Div<f32> for Fixed32<FRACTIONAL> {
         self * Self::Output::from(rhs).recip()
     }
 }
-impl<const FRACTIONAL: usize> Div<i32> for Fixed32<FRACTIONAL> {
+impl Div<i32> for Fixed32 {
     type Output = Self;
 
     fn div(self, rhs: i32) -> Self::Output {
@@ -34,20 +35,20 @@ impl<const FRACTIONAL: usize> Div<i32> for Fixed32<FRACTIONAL> {
     }
 }
 
-impl<const FRACTIONAL: usize> Div<Fixed32<FRACTIONAL>> for f32 {
-    type Output = Fixed32<FRACTIONAL>;
+impl Div<Fixed32> for f32 {
+    type Output = Fixed32;
 
-    fn div(self, rhs: Fixed32<FRACTIONAL>) -> Self::Output {
+    fn div(self, rhs: Fixed32) -> Self::Output {
         //Self::Output {
         //    inner: (Self::Output::from(self).inner << FRACTIONAL).div_euclid(rhs.inner)
         //}
         Self::Output::from(self) * rhs.recip()
     }
 }
-impl<const FRACTIONAL: usize> Div<Fixed32<FRACTIONAL>> for i32 {
-    type Output = Fixed32<FRACTIONAL>;
+impl Div<Fixed32> for i32 {
+    type Output = Fixed32;
 
-    fn div(self, rhs: Fixed32<FRACTIONAL>) -> Self::Output {
+    fn div(self, rhs: Fixed32) -> Self::Output {
         //Self::Output {
         //    inner: (self << FRACTIONAL << FRACTIONAL).div_euclid(rhs.inner)
         //}
