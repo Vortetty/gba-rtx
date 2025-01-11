@@ -39,14 +39,14 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                 ),
                 radius: FixFlt::half_one()
             },
-            //Sphere {
-            //    center: Vec3::new(
-            //        FixFlt::zero(),
-            //        FixFlt::from_f32(-50.5),
-            //        FixFlt::neg_one()
-            //    ),
-            //    radius: FixFlt::from_i32(50)
-            //}
+            Sphere {
+                center: Vec3::new(
+                    FixFlt::zero(),
+                    FixFlt::from_f32(-50.5),
+                    FixFlt::neg_one()
+                ),
+                radius: FixFlt::from_i32(50)
+            }
         ]
     };
 
@@ -59,7 +59,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
 
             pixel_center.x += pixel_width_x;
             ray.direction = pixel_center - camera_center;
-            bitmap.draw_point(x, y, scene.ray_color(&mut ray).to_gba_color());
+            bitmap.draw_point(x as i32, y as i32, scene.ray_color(&mut ray).to_gba_color());
             mixer.frame();
         }
     }

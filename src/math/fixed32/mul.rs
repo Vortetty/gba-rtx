@@ -8,9 +8,8 @@ impl<const FRACTIONAL: usize> Mul<Self> for Fixed32<FRACTIONAL> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
-
         Self::Output {
-            inner: (self.inner * rhs.inner) >> FRACTIONAL
+            inner: (((self.inner as i64) * (rhs.inner as i64)) >> FRACTIONAL) as i32
         }
     }
 }
@@ -20,7 +19,7 @@ impl<const FRACTIONAL: usize> Mul<f32> for Fixed32<FRACTIONAL> {
 
     fn mul(self, rhs: f32) -> Self::Output {
         Self::Output {
-            inner: (self.inner * Self::Output::from(rhs).inner) >> FRACTIONAL
+            inner: ((self.inner as i64) * (Self::Output::from(rhs).inner as i64) >> FRACTIONAL) as i32
         }
     }
 }
@@ -39,7 +38,7 @@ impl<const FRACTIONAL: usize> Mul<Fixed32<FRACTIONAL>> for f32 {
 
     fn mul(self, rhs: Fixed32<FRACTIONAL>) -> Self::Output {
         Self::Output {
-            inner: (Self::Output::from(self).inner * rhs.inner) >> FRACTIONAL
+            inner: ((Self::Output::from(self).inner as i64) * (rhs.inner as i64) >> FRACTIONAL) as i32
         }
     }
 }

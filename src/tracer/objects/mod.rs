@@ -11,7 +11,7 @@ pub struct HitRecord {
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
-        self.front_face = r.direction.dot_prod(outward_normal) > FixFlt::zero();
+        self.front_face = r.direction.dot_prod(outward_normal) < FixFlt::zero();
         self.normal = if self.front_face {
             *outward_normal
         } else {
