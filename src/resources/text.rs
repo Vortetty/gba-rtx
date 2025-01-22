@@ -19,7 +19,7 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
 
     #[inline(always)]
     pub fn print_nth(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize) {
-        let chr_ref = &self.chars[chr as usize];
+        let chr_ref = &(self.chars[chr as usize]);
 
         for (x, x_array) in chr_ref.iter().rev().enumerate() {
             let dx = x + pos_x; // offset the x position
@@ -53,7 +53,7 @@ impl<const XSIZE: usize, const YSIZE: usize, const CHARCNT: usize> Font<XSIZE, Y
 
     #[inline(always)]
     pub fn print_nth_music(self: &Self, chr: u8, bitmap: &mut Bitmap3, pos_x: usize, pos_y: usize, mixer: &mut Mixer) {
-        let chr_ref = &self.chars[chr as usize];
+        let chr_ref = &(self.chars[chr as usize]);
 
         for (x, x_array) in chr_ref.iter().rev().enumerate() {
             let dx = x + pos_x; // offset the x position

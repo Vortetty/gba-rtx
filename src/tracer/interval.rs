@@ -1,4 +1,4 @@
-use crate::math::types::FixFlt;
+use crate::math::types::{FixFlt, FixFltOnce};
 
 #[derive(Clone, Copy)]
 pub struct Interval {
@@ -33,5 +33,10 @@ impl Interval {
     }
     pub fn surrounds(self, rhs: FixFlt) -> bool {
         self.min < rhs && rhs < self.max
+    }
+    pub fn clamp(self, rhs: FixFlt) -> FixFlt {
+        if self.max < rhs { self.max }
+        else if self.min > rhs { self.min }
+        else { rhs }
     }
 }

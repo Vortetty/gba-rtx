@@ -2,7 +2,7 @@ use crate::math::types::FRACTIONAL;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Fixed32 {
-    inner: i32
+    pub inner: i32
 }
 
 impl Fixed32 {
@@ -57,3 +57,4 @@ mod sqrt;
 mod reciprocal;
 mod anglemath;
 mod ord;
+mod rand;

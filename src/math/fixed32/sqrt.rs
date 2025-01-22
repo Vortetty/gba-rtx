@@ -18,9 +18,7 @@ impl Fixed32 {
             scale += 1;
         }
 
-        let val0 = SQRT_LUT[(x) as usize] << scale;
-
-        val0 >> const { FRACTIONAL / 2 }
+        SQRT_LUT[(x) as usize] << scale >> const { FRACTIONAL / 2 }
     }
 
     // python3:

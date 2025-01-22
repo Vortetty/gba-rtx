@@ -1,7 +1,7 @@
 use core::{iter::Once, ops::{Add, Div, Mul, Neg, Sub}};
 
 
-use super::types::{FixFlt, FixFltOnce};
+use super::types::{FixFlt, FixFltOnce, FRACTIONAL};
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -172,9 +172,9 @@ impl Vec3 {
 impl Color {
     #[inline(always)]
     pub fn to_gba_color(&self) -> u16 {
-        ((self.b.to_bits() >> (self.b.fractional()-5)) as u16) << 10 |
-        ((self.g.to_bits() >> (self.g.fractional()-5)) as u16) << 5 |
-        ((self.r.to_bits() >> (self.r.fractional()-5)) as u16)
+        ((self.b.to_bits() >> const {FRACTIONAL-5}) as u16) << 10 |
+        ((self.g.to_bits() >> const {FRACTIONAL-5}) as u16) << 5 |
+        ((self.r.to_bits() >> const {FRACTIONAL-5}) as u16)
     }
     #[inline(always)]
     pub const fn new(r: FixFlt, g: FixFlt, b: FixFlt) -> Self {

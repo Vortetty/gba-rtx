@@ -2,7 +2,7 @@ use agb::println;
 use alloc::vec::Vec;
 use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
 
-use crate::math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}};
+use crate::math::{ray::Ray, types::{FixFlt, FRACTIONAL}, vec3::{Color, Vec3}};
 
 pub struct Scene {
     pub spheres: Vec<Sphere>
