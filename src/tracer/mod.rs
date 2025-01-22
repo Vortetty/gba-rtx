@@ -7,8 +7,32 @@ use alloc::vec::Vec;
 use objects::sphere::Sphere;
 use scene::Scene;
 use const_random::const_random;
+use micromath::F32Ext;
 
-use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::FixFlt, vec3::{Color, Vec3}}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
+use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FRACTIONAL}, vec3::{Color, Vec3}}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
+
+fn closest_factors(n: i32) -> (i32, i32) {
+    let sqrt = (n as f32).sqrt().floor() as i32; // Compute the integer square root
+    if sqrt * sqrt == n {
+        return (sqrt, sqrt); // Return the square root if it's a perfect square
+    }
+
+    let mut closest = (1, n); // Initialize with the trivial factors
+    let mut min_diff = n;    // Start with the maximum possible difference
+
+    for i in 1..=sqrt {
+        if n % i == 0 {
+            let pair = (i, n / i); // i is a factor, and n / i is its pair
+            let diff = (pair.1 as i32 - pair.0 as i32).abs(); // Calculate the difference
+            if diff < min_diff as i32 {
+                closest = pair; // Update the closest factors
+                min_diff = diff as i32;
+            }
+        }
+    }
+
+    closest
+}
 
 #[link_section = ".iwram"]
 pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer, settings: RenderConfig) {
@@ -53,14 +77,17 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
     };
 
     let mut precalc_offsets: Vec<Vec3> = vec![];
-
-    let mut rand = FixFlt { inner: const_random!(i32) };
-    for i in 0..settings.iters_per_pixel {
-        precalc_offsets.push(Vec3::new(
-            rand.next_rand_frac() * FixFlt::half_one() * pixel_width_x,
-            rand.next_rand_frac() * FixFlt::half_one() * pixel_height_y,
-            FixFlt::zero()
-        ));
+    let dims = closest_factors(settings.iters_per_pixel as i32);
+    let xadd = pixel_width_x/dims.0;
+    let yadd = pixel_height_y/dims.1;
+    for x in 0..dims.0 {
+        for y in 0..dims.1 {
+            precalc_offsets.push(Vec3::new(
+                xadd*x,
+                yadd*y,
+                FixFlt::zero()
+            ));
+        }
     }
 
     let mut pixel_center = pixel00_location;

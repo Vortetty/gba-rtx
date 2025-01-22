@@ -205,13 +205,13 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
             },
             MenuSelection::IterationsSelect => {
                 mixer.frame();
-                for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance.").iter().enumerate() { // Print each line of the help message, updating the music between each print
+                for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance. Generally not too noticeable over 32 iterations due to the shallow color depth, and more than passable at 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
                     PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
                 }
             },
             MenuSelection::DepthSelect => {
                 mixer.frame();
-                for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns.").iter().enumerate() { // Print each line of the help message, updating the music between each print
+                for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns. Not useful for most scenes beyond 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
                     PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
                 }
             },
