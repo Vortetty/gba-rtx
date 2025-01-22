@@ -62,7 +62,7 @@ fn main(mut gba: agb::Gba) -> ! {
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
     let conf = RenderConfig {
         scene: Scenes::SPHERES,
-        iters_per_pixel: 4,
+        iters_per_pixel: 3,
         max_depth: 8
     };
     bitmap.clear(0);
@@ -84,7 +84,7 @@ fn main(mut gba: agb::Gba) -> ! {
 
     let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
-    render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer);
+    render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer, conf);
 
     timer2.set_enabled(false);
     timer3.set_enabled(false);

@@ -119,7 +119,7 @@ impl Neg for Vec3 {
 
 impl Vec3 {
     #[inline(always)]
-    pub fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
+    pub const fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
         Self {
             x,
             y,

@@ -26,7 +26,6 @@ impl Fixed32 {
 }
 
 #[link_section = ".iwram"]
-#[no_mangle]
 static SQRT_LUT: [Fixed32; 4096 + 1] = [
     Fixed32::from_f32(0.0),
     Fixed32::from_f32(1.0),

@@ -25,15 +25,19 @@ impl Interval {
             max
         }
     }
+    #[link_section = ".iwram"]
     pub fn size(self) -> FixFlt {
         self.max-self.min
     }
+    #[link_section = ".iwram"]
     pub fn contains(self, rhs: FixFlt) -> bool {
         self.min <= rhs && rhs <= self.max
     }
+    #[link_section = ".iwram"]
     pub fn surrounds(self, rhs: FixFlt) -> bool {
         self.min < rhs && rhs < self.max
     }
+    #[link_section = ".iwram"]
     pub fn clamp(self, rhs: FixFlt) -> FixFlt {
         if self.max < rhs { self.max }
         else if self.min > rhs { self.min }

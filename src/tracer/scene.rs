@@ -9,18 +9,19 @@ pub struct Scene {
 }
 
 
-const SKY_TOP_COLOR: Color = Color::new(
+const SKY_TOP_COLOR: Vec3 = Vec3::new(
     FixFlt::from_f32(0.459),
     FixFlt::from_f32(0.478),
     FixFlt::from_f32(0.749)
 );
-const SKY_BOTTOM_COLOR: Color = Color::new(
+const SKY_BOTTOM_COLOR: Vec3 = Vec3::new(
     FixFlt::from_f32(0.918),
     FixFlt::from_f32(0.69),
     FixFlt::from_f32(0.82)
 );
 
 impl Scene {
+    #[link_section = ".iwram"]
     fn calc_hit(&mut self, r: &mut Ray, ray_dist: Interval, rec: &mut HitRecord) -> bool {
         let mut temp_record = HitRecord {
             point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
@@ -46,7 +47,7 @@ impl Scene {
     }
 
     #[link_section = ".iwram"]
-    pub fn ray_color(&mut self, r: &mut Ray) -> Color {
+    pub fn ray_color(&mut self, r: &mut Ray) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
 
         let mut hitrec = HitRecord {
@@ -56,7 +57,7 @@ impl Scene {
             front_face: false
         };
         if self.calc_hit(r, Interval::new(FixFlt::zero(), FixFlt::max_val()), &mut hitrec) {
-            return Color::new(
+            return Vec3::new(
                 hitrec.normal.x + FixFlt::one(),
                 hitrec.normal.y + FixFlt::one(),
                 hitrec.normal.z + FixFlt::one()
