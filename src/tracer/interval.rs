@@ -1,4 +1,4 @@
-use crate::math::types::{FixFlt, FixFltOnce};
+use crate::math::types::FixFlt;
 
 #[derive(Clone, Copy)]
 pub struct Interval {
@@ -25,18 +25,22 @@ impl Interval {
             max
         }
     }
+    #[inline(always)]
     #[link_section = ".iwram"]
     pub fn size(self) -> FixFlt {
         self.max-self.min
     }
+    #[inline(always)]
     #[link_section = ".iwram"]
     pub fn contains(self, rhs: FixFlt) -> bool {
         self.min <= rhs && rhs <= self.max
     }
+    #[inline(always)]
     #[link_section = ".iwram"]
     pub fn surrounds(self, rhs: FixFlt) -> bool {
         self.min < rhs && rhs < self.max
     }
+    #[inline(always)]
     #[link_section = ".iwram"]
     pub fn clamp(self, rhs: FixFlt) -> FixFlt {
         if self.max < rhs { self.max }

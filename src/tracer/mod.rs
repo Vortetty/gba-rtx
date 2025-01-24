@@ -6,13 +6,11 @@ use agb::{display::bitmap3::Bitmap3, sound::mixer::Mixer};
 use alloc::vec::Vec;
 use objects::sphere::Sphere;
 use scene::Scene;
-use const_random::const_random;
-use micromath::F32Ext;
 
 use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FRACTIONAL}, vec3::{Color, Vec3}}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
 
 fn closest_factors(n: i32) -> (i32, i32) {
-    let sqrt = (n as f32).sqrt().floor() as i32; // Compute the integer square root
+    let sqrt = FixFlt::from_i32(n).sqrt().inner >> FRACTIONAL; // Compute the integer square root
     if sqrt * sqrt == n {
         return (sqrt, sqrt); // Return the square root if it's a perfect square
     }

@@ -1,20 +1,11 @@
-// Games made using `agb` are no_std which means you don't have access to the standard
-// rust library. This is because the game boy advance doesn't really have an operating
-// system, so most of the content of the standard library doesn't apply.
-//
-// Provided you haven't disabled it, agb does provide an allocator, so it is possible
-// to use both the `core` and the `alloc` built in crates.
 #![no_std]
-// `agb` defines its own `main` function, so you must declare your game's main function
-// using the #[agb::entry] proc macro. Failing to do so will cause failure in linking
-// which won't be a particularly clear error message.
 #![no_main]
-// This is required to allow writing tests
 #![cfg_attr(test, feature(custom_test_frameworks))]
 #![cfg_attr(test, reexport_test_harness_main = "test_main")]
 #![cfg_attr(test, test_runner(agb::test_runner::test_runner))]
 #![allow(incomplete_features)]
 #![allow(internal_features)]
+#![allow(unused)] // Lol we should disable this some day
 #![feature(generic_const_exprs)]
 #![feature(core_intrinsics)]
 #![feature(variant_count)]
@@ -28,17 +19,16 @@ mod tracer;
 #[macro_use]
 extern crate alloc;
 
-use core::{any::Any, intrinsics, panic::UnwindSafe, time::Duration};
-use alloc::boxed::Box;
+use core::time::Duration;
 
 use get_render_config::{RenderConfig, Scenes};
-use resources::{music::LOFI_LOOP, pixelara::PIXELARA};
-use vars::{GBA_SCREEN_1_OVER_X, GBA_SCREEN_1_OVER_Y, GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
-use agb::{println, sound::mixer::{Frequency, SoundChannel}, timer::{self, Timer}};
+use resources::pixelara::PIXELARA;
+use vars::GBA_SCREEN_1_OVER_Y;
+use agb::{sound::mixer::Frequency, timer::Timer};
 use math::types::FixFlt;
 
-#[link_section = ".iwram"]
 #[agb::entry]
+#[link_section = ".iwram"]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
 
@@ -62,7 +52,7 @@ fn main(mut gba: agb::Gba) -> ! {
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
     let conf = RenderConfig {
         scene: Scenes::SPHERES,
-        iters_per_pixel: 255,
+        iters_per_pixel: 4,
         max_depth: 8
     };
     bitmap.clear(0);

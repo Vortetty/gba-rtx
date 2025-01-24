@@ -1,7 +1,6 @@
 use core::{f32::consts::PI, i32};
 
 use super::Fixed32;
-use crate::math::types::FRACTIONAL;
 
 impl Fixed32 {
     #[inline]

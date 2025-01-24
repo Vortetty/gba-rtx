@@ -1,10 +1,8 @@
 use super::Fixed32;
 use crate::math::types::FRACTIONAL;
-use agb::println;
 
 impl Fixed32 {
-    #[inline]
-    #[link_section = ".iwram"]
+    #[inline(always)]
     pub fn recip(&self) -> Self {
         let mut scale = 0usize;
         let mut x = if self.inner <= 0 {
@@ -18,14 +16,12 @@ impl Fixed32 {
             scale += 1;
         }
 
-        
         Self{
             inner: (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale
         }
     }
 
-    #[inline]
-    #[link_section = ".iwram"]
+    #[inline(always)]
     pub const fn const_recip(&self) -> Self {
         let mut scale = 0usize;
         let mut x = if self.inner <= 0 {

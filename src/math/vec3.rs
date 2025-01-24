@@ -1,4 +1,4 @@
-use core::{iter::Once, ops::{Add, Div, Mul, Neg, Sub}};
+use core::ops::{Add, Div, Mul, Neg, Sub};
 
 
 use super::types::{FixFlt, FixFltOnce, FRACTIONAL};
@@ -166,6 +166,15 @@ impl Vec3 {
     pub fn reset_cached(&mut self) {
         self.length = FixFltOnce::new();
         self.length_square = FixFltOnce::new();
+    }
+
+    #[inline(always)]
+    pub fn random(rng: &mut FixFlt) -> Vec3 {
+        Self::new(
+            rng.next_rand_frac(),
+            rng.next_rand_frac(),
+            rng.next_rand_frac()
+        )
     }
 }
 

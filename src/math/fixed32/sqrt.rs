@@ -1,10 +1,8 @@
 use super::Fixed32;
 use crate::math::types::FRACTIONAL;
-use agb::println;
 
 impl Fixed32 {
-    #[inline]
-    #[link_section = ".iwram"]
+    #[inline(always)]
     pub fn sqrt(&self) -> Self {
         let mut scale = 0usize;
         let mut x = if self.inner < 0 {
