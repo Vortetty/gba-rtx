@@ -46,7 +46,7 @@ impl Scene {
     }
 
     #[link_section = ".iwram"]
-    pub fn ray_color(&mut self, r: &mut Ray) -> Vec3 {
+    pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
 
         let mut hitrec = HitRecord {
@@ -56,11 +56,13 @@ impl Scene {
             front_face: false
         };
         if self.calc_hit(r, Interval::new(FixFlt::zero(), FixFlt::max_val()), &mut hitrec) {
-            return Vec3::new(
-                hitrec.normal.x + FixFlt::one(),
-                hitrec.normal.y + FixFlt::one(),
-                hitrec.normal.z + FixFlt::one()
-            ) * FixFlt::half_one();
+            //return Vec3::new(
+            //    hitrec.normal.x + FixFlt::one(),
+            //    hitrec.normal.y + FixFlt::one(),
+            //    hitrec.normal.z + FixFlt::one()
+            //) * FixFlt::half_one();
+            let direction = Vec3::random_hemisphere(rng, &hitrec.normal);
+            return self.ray_color(&mut Ray::new(hitrec.point, direction), rng) * FixFlt::half_one();
         }
 
         let unit_dir = r.direction.unit_vec();

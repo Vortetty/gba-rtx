@@ -161,6 +161,20 @@ impl Vec3 {
     pub fn unit_vec(&mut self) -> Self {
         *self / self.length()
     }
+    #[inline(always)]
+    pub fn random_unit_vec(rng: &mut FixFlt) -> Self {
+        loop {
+            let mut a = Self::new(
+                rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0)),
+                rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0)),
+                rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0))
+            );
+            let b = a.length_squared();
+            if const {FixFlt {inner: 0x2}} < b && b <= FixFlt::one() {
+                return a / a.length();
+            }
+        }
+    }
 
     #[inline(always)]
     pub fn reset_cached(&mut self) {
@@ -175,6 +189,23 @@ impl Vec3 {
             rng.next_rand_frac(),
             rng.next_rand_frac()
         )
+    }
+    #[inline(always)]
+    pub fn random_minmax(rng: &mut FixFlt, min: FixFlt, max: FixFlt) -> Vec3 {
+        Self::new(
+            rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0)),
+            rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0)),
+            rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0))
+        )
+    }
+    #[inline(always)]
+    pub fn random_hemisphere(rng: &mut FixFlt, normal: &Vec3) -> Vec3 {
+        let on_unit_sphere = Self::random_unit_vec(rng);
+        if on_unit_sphere.dot_prod(normal) > FixFlt::zero() {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
     }
 }
 

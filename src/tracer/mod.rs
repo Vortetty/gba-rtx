@@ -4,6 +4,7 @@ mod interval;
 
 use agb::{display::bitmap3::Bitmap3, sound::mixer::Mixer};
 use alloc::vec::Vec;
+use const_random::const_random;
 use objects::sphere::Sphere;
 use scene::Scene;
 
@@ -88,6 +89,8 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
         }
     }
 
+    let mut rng = FixFlt { inner: const_random!(i32) };
+
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location-camera_center);
     for y in 0..GBA_SCREEN_Y_I32 {
@@ -100,7 +103,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
             for i in precalc_offsets.iter() {
                 let mut tmpray = ray;
                 tmpray.direction = tmpray.direction + *i;
-                out_color = out_color + scene.ray_color(&mut tmpray);
+                out_color = out_color + scene.ray_color(&mut tmpray, &mut rng);
                 mixer.frame();
             }
             bitmap.draw_point(x as i32, y as i32, (Color::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());
