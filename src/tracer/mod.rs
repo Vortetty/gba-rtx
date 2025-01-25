@@ -103,7 +103,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
             for i in precalc_offsets.iter() {
                 let mut tmpray = ray;
                 tmpray.direction = tmpray.direction + *i;
-                out_color = out_color + scene.ray_color(&mut tmpray, &mut rng);
+                out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings);
                 mixer.frame();
             }
             bitmap.draw_point(x as i32, y as i32, (Color::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());

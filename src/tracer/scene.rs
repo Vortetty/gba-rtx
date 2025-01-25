@@ -2,7 +2,7 @@ use agb::println;
 use alloc::vec::Vec;
 use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
 
-use crate::math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::{Color, Vec3}};
+use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::{Color, Vec3}}};
 
 pub struct Scene {
     pub spheres: Vec<Sphere>
@@ -47,7 +47,7 @@ impl Scene {
     }
 
     #[link_section = ".iwram"]
-    pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt) -> Vec3 {
+    pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
         let mut color_stack: Vec<Vec3> = vec![];
         let mut ctr = 0;
@@ -56,7 +56,7 @@ impl Scene {
 
         loop {
             ctr += 1;
-            if ctr > 8 {
+            if ctr > conf.max_depth {
                 return Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
                 break;
             }
@@ -68,13 +68,7 @@ impl Scene {
                 front_face: false
             };
             if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.005), FixFlt::max_val()), &mut hitrec) {
-                //return Vec3::new(
-                //    hitrec.normal.x + FixFlt::one(),
-                //    hitrec.normal.y + FixFlt::one(),
-                //    hitrec.normal.z + FixFlt::one()
-                //) * FixFlt::half_one();
                 let direction = hitrec.normal + Vec3::random_unit_vec(rng);
-                //colorStack.push(self.ray_color(&mut Ray::new(hitrec.point, direction), rng) * FixFlt::half_one());
                 current_ray = Ray::new(hitrec.point, direction);
                 continue;
             }
@@ -88,8 +82,12 @@ impl Scene {
 
         let mut out_color = color_stack[0];
         for _ in 0..(ctr-1) {
-            out_color = out_color * FixFlt::from_f32(0.7);
+            out_color = out_color * FixFlt::from_f32(0.5);
         }
-        out_color
+        Vec3::new(
+            out_color.x.sqrt(),
+            out_color.y.sqrt(),
+            out_color.z.sqrt()
+        )
     }
 }

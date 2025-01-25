@@ -52,7 +52,7 @@ fn main(mut gba: agb::Gba) -> ! {
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
     let conf = RenderConfig {
         scene: Scenes::SPHERES,
-        iters_per_pixel: 16,
+        iters_per_pixel: 8,
         max_depth: 8
     };
     bitmap.clear(0);
