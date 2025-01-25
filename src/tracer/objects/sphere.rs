@@ -1,3 +1,5 @@
+use agb::println;
+
 use crate::math::{ray::Ray, types::FixFlt, vec3::Vec3};
 
 use super::HitRecord;
@@ -18,7 +20,8 @@ impl Sphere {
         let projection_length = r.direction.dot_prod(&ray_to_sphere); // h
         let center_to_ray_distance_squared = ray_to_sphere.length_squared() - self.radius * self.radius; // c
 
-        let discriminant = projection_length * projection_length - dir_length_squared * center_to_ray_distance_squared;
+        let tmp = dir_length_squared * center_to_ray_distance_squared;
+        let discriminant = projection_length * projection_length - if tmp > FixFlt::zero() { tmp } else { return false; };
 
         if discriminant < FixFlt::zero() {
             return false;

@@ -31,15 +31,10 @@ impl Fixed32 {
                 .wrapping_mul(0x01010101)
                 .wrapping_add(0x31415927),
         );
-        Fixed32 {
-            inner: (Self {
-                inner: (self.inner >> const { 32 - FRACTIONAL })
-                    .wrapping_add((self.inner & 0b10) >> 1),
-            } * Fixed32 {
+        (Self {
+                inner: (self.inner >> const { 32 - FRACTIONAL }).wrapping_add((self.inner & 0b10) >> 1)
+            } * Self {
                 inner: max.inner.wrapping_sub(min.inner),
             })
-            .inner
-            .wrapping_add(min.inner),
-        }
     }
 }

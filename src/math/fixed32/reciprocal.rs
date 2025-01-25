@@ -5,8 +5,10 @@ impl Fixed32 {
     #[inline(always)]
     pub fn recip(&self) -> Self {
         let mut scale = 0usize;
+        let mut neg = false;
         let mut x = if self.inner <= 0 {
-            panic!("GRRR NEGATIVE NUMBER");
+            neg = true;
+            -self.inner
         } else {
             self.inner
         };
@@ -17,7 +19,11 @@ impl Fixed32 {
         }
 
         Self{
-            inner: (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale
+            inner: if neg {
+                -((Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale)
+            } else {
+                (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale
+            }
         }
     }
 

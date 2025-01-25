@@ -170,7 +170,7 @@ impl Vec3 {
                 rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0))
             );
             let b = a.length_squared();
-            if const {FixFlt {inner: 0x2}} < b && b <= FixFlt::one() {
+            if const {FixFlt {inner: 0x8}} < b && b <= FixFlt::one() {
                 return a / a.length();
             }
         }
