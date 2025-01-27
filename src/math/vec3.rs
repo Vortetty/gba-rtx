@@ -13,32 +13,6 @@ pub struct Vec3 {
     length: FixFltOnce
 }
 
-#[derive(Debug)]
-pub struct Color {
-    pub r: FixFlt,
-    pub g: FixFlt,
-    pub b: FixFlt,
-}
-
-impl From<Vec3> for Color {
-    fn from(vec: Vec3) -> Self {
-        Self {
-            r: vec.x,
-            g: vec.y,
-            b: vec.z,
-        }
-    }
-}
-
-impl From<Color> for Vec3 {
-    fn from(color: Color) -> Self {
-        Self::new(
-            color.r,
-            color.g,
-            color.b
-        )
-    }
-}
 macro_rules! impl_ops {
     ($trait:ident, $method:ident, $op:tt) => {
         // Element-wise operations for Vec3 and Vec3
@@ -66,34 +40,6 @@ macro_rules! impl_ops {
                     self.y $op rhs,
                     self.z $op rhs
                 )
-            }
-        }
-
-        // Element-wise operations for Color and Color
-        impl $trait<Self> for Color {
-            type Output = Self;
-
-            #[inline(always)]
-            fn $method(self, rhs: Self) -> Self {
-                Self {
-                    r: self.r $op rhs.r,
-                    g: self.g $op rhs.g,
-                    b: self.b $op rhs.b,
-                }
-            }
-        }
-
-        // Scalar operations for Color and FixFlt
-        impl $trait<FixFlt> for Color {
-            type Output = Self;
-
-            #[inline(always)]
-            fn $method(self, rhs: FixFlt) -> Self {
-                Self {
-                    r: self.r $op rhs,
-                    g: self.g $op rhs,
-                    b: self.b $op rhs,
-                }
             }
         }
     };
@@ -207,21 +153,30 @@ impl Vec3 {
             -on_unit_sphere
         }
     }
-}
 
-impl Color {
+
+    //
+    // COLOR FUNCS
+    //
     #[inline(always)]
     pub fn to_gba_color(&self) -> u16 {
-        ((self.b.to_bits() >> const {FRACTIONAL-5}) as u16) << 10 |
-        ((self.g.to_bits() >> const {FRACTIONAL-5}) as u16) << 5 |
-        ((self.r.to_bits() >> const {FRACTIONAL-5}) as u16)
+        ((self.z.to_bits() >> const {FRACTIONAL-5}) as u16) << 10 |
+        ((self.y.to_bits() >> const {FRACTIONAL-5}) as u16) << 5 |
+        ((self.x.to_bits() >> const {FRACTIONAL-5}) as u16)
     }
     #[inline(always)]
-    pub const fn new(r: FixFlt, g: FixFlt, b: FixFlt) -> Self {
-        Self {
-            r,
-            g,
-            b
-        }
+    pub fn from_gba_color(rhs: u16) -> Self {
+        Self::new(
+            FixFlt{ inner: ((rhs & 0b11111) as i32) << const {FRACTIONAL-5}},
+            FixFlt{ inner: (((rhs >> 5) & 0b11111) as i32) << const {FRACTIONAL-5}},
+            FixFlt{ inner: (((rhs >> 10) & 0b11111) as i32) << const {FRACTIONAL-5}}
+        )
+    }
+    #[inline(always)]
+    pub fn luma(&self) -> FixFlt {
+        // Based on the rec 709 standard
+        FixFlt::from_f32(0.2126) * self.x +
+        FixFlt::from_f32(0.7152) * self.y +
+        FixFlt::from_f32(0.0722) * self.z
     }
 }

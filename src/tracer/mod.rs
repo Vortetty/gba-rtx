@@ -2,13 +2,13 @@ mod scene;
 mod objects;
 mod interval;
 
-use agb::{display::bitmap3::Bitmap3, sound::mixer::Mixer};
+use agb::{display::bitmap3::{self, Bitmap3}, dma::{self, Dma, Dmas}, sound::mixer::Mixer};
 use alloc::vec::Vec;
 use const_random::const_random;
 use objects::sphere::Sphere;
 use scene::Scene;
 
-use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FRACTIONAL}, vec3::{Color, Vec3}}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
+use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FRACTIONAL}, vec3::Vec3}, vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32}};
 
 fn closest_factors(n: i32) -> (i32, i32) {
     let sqrt = FixFlt::from_i32(n).sqrt().inner >> FRACTIONAL; // Compute the integer square root
@@ -34,6 +34,7 @@ fn closest_factors(n: i32) -> (i32, i32) {
 }
 
 #[link_section = ".iwram"]
+#[inline(never)]
 pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer, settings: RenderConfig) {
     let viewport_height_neg = -viewport_height;
     let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // These two should be vectors, but i am doing the math manually
@@ -106,7 +107,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                 out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings);
                 mixer.frame();
             }
-            bitmap.draw_point(x as i32, y as i32, (Color::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());
+            bitmap.draw_point(x as i32, y as i32, (Vec3::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());
         }
     }
 }

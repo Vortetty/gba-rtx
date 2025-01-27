@@ -1,8 +1,7 @@
-use agb::println;
 use alloc::vec::Vec;
 use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
 
-use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::{Color, Vec3}}};
+use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::Vec3}};
 
 pub struct Scene {
     pub spheres: Vec<Sphere>
@@ -67,13 +66,12 @@ impl Scene {
                 dist: FixFlt::max_val(),
                 front_face: false
             };
-            if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.005), FixFlt::max_val()), &mut hitrec) {
+            if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.001), FixFlt::max_val()), &mut hitrec) {
                 let direction = hitrec.normal + Vec3::random_unit_vec(rng);
                 current_ray = Ray::new(hitrec.point, direction);
                 continue;
             }
 
-            println!("r");
             let unit_dir = current_ray.direction.unit_vec();
             let verticality = (unit_dir.y + 1.0) * 0.5;
             color_stack.push(SKY_BOTTOM_COLOR * (1.0-verticality) + SKY_TOP_COLOR*verticality);
@@ -81,9 +79,7 @@ impl Scene {
         }
 
         let mut out_color = color_stack[0];
-        for _ in 0..(ctr-1) {
-            out_color = out_color * FixFlt::from_f32(0.5);
-        }
+        out_color = out_color * (FixFlt::from_f32(1.0) >> (ctr-1) as usize);
         Vec3::new(
             out_color.x.sqrt(),
             out_color.y.sqrt(),

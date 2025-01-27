@@ -1,5 +1,3 @@
-use agb::println;
-
 use crate::math::{ray::Ray, types::FixFlt, vec3::Vec3};
 
 use super::HitRecord;
