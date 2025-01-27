@@ -5,8 +5,10 @@ impl Fixed32 {
     #[inline(always)]
     pub fn sqrt(&self) -> Self {
         let mut scale = 0usize;
+        let mut neg = false;
         let mut x = if self.inner < 0 {
-            panic!("GRRR NEGATIVE NUMBER");
+            neg = true;
+            -self.inner
         } else {
             self.inner
         };
@@ -16,7 +18,11 @@ impl Fixed32 {
             scale += 1;
         }
 
-        SQRT_LUT[(x) as usize] << scale >> const { FRACTIONAL / 2 }
+        if neg {
+            -(SQRT_LUT[(x) as usize] << scale >> const { FRACTIONAL / 2 })
+        } else {
+            SQRT_LUT[(x) as usize] << scale >> const { FRACTIONAL / 2 }
+        }
     }
 
     // python3:

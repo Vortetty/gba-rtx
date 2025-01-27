@@ -45,10 +45,10 @@ fn main(mut gba: agb::Gba) -> ! {
 
     // Music setup
     let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
-    let mut channel = SoundChannel::new(LOFI_LOOP);
-    channel.should_loop();
-    mixer.enable();
-    let channel_id = mixer.play_sound(channel).unwrap();
+    //let mut channel = SoundChannel::new(LOFI_LOOP);
+    //channel.should_loop();
+    //mixer.enable();
+    //let channel_id = mixer.play_sound(channel).unwrap();
 
     // Get configuration for renderer
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
@@ -77,118 +77,6 @@ fn main(mut gba: agb::Gba) -> ! {
     let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
     render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer, conf);
-
-    #[link_section = ".ewram"]
-    static mut FRAMEBUFFER_1: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =  [[0u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize];
-    for y in 0..GBA_SCREEN_Y_I32 as usize {
-        for x in 0..GBA_SCREEN_X_I32 as usize {
-            unsafe {
-                FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
-            }
-        }
-    }
-    for y in 0..GBA_SCREEN_Y_I32 {
-        for x in 0..GBA_SCREEN_X_I32 {
-            unsafe {
-                let color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
-                let up = Vec3::from_gba_color(FRAMEBUFFER_1[(y+1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-                let down = Vec3::from_gba_color(FRAMEBUFFER_1[(y-1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-                let right = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x+1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-                let left = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x-1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-
-                if (color.luma() - up.luma()).abs()     > FixFlt::from_f32(0.025) &&
-                    (color.luma() - down.luma()).abs()  > FixFlt::from_f32(0.025) &&
-                    (color.luma() - right.luma()).abs() > FixFlt::from_f32(0.025) &&
-                    (color.luma() - left.luma()).abs()  > FixFlt::from_f32(0.025) {
-                    bitmap.draw_point(x, y, ((up + down + right + left) * FixFlt::from(0.25)).to_gba_color());
-                }
-            }
-        }
-    }
-    for y in 0..GBA_SCREEN_Y_I32 as usize {
-        for x in 0..GBA_SCREEN_X_I32 as usize {
-            unsafe {
-                FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
-            }
-        }
-    }
-    for y in 0..GBA_SCREEN_Y_I32 {
-        for x in 0..GBA_SCREEN_X_I32 {
-            unsafe {
-                let mut color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
-                let up = Vec3::from_gba_color(FRAMEBUFFER_1[(y+1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-                let down = Vec3::from_gba_color(FRAMEBUFFER_1[(y-1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-                let right = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x+1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-                let left = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x-1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-
-                let mut avgcnt = 0;
-                let mut tmpcolor = color-color;
-
-                if (color.luma() - up.luma()).abs() < FixFlt::from_f32(0.1) {
-                    tmpcolor = tmpcolor + up;
-                    avgcnt += 1;
-                }
-                if (color.luma() - down.luma()).abs() < FixFlt::from_f32(0.1) {
-                    tmpcolor = tmpcolor + down;
-                    avgcnt += 1;
-                }
-                if (color.luma() - right.luma()).abs() < FixFlt::from_f32(0.1) {
-                    tmpcolor = tmpcolor + right;
-                    avgcnt += 1;
-                }
-                if (color.luma() - left.luma()).abs() < FixFlt::from_f32(0.1) {
-                    tmpcolor = tmpcolor + left;
-                    avgcnt += 1;
-                }
-
-                if (avgcnt > 0) {
-                    bitmap.draw_point(x, y, ((tmpcolor) / FixFlt::from_i32(avgcnt)).to_gba_color())
-                }
-            }
-        }
-    }
-    //for y in 0..GBA_SCREEN_Y_I32 as usize {
-    //    for x in 0..GBA_SCREEN_X_I32 as usize {
-    //        unsafe {
-    //            FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
-    //        }
-    //    }
-    //}
-    //for y in 0..GBA_SCREEN_Y_I32 {
-    //    for x in 0..GBA_SCREEN_X_I32 {
-    //        unsafe {
-    //            let mut color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
-    //            let up = Vec3::from_gba_color(FRAMEBUFFER_1[(y+1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-    //            let down = Vec3::from_gba_color(FRAMEBUFFER_1[(y-1).clamp(0, const{GBA_SCREEN_Y_I32-1}) as usize][x as usize]);
-    //            let right = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x+1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-    //            let left = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][(x-1).clamp(0, const{GBA_SCREEN_X_I32-1}) as usize]);
-
-    //            let mut avgcnt = 1;
-    //            let mut tmpcolor = color;
-
-    //            if (color.luma() - up.luma()).abs() < FixFlt::from_f32(0.1) {
-    //                tmpcolor = tmpcolor + up;
-    //                avgcnt += 1;
-    //            }
-    //            if (color.luma() - down.luma()).abs() < FixFlt::from_f32(0.1) {
-    //                tmpcolor = tmpcolor + down;
-    //                avgcnt += 1;
-    //            }
-    //            if (color.luma() - right.luma()).abs() < FixFlt::from_f32(0.1) {
-    //                tmpcolor = tmpcolor + right;
-    //                avgcnt += 1;
-    //            }
-    //            if (color.luma() - left.luma()).abs() < FixFlt::from_f32(0.1) {
-    //                tmpcolor = tmpcolor + left;
-    //                avgcnt += 1;
-    //            }
-
-    //            if (avgcnt > 0) {
-    //                bitmap.draw_point(x, y, ((tmpcolor) / FixFlt::from_i32(avgcnt)).to_gba_color())
-    //            }
-    //        }
-    //    }
-    //}
 
     timer2.set_enabled(false);
     timer3.set_enabled(false);

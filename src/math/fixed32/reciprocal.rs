@@ -30,8 +30,10 @@ impl Fixed32 {
     #[inline(always)]
     pub const fn const_recip(&self) -> Self {
         let mut scale = 0usize;
+        let mut neg = false;
         let mut x = if self.inner <= 0 {
-            panic!("GRRR NEGATIVE NUMBER");
+            neg = true;
+            -self.inner
         } else {
             self.inner
         };
@@ -41,14 +43,21 @@ impl Fixed32 {
             scale += 1;
         }
 
-        Self{
-            inner: (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale
+        if neg {
+            Self{
+                inner: -((Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale)
+            }
+        } else {
+            Self{
+                inner: (Self::RECIP_LUT[( (x >> const { FRACTIONAL / 2 - 2 }) as isize) as usize] as i32) << const { FRACTIONAL - 5 } >> scale
+            }
         }
     }
 
     // python3:
     // python -c "for i in range((2**12)*4): print(f'        (Self::from_f32({1.0/float((i+1)/4)}).inner >> 3) as i16,')" > RECIP_LUT.txt
-    const RECIP_LUT: [i16; (1 << 12) * 4] = [
+    const RECIP_LUT: [i16; (1 << 12) * 4 + 1] = [
+        0,
         (Self::from_f32(4.0).inner >> 3) as i16,
         (Self::from_f32(2.0).inner >> 3) as i16,
         (Self::from_f32(1.3333333333333333).inner >> 3) as i16,

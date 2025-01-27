@@ -1,10 +1,12 @@
 mod scene;
 mod objects;
 mod interval;
+mod denoise;
 
 use agb::{display::bitmap3::{self, Bitmap3}, dma::{self, Dma, Dmas}, sound::mixer::Mixer};
 use alloc::vec::Vec;
 use const_random::const_random;
+use denoise::denoise;
 use objects::sphere::Sphere;
 use scene::Scene;
 
@@ -36,25 +38,26 @@ fn closest_factors(n: i32) -> (i32, i32) {
 #[link_section = ".iwram"]
 #[inline(never)]
 pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer, settings: RenderConfig) {
-    let viewport_height_neg = -viewport_height;
-    let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // These two should be vectors, but i am doing the math manually
-    let pixel_width_x = viewport_width / GBA_SCREEN_X;       // For speed and memory efficiency
-    let camera_center = Vec3::new(
+    let viewport_height_neg = -viewport_height;              // Need this negated for later calculations
+    let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // Calculate what fraction of the viewport each pixel is
+    let pixel_width_x = viewport_width / GBA_SCREEN_X;       // Calculate what fraction of the viewport each pixel is
+    let camera_center = Vec3::new( // Camera position, will later be from the scene's settings.
         FixFlt::zero(),
         FixFlt::zero(),
         FixFlt::zero()
     );
-    let viewport_upper_left = Vec3::new( // Original code uses alot more clear code, but it would require 3x as much math
-        camera_center.x - viewport_width * FixFlt::half_one(), // Multiply not divide to save cpu cycles
+    let viewport_upper_left = Vec3::new( // Calculate the top left pixel's position
+        camera_center.x - viewport_width * FixFlt::half_one(),
         camera_center.y - viewport_height_neg * FixFlt::half_one(),
         camera_center.z - focal_length
     );
-    let pixel00_location = Vec3::new( // Same story here, just more efficient to do it this way :)
+    let pixel00_location = Vec3::new( // Offset to the middle of the pixel
         viewport_upper_left.x + FixFlt::half_one() * pixel_width_x,
         viewport_upper_left.y + FixFlt::half_one() * pixel_height_y,
-        viewport_upper_left.z + FixFlt::half_one()
+        viewport_upper_left.z
     );
 
+    // Test scene, will be turned into it's own class later
     let mut scene = Scene {
         spheres: vec![
             Sphere {
@@ -110,4 +113,6 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
             bitmap.draw_point(x as i32, y as i32, (Vec3::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());
         }
     }
+
+    denoise(bitmap, mixer);
 }
