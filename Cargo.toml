@@ -10,6 +10,7 @@ edition = "2021"
 
 [dependencies]
 agb = "0.21.1"
+arrayvec = { version = "0.7.6", default-features = false }
 bytemuck = "1.21.0"
 const-random = "0.1.18"
 

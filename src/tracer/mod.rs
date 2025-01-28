@@ -5,6 +5,7 @@ mod denoise;
 
 use agb::{display::bitmap3::{self, Bitmap3}, dma::{self, Dma, Dmas}, sound::mixer::Mixer};
 use alloc::vec::Vec;
+use arrayvec::ArrayVec;
 use const_random::const_random;
 use denoise::denoise;
 use objects::sphere::Sphere;
@@ -79,17 +80,19 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
         ]
     };
 
-    let mut precalc_offsets: Vec<Vec3> = vec![];
+    let mut precalc_offsets: ArrayVec<Vec3, 256> = ArrayVec::<Vec3, 256>::new();
     let dims = closest_factors(settings.iters_per_pixel as i32);
     let xadd = pixel_width_x/dims.0;
     let yadd = pixel_height_y/dims.1;
     for x in 0..dims.0 {
         for y in 0..dims.1 {
-            precalc_offsets.push(Vec3::new(
-                xadd*x,
-                yadd*y,
-                FixFlt::zero()
-            ));
+            unsafe {
+                precalc_offsets.push_unchecked(Vec3::new(
+                    xadd*x,
+                    yadd*y,
+                    FixFlt::zero()
+                ));
+            }
         }
     }
 
@@ -110,7 +113,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                 out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings);
                 mixer.frame();
             }
-            bitmap.draw_point(x as i32, y as i32, (Vec3::from(out_color / FixFlt::from(settings.iters_per_pixel))).to_gba_color());
+            bitmap.draw_point(x as i32, y as i32, (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color());
         }
     }
 

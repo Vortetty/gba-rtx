@@ -131,6 +131,7 @@ macro_rules! fmtOptionNew {// This macro also pads but handles the "name: <selec
         }
     };
 }
+// TODO: ARRAYVEC NOT VEC
 fn split_text(text: impl Into<String>) -> Vec<String> {
     let mut output: Vec<String> = vec![];
     let text: String = text.into();

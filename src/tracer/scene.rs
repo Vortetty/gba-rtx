@@ -1,4 +1,5 @@
 use alloc::vec::Vec;
+use arrayvec::ArrayVec;
 use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
 
 use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::Vec3}};
@@ -48,7 +49,7 @@ impl Scene {
     #[link_section = ".iwram"]
     pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
-        let mut color_stack: Vec<Vec3> = vec![];
+        let mut color_stack = ArrayVec::<Vec3, 256>::new();
         let mut ctr = 0;
 
         let mut current_ray: Ray = *r;
@@ -74,7 +75,9 @@ impl Scene {
 
             let unit_dir = current_ray.direction.unit_vec();
             let verticality = (unit_dir.y + 1.0) * 0.5;
-            color_stack.push(SKY_BOTTOM_COLOR * (1.0-verticality) + SKY_TOP_COLOR*verticality);
+            unsafe {
+                color_stack.push_unchecked(SKY_BOTTOM_COLOR * (1.0-verticality) + SKY_TOP_COLOR*verticality);
+            }
             break;
         }
 
