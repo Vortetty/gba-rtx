@@ -91,6 +91,6 @@ fn main(mut gba: agb::Gba) -> ! {
     //PIXELARA.print_str_rel(format!("{:}", 1.0/(65536.0/16.0)), &mut bitmap, 0, 1);
 
     loop {
-        mixer.frame(); // Play music forever
+        //mixer.frame(); // Play music forever
     }
 }

@@ -6,7 +6,7 @@ pub struct Fixed32 {
 }
 
 impl Fixed32 {
-    #[inline(always)]
+    
     pub fn from(rhs: impl Into<f32>) -> Self {
         Self {
             inner: (rhs.into() * (1 << FRACTIONAL) as f32) as i32
@@ -24,20 +24,20 @@ impl Fixed32 {
         }
     }
 
-    #[inline(always)]
+    
     pub const fn as_f32(&self) -> f32 {
         self.inner as f32 * (1.0 / (1 << FRACTIONAL) as f32)
     }
-    #[inline(always)]
+    
     pub const fn to_bits(&self) -> i32 {
         self.inner
     }
-    #[inline(always)]
+    
     pub const fn fractional(&self) -> usize {
         FRACTIONAL
     }
 
-    #[inline(always)]
+    
     pub fn abs(&self) -> Self {
         Self {
             inner: self.inner.abs()

@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[link_section = ".ewram"]
-pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
+pub fn denoise(bitmap: &mut Bitmap3) {
     #[link_section = ".ewram"]
     static mut FRAMEBUFFER_1: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =
         [[0u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize];
@@ -20,7 +20,6 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
-        mixer.frame();
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
@@ -57,7 +56,6 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 }
             }
         }
-        mixer.frame();
     }
 
     //
@@ -71,7 +69,6 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
-        mixer.frame();
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
@@ -119,7 +116,6 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 }
             }
         }
-        mixer.frame();
     }
 
     //
@@ -132,7 +128,6 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
-        mixer.frame();
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
@@ -169,6 +164,5 @@ pub fn denoise(bitmap: &mut Bitmap3, mixer: &mut Mixer) {
                 }
             }
         }
-        mixer.frame();
     }
 }

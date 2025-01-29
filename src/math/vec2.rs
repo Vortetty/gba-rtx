@@ -14,7 +14,7 @@ macro_rules! impl_ops {
         impl $trait<Self> for Vec2 {
             type Output = Self;
 
-            #[inline(always)]
+            
             fn $method(self, rhs: Self) -> Self {
                 Self {
                     x: self.x $op rhs.x,
@@ -27,7 +27,7 @@ macro_rules! impl_ops {
         impl $trait<FixFlt> for Vec2 {
             type Output = Self;
 
-            #[inline(always)]
+            
             fn $method(self, rhs: FixFlt) -> Self {
                 Self {
                     x: self.x $op rhs,

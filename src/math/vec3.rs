@@ -19,7 +19,7 @@ macro_rules! impl_ops {
         impl $trait<Self> for Vec3 {
             type Output = Self;
 
-            #[inline(always)]
+            
             fn $method(self, rhs: Self) -> Self {
                 Self::new(
                     self.x $op rhs.x,
@@ -33,7 +33,7 @@ macro_rules! impl_ops {
         impl $trait<FixFlt> for Vec3 {
             type Output = Self;
 
-            #[inline(always)]
+            
             fn $method(self, rhs: FixFlt) -> Self {
                 Self::new(
                     self.x $op rhs,
@@ -64,7 +64,7 @@ impl Neg for Vec3 {
 }
 
 impl Vec3 {
-    #[inline(always)]
+    
     pub const fn new(x: FixFlt, y: FixFlt, z: FixFlt) -> Self {
         Self {
             x,
@@ -75,13 +75,13 @@ impl Vec3 {
         }
     }
 
-    #[inline(always)]
+    
     pub fn length_squared(&mut self) -> FixFlt {
         self.length_square.init_and_get(|| -> FixFlt {
             self.x*self.x + self.y*self.y + self.z*self.z
         })
     }
-    #[inline(always)]
+    
     pub fn length(&mut self) -> FixFlt {
         let lensqr = self.length_squared();
         self.length.init_and_get(|| -> FixFlt {
@@ -89,13 +89,13 @@ impl Vec3 {
         })
     }
 
-    #[inline(always)]
+    
     pub fn dot_prod(&self, rhs: &Self) -> FixFlt {
         self.x * rhs.x +
         self.y * rhs.y +
         self.z * rhs.z
     }
-    #[inline(always)]
+    
     pub fn cross_prod(&self, rhs: &Self) -> Self {
         Self::new(
             self.y * rhs.z - self.z * rhs.y,
@@ -103,11 +103,11 @@ impl Vec3 {
             self.x * rhs.y - self.y * rhs.x
         )
     }
-    #[inline(always)]
+    
     pub fn unit_vec(&mut self) -> Self {
         *self / self.length()
     }
-    #[inline(always)]
+    
     pub fn random_unit_vec(rng: &mut FixFlt) -> Self {
         loop {
             let mut a = Self::new(
@@ -122,13 +122,13 @@ impl Vec3 {
         }
     }
 
-    #[inline(always)]
+    
     pub fn reset_cached(&mut self) {
         self.length = FixFltOnce::new();
         self.length_square = FixFltOnce::new();
     }
 
-    #[inline(always)]
+    
     pub fn random(rng: &mut FixFlt) -> Vec3 {
         Self::new(
             rng.next_rand_frac(),
@@ -136,7 +136,7 @@ impl Vec3 {
             rng.next_rand_frac()
         )
     }
-    #[inline(always)]
+    
     pub fn random_minmax(rng: &mut FixFlt, min: FixFlt, max: FixFlt) -> Vec3 {
         Self::new(
             rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0)),
@@ -144,7 +144,7 @@ impl Vec3 {
             rng.next_rand_minmax(FixFlt::from_f32(-1.0), FixFlt::from_f32(1.0))
         )
     }
-    #[inline(always)]
+    
     pub fn random_hemisphere(rng: &mut FixFlt, normal: &Vec3) -> Vec3 {
         let on_unit_sphere = Self::random_unit_vec(rng);
         if on_unit_sphere.dot_prod(normal) > FixFlt::zero() {
@@ -153,18 +153,24 @@ impl Vec3 {
             -on_unit_sphere
         }
     }
+    
+    pub fn near_zero(&self) -> bool {
+        (self.x.inner < 0b000000000000_0000000000000001000) &&
+        (self.y.inner < 0b000000000000_0000000000000001000) &&
+        (self.z.inner < 0b000000000000_0000000000000001000)
+    }
 
 
     //
     // COLOR FUNCS
     //
-    #[inline(always)]
+    
     pub fn to_gba_color(&self) -> u16 {
         ((self.z.to_bits() >> const {FRACTIONAL-5}) as u16) << 10 |
         ((self.y.to_bits() >> const {FRACTIONAL-5}) as u16) << 5 |
         ((self.x.to_bits() >> const {FRACTIONAL-5}) as u16)
     }
-    #[inline(always)]
+    
     pub fn from_gba_color(rhs: u16) -> Self {
         Self::new(
             FixFlt{ inner: ((rhs & 0b11111) as i32) << const {FRACTIONAL-5}},
@@ -172,7 +178,7 @@ impl Vec3 {
             FixFlt{ inner: (((rhs >> 10) & 0b11111) as i32) << const {FRACTIONAL-5}}
         )
     }
-    #[inline(always)]
+    
     pub fn luma(&self) -> FixFlt {
         // Based on the rec 709 standard
         FixFlt::from_f32(0.2126) * self.x +

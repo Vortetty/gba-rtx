@@ -2,12 +2,14 @@ mod scene;
 mod objects;
 mod interval;
 mod denoise;
+mod material;
 
 use agb::{display::bitmap3::{self, Bitmap3}, dma::{self, Dma, Dmas}, sound::mixer::Mixer};
 use alloc::vec::Vec;
 use arrayvec::ArrayVec;
 use const_random::const_random;
 use denoise::denoise;
+use material::MaterialManager;
 use objects::sphere::Sphere;
 use scene::Scene;
 
@@ -36,7 +38,6 @@ fn closest_factors(n: i32) -> (i32, i32) {
     closest
 }
 
-#[link_section = ".iwram"]
 #[inline(never)]
 pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer, settings: RenderConfig) {
     let viewport_height_neg = -viewport_height;              // Need this negated for later calculations
@@ -58,6 +59,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
         viewport_upper_left.z
     );
 
+    let mut mat_mgr = MaterialManager::new();
     // Test scene, will be turned into it's own class later
     let mut scene = Scene {
         spheres: vec![
@@ -67,7 +69,12 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                     FixFlt::zero(),
                     FixFlt::neg_one()
                 ),
-                radius: FixFlt::half_one()
+                radius: FixFlt::half_one(),
+                mat: mat_mgr.add_lambertian(Vec3::new(
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(0.5),
+                    FixFlt::from_f32(0.5)
+                ))
             },
             Sphere {
                 center: Vec3::new(
@@ -75,7 +82,12 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                     FixFlt::from_f32(-50.5),
                     FixFlt::neg_one()
                 ),
-                radius: FixFlt::from_i32(50)
+                radius: FixFlt::from_i32(50),
+                mat: mat_mgr.add_lambertian(Vec3::new(
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(1.0)
+                ))
             }
         ]
     };
@@ -110,12 +122,12 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
             for i in precalc_offsets.iter() {
                 let mut tmpray = ray;
                 tmpray.direction = tmpray.direction + *i;
-                out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings);
-                mixer.frame();
+                out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                //mixer.frame();
             }
             bitmap.draw_point(x as i32, y as i32, (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color());
         }
     }
-
-    denoise(bitmap, mixer);
+    
+    denoise(bitmap);
 }

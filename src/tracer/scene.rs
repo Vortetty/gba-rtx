@@ -1,6 +1,6 @@
 use alloc::vec::Vec;
 use arrayvec::ArrayVec;
-use super::{interval::Interval, objects::{sphere::Sphere, HitRecord}};
+use super::{interval::Interval, material::{Material, MaterialManager}, objects::{sphere::Sphere, HitRecord}};
 
 use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::Vec3}};
 
@@ -27,7 +27,11 @@ impl Scene {
             point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
             normal: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
             dist: ray_dist.max,
-            front_face: false
+            front_face: false,
+            mat: Material {
+                mat_id: 0,
+                mat_type: super::material::MaterialType::LAMBERTIAN
+            },
         };
         let mut has_hit = false;
         let mut closest = ray_dist;
@@ -40,6 +44,7 @@ impl Scene {
                 rec.normal = temp_record.normal;
                 rec.dist = temp_record.dist;
                 rec.front_face = temp_record.front_face;
+                rec.mat = temp_record.mat;
             }
         }
 
@@ -47,17 +52,20 @@ impl Scene {
     }
 
     #[link_section = ".iwram"]
-    pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig) -> Vec3 {
+    pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig, mat_mgr: &MaterialManager) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
         let mut color_stack = ArrayVec::<Vec3, 256>::new();
         let mut ctr = 0;
 
+        let mut tmp_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
         let mut current_ray: Ray = *r;
 
         loop {
             ctr += 1;
             if ctr > conf.max_depth {
-                return Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+                unsafe {
+                    color_stack.push_unchecked(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()));
+                }
                 break;
             }
 
@@ -65,11 +73,17 @@ impl Scene {
                 point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
                 normal: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
                 dist: FixFlt::max_val(),
-                front_face: false
+                front_face: false,
+                mat: Material {
+                    mat_id: 0,
+                    mat_type: super::material::MaterialType::LAMBERTIAN
+                },
             };
             if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.001), FixFlt::max_val()), &mut hitrec) {
-                let direction = hitrec.normal + Vec3::random_unit_vec(rng);
-                current_ray = Ray::new(hitrec.point, direction);
+                (current_ray, tmp_color) = mat_mgr.scatter(&hitrec.mat, r, rng, &hitrec);
+                unsafe {
+                    color_stack.push_unchecked(tmp_color);
+                }
                 continue;
             }
 
@@ -81,8 +95,10 @@ impl Scene {
             break;
         }
 
-        let mut out_color = color_stack[0];
-        out_color = out_color * (FixFlt::from_f32(1.0) >> (ctr-1) as usize);
+        let mut out_color = color_stack.pop().unwrap();
+        for color in color_stack.iter().rev() {
+            out_color = out_color * *color;
+        }
         Vec3::new(
             out_color.x.sqrt(),
             out_color.y.sqrt(),

@@ -7,12 +7,12 @@ pub struct Ray {
 }
 
 impl Ray {
-    #[inline(always)]
+    
     pub fn at(&self, distance: FixFlt) -> Vec3 {
         self.origin + self.direction*distance
     }
 
-    #[inline(always)]
+    
     pub const fn new(origin: Vec3, direction: Vec3) -> Ray {
         Ray {
             origin,
@@ -20,7 +20,7 @@ impl Ray {
         }
     }
 
-    #[inline(always)]
+    
     pub fn reset_cached(&mut self) {
         self.origin.reset_cached();
         self.direction.reset_cached();

@@ -2,7 +2,7 @@ use super::Fixed32;
 use crate::math::types::FRACTIONAL;
 
 impl Fixed32 {
-    #[inline(always)]
+    
     pub fn recip(&self) -> Self {
         let mut scale = 0usize;
         let mut neg = false;
@@ -27,7 +27,7 @@ impl Fixed32 {
         }
     }
 
-    #[inline(always)]
+    
     pub const fn const_recip(&self) -> Self {
         let mut scale = 0usize;
         let mut neg = false;
