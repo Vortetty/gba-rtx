@@ -21,6 +21,11 @@ then run in your favorite emulator (i recommend mesen2)
 
 While this is a CC0 project, i do kindly ask you add attribution. I cannot force you of course, but i will trust you to make whatever decision you see fit. If this helps you, consider making a pr with your improvements, to keep this a free resource for everyone!
 
+### Some Credits
+
+- [Zesterer](https://github.com/zesterer) for helping with finding inefficiencies as well as pointing out helpful libs and pushing me to better my code, as well as helping with implementations and bugtesting
+- [gbadev](https://gbadev.net/) (mainly the discord) users for helping keep me motivated to work on it and helping with bugs
+
 ## Old readme
 
 > # AGBRS template
