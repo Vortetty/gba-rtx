@@ -2,7 +2,6 @@ use super::Fixed32;
 use crate::math::types::FRACTIONAL;
 
 impl Fixed32 {
-    
     pub fn sqrt(&self) -> Self {
         let mut scale = 0usize;
         let mut neg = false;

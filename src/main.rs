@@ -27,7 +27,6 @@ use vars::GBA_SCREEN_1_OVER_Y;
 use agb::{sound::mixer::Frequency, timer::Timer};
 use math::types::FixFlt;
 use agb::{sound::mixer::SoundChannel, timer::Divider};
-use resources::music::LOFI_LOOP;
 use tracer::render;
 use vars::GBA_SCREEN_X;
 
@@ -42,13 +41,6 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut timers = gba.timers.timers();
     let mut timer2: Timer = timers.timer2;
     let mut timer3: Timer = timers.timer3;
-
-    // Music setup
-    let mut mixer = gba.mixer.mixer(Frequency::Hz10512);
-    //let mut channel = SoundChannel::new(LOFI_LOOP);
-    //channel.should_loop();
-    //mixer.enable();
-    //let channel_id = mixer.play_sound(channel).unwrap();
 
     // Get configuration for renderer
     //let conf = get_render_config::get_render_config(&mut input, &mut bitmap, &mut mixer);
@@ -76,7 +68,7 @@ fn main(mut gba: agb::Gba) -> ! {
 
     let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
 
-    render(&mut bitmap, viewport_height, viewport_width, focal_length, &mut mixer, conf);
+    render(&mut bitmap, viewport_height, viewport_width, focal_length, conf);
 
     timer2.set_enabled(false);
     timer3.set_enabled(false);
@@ -89,8 +81,6 @@ fn main(mut gba: agb::Gba) -> ! {
 
     //PIXELARA.print_str_rel(format!("{:}", FixFlt::from_i32(65536/16).recip().as_f32()), &mut bitmap, 0, 0);
     //PIXELARA.print_str_rel(format!("{:}", 1.0/(65536.0/16.0)), &mut bitmap, 0, 1);
-
     loop {
-        //mixer.frame(); // Play music forever
     }
 }

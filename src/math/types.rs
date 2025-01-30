@@ -27,7 +27,6 @@ impl Into<FixFlt> for FixFltOnce {
 }
 
 impl FixFltOnce {
-    
     pub fn init_and_get<F>(&mut self, init: F) -> FixFlt where F: Fn() -> FixFlt {
         if !self.initialized {
             self.inner = init();
@@ -36,7 +35,6 @@ impl FixFltOnce {
         self.inner
     }
 
-    
     pub const fn new() -> Self {
         Self {
             inner: FixFlt::from_f32(0.0),

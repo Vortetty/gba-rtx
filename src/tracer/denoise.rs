@@ -5,7 +5,7 @@ use crate::{
     vars::{GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32},
 };
 
-#[link_section = ".ewram"]
+#[link_section = ".iwram"]
 pub fn denoise(bitmap: &mut Bitmap3) {
     #[link_section = ".ewram"]
     static mut FRAMEBUFFER_1: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =
@@ -91,8 +91,8 @@ pub fn denoise(bitmap: &mut Bitmap3) {
                         [(x - 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
 
-                let mut avgcnt = 1;
-                let mut tmpcolor = color;
+                let mut avgcnt = 0;
+                let mut tmpcolor = color-color;
 
                 if (color.luma() - up.luma()).abs() < FixFlt::from_f32(0.1) {
                     tmpcolor = tmpcolor + up;
@@ -120,7 +120,7 @@ pub fn denoise(bitmap: &mut Bitmap3) {
 
     //
     // Basic acne removal, checks the 4 immediate neighbors and if 3
-    //    are more than 25% different (by luminance) from the current pixel, replaces the current pixel with the average of neighbors
+    //    are more than 5% different (by luminance) from the current pixel, replaces the current pixel with the average of neighbors
     //
     for y in 0..GBA_SCREEN_Y_I32 as usize {
         for x in 0..GBA_SCREEN_X_I32 as usize {
@@ -150,10 +150,10 @@ pub fn denoise(bitmap: &mut Bitmap3) {
                         [(x - 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
 
-                let m = ((color.luma() - up.luma()).abs() > FixFlt::from_f32(0.25)) as u8
-                    + ((color.luma() - down.luma()).abs() > FixFlt::from_f32(0.25)) as u8
-                    + ((color.luma() - right.luma()).abs() > FixFlt::from_f32(0.25)) as u8
-                    + ((color.luma() - left.luma()).abs() > FixFlt::from_f32(0.25)) as u8;
+                let m = ((color.luma() - up.luma()).abs() > FixFlt::from_f32(0.05)) as u8
+                    + ((color.luma() - down.luma()).abs() > FixFlt::from_f32(0.05)) as u8
+                    + ((color.luma() - right.luma()).abs() > FixFlt::from_f32(0.05)) as u8
+                    + ((color.luma() - left.luma()).abs() > FixFlt::from_f32(0.05)) as u8;
 
                 if m >= 3 {
                     bitmap.draw_point(
