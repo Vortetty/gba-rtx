@@ -23,8 +23,8 @@ While this is a CC0 project, i do kindly ask you add attribution. I cannot force
 
 ### Some Credits
 
-- [Zesterer](https://github.com/zesterer) for helping with finding inefficiencies as well as pointing out helpful libs and pushing me to better my code, as well as helping with implementations and bugtesting
-- [gbadev](https://gbadev.net/) (mainly the discord) users for helping keep me motivated to work on it and helping with bugs
+- [Zesterer](https://github.com/zesterer) for helping with finding inefficiencies as well as pointing out helpful libs and pushing me to better my code, as well as helping with a few implementations and some bug fixes
+- [gbadev](https://gbadev.net/) (mainly the discord) users for helping keep me motivated to work on it and helping with some bugs
 
 ## Old readme
 
