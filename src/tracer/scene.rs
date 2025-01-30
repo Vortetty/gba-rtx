@@ -54,17 +54,17 @@ impl Scene {
     #[link_section = ".iwram"]
     pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig, mat_mgr: &MaterialManager) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
-        let mut color_stack = ArrayVec::<Vec3, 256>::new();
         let mut ctr = 0;
 
         let mut tmp_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+        let mut out_color: Vec3 = Vec3::new(FixFlt::one(), FixFlt::one(), FixFlt::one());
         let mut current_ray: Ray = *r;
 
         loop {
             ctr += 1;
             if ctr > conf.max_depth {
                 unsafe {
-                    color_stack.push_unchecked(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()));
+                    out_color = out_color * FixFlt::zero();
                 }
                 break;
             }
@@ -82,7 +82,7 @@ impl Scene {
             if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.001), FixFlt::max_val()), &mut hitrec) {
                 (current_ray, tmp_color) = mat_mgr.scatter(&hitrec.mat, r, rng, &hitrec);
                 unsafe {
-                    color_stack.push_unchecked(tmp_color);
+                    out_color = out_color * tmp_color;
                 }
                 continue;
             }
@@ -90,15 +90,11 @@ impl Scene {
             let unit_dir = current_ray.direction.unit_vec();
             let verticality = (unit_dir.y + 1.0) * 0.5;
             unsafe {
-                color_stack.push_unchecked(SKY_BOTTOM_COLOR * (1.0-verticality) + SKY_TOP_COLOR*verticality);
+                out_color = out_color * (SKY_BOTTOM_COLOR * (1.0-verticality) + SKY_TOP_COLOR*verticality);
             }
             break;
         }
 
-        let mut out_color = color_stack.pop().unwrap();
-        for color in color_stack.iter().rev() {
-            out_color = out_color * *color;
-        }
         Vec3::new(
             out_color.x.sqrt(),
             out_color.y.sqrt(),

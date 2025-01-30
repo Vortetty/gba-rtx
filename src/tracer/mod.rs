@@ -39,7 +39,8 @@ fn closest_factors(n: i32) -> (i32, i32) {
 }
 
 #[inline(never)]
-pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, mixer: &mut Mixer, settings: RenderConfig) {
+#[link_section = ".iwram"]
+pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: FixFlt, focal_length: FixFlt, settings: RenderConfig) {
     let viewport_height_neg = -viewport_height;              // Need this negated for later calculations
     let pixel_height_y = viewport_height_neg / GBA_SCREEN_Y; // Calculate what fraction of the viewport each pixel is
     let pixel_width_x = viewport_width / GBA_SCREEN_X;       // Calculate what fraction of the viewport each pixel is
@@ -123,7 +124,6 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                 let mut tmpray = ray;
                 tmpray.direction = tmpray.direction + *i;
                 out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
-                //mixer.frame();
             }
             bitmap.draw_point(x as i32, y as i32, (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color());
         }
