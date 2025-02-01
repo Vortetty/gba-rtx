@@ -27,15 +27,14 @@ incremental = true
 [profile.release]
 strip = "symbols"
 opt-level = 3
-codegen-units = 1
-panic = "abort"
 lto = "fat"
+codegen-units = 4
 incremental = true
 rustflags = ["-Z", "location-detail=none"]
 
 [profile.release.package."*"]
 strip = "symbols"
 opt-level = 3
-codegen-units = 1
+codegen-units = 4
 incremental = true
 rustflags = ["-Z", "location-detail=none"]

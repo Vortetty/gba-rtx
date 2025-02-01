@@ -53,3 +53,4 @@ mod reciprocal;
 mod anglemath;
 mod ord;
 mod rand;
+mod invsqrt;

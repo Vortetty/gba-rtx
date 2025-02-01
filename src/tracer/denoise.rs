@@ -5,11 +5,13 @@ use crate::{
     vars::{GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32},
 };
 
+#[link_section = ".ewram"]
+static mut FRAMEBUFFER_1_STATIC: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =
+    [[0u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize];
+
 #[link_section = ".iwram"]
 pub fn denoise(bitmap: &mut Bitmap3) {
-    #[link_section = ".ewram"]
-    static mut FRAMEBUFFER_1: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =
-        [[0u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize];
+    let FRAMEBUFFER_1 = unsafe { FRAMEBUFFER_1_STATIC.as_mut() };
     //
     // Basic acne removal, checks the 4 immediate neighbors and if 3
     //    are more than 5% different (by luminance) from the current pixel, replaces the current pixel with the average of neighbors

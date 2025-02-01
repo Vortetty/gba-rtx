@@ -12,6 +12,7 @@ enum MenuSelection {
     SceneSelect=0,
     IterationsSelect,
     DepthSelect,
+    HDMode,
     ConfirmButton
 }
 #[repr(i8)]
@@ -60,7 +61,8 @@ impl Scenes {
 pub struct RenderConfig {
     pub scene: Scenes,
     pub iters_per_pixel: u8,
-    pub max_depth: u8
+    pub max_depth: u8,
+    pub hd_mode: bool
 }
 
 fn get_scene_name(scene: Scenes) -> String {
@@ -81,11 +83,11 @@ fn get_scene_name(scene: Scenes) -> String {
 //                         10  12  14  16  18  20  22  24  26  28
 //     0 1 2 3 4 5 6 7 8 9   11  13  15  17  19  21  23  25  27  29
 //    +------------------------------------------------------------+
-//  0 |G B A - R T   C o n f i g u r a t i o n                     |
-//  1 |                                                            |
-//  2 |S c e n e :   < S p h e r e s >                             |
-//  3 |I t e r s :   < 4 >                                         |
-//  4 |D e p t h :   < 8 >                                         |
+//  0 |                G B A - R T     C o n f i g                 |
+//  1 |S c e n e :   < S p h e r e s >                             |
+//  2 |I t e r s :   < 4 >                                         |
+//  3 |D e p t h :   < 8 >                                         |
+//  4 |H D   M o d e :   < Yes/No >                                |
 //  5 |                                                            |
 //  6 |████████████@@%******************************%@@████████████|
 //  7 |████████████@+   +%@@@@@@@@@@@@@@@@@@@@@@%+   =@████████████|
@@ -115,7 +117,7 @@ macro_rules! fmtOptionNoName { // Same as python's ljust with pad as " " and len
 // Wipes background to prevent overwriting
     ($value: expr, $selected: expr) => {
         if $selected {
-            format!("<{}>", $value)
+            format!("<{}>  ", $value)
         } else {
             format!("{}  ", $value)
         }
@@ -135,7 +137,7 @@ macro_rules! fmtOptionNew {// This macro also pads but handles the "name: <selec
 fn split_text(text: impl Into<String>) -> Vec<String> {
     let mut output: Vec<String> = vec![];
     let text: String = text.into();
-    let mut iter: Vec<&str> = text.split_ascii_whitespace().collect::<Vec<&str>>(); // Split on spaces
+    let mut iter: Vec<&str> = text.split_ascii_whitespace().rev().collect::<Vec<&str>>(); // Split on spaces
 
     let mut tmp = "".to_string();
     while let Some(word) = iter.pop() { // Using pop to avoid having a borrow conflict with iter and tmp
@@ -160,29 +162,31 @@ fn split_text(text: impl Into<String>) -> Vec<String> {
 
     output
 }
-fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, render_all: bool, mixer: &mut Mixer) {
+fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitmap3, rewrite_info: bool, render_all: bool) {
     // Render the basic menuing stuff
 
     if render_all || rewrite_info {
-        PIXELARA.print_str_rel_music(rFillText30!("GBA-RT Configuration"), bitmap, 0, 0, mixer);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 2, mixer);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 3, mixer);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 4, mixer);
+        PIXELARA.print_str_rel_music(rFillText30!("GBA-RT Configuration"), bitmap, 8, 0);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 1);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 2);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 3);
+        PIXELARA.print_str_rel_music(fmtOptionNew!("HD Mode", if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 0, 4);
         PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
             "     > Confirm Settings <     "
         } else {
             "       Confirm Settings       "
-        }, bitmap, 0, 19, mixer);
+        }, bitmap, 0, 19);
     } else {
         match selection {
-            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 7, 2, mixer),
-            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 7, 3, mixer),
-            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 7, 4, mixer),
+            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 7, 1),
+            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 7, 2),
+            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 7, 3),
+            MenuSelection::HDMode => PIXELARA.print_str_rel_music(fmtOptionNoName!(if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 9, 4),
             MenuSelection::ConfirmButton => PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
                 "> Confirm Settings <"
             } else {
                 "  Confirm Settings  "
-            }, bitmap, 7, 19, mixer),
+            }, bitmap, 7, 19),
         }
     }
 
@@ -190,34 +194,34 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
     if rewrite_info {
         match selection {
             MenuSelection::SceneSelect => {
-                mixer.frame();
                 for x in 0*8..6*8 { // Clear left padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
                 }
-                IMAGES.print_nth_music(3, bitmap, 6*8, 6*8, mixer); // Print image
+                IMAGES.print_nth_music(3, bitmap, 6*8, 6*8); // Print image
                 for x in 24*8..29*8 { // Clear right padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
                     }
                 }
-                mixer.frame();
             },
             MenuSelection::IterationsSelect => {
-                mixer.frame();
                 for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance. Generally not too noticeable over 32 iterations due to the shallow color depth, and more than passable at 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
+                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
                 }
             },
             MenuSelection::DepthSelect => {
-                mixer.frame();
                 for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns. Not useful for most scenes beyond 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i, mixer);
+                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
+                }
+            },
+            MenuSelection::HDMode => {
+                for (i, s) in split_text("Renders internally at a higher bit depth then uses the extra data to improve the denoiser, at the cost of speed.").iter().enumerate() { // Print each line of the help message, updating the music between each print
+                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
                 }
             },
             MenuSelection::ConfirmButton => {
-                mixer.frame();
                 for x in 0..240 { // No help message, clear the text area
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
@@ -229,24 +233,25 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
 }
 
 // Spawn gui for render config fetching.
-pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mixer: &mut Mixer) -> RenderConfig {
+pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> RenderConfig {
     let vblank = agb::interrupt::VBlank::get();
 
     let mut data = RenderConfig {
-        iters_per_pixel: 4,
+        iters_per_pixel: 8,
         scene: Scenes::from_i8(0),
-        max_depth: 8
+        max_depth: 8,
+        hd_mode: false
     };
 
     let mut menu_selection = MenuSelection::from_i8(0);
 
     bitmap.clear(0); // Initial screen clear and populate, force render help message since it would not otherwise
-    render_menu(&data, &menu_selection, bitmap, true, true, mixer);
+    render_menu(&data, &menu_selection, bitmap, true, true);
 
     loop {
         let mut one_true = true;          // If any button was pressed
         let mut change_menu_text = false; // If that button was up or down, thus requiring a rewrite of the help message.
-        mixer.frame();
+        
         if input.is_just_pressed(Button::UP) { // Moves to the previous config option
             menu_selection = menu_selection.prev();
             change_menu_text = true;
@@ -270,6 +275,9 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
                 },
                 MenuSelection::ConfirmButton => {
                     one_true = false;
+                },
+                MenuSelection::HDMode => {
+                    data.hd_mode = !data.hd_mode;
                 }
             }
         } else if input.is_just_pressed(Button::LEFT) { // Will select the previous value on all but the confirm button, where it tells the system no button was pressed as nothing actually changed
@@ -289,7 +297,10 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
                 },
                 MenuSelection::ConfirmButton => {
                     one_true = false;
-                }
+                },
+                MenuSelection::HDMode => {
+                    data.hd_mode = !data.hd_mode;
+                },
             }
         } else if input.is_just_pressed(Button::A) { // If on the confirm button will leave the loop, otherwise tells the system no button was pressed as nothing actually happened
             if menu_selection == MenuSelection::ConfirmButton {
@@ -302,10 +313,9 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3, mix
         }
 
         if one_true { // If a button was pressesd render the menu
-            render_menu(&data, &menu_selection, bitmap, change_menu_text, false, mixer);
+            render_menu(&data, &menu_selection, bitmap, change_menu_text, false);
         }
 
-        mixer.frame();
         agb::interrupt::VBlank::wait_for_vblank(&vblank); // Wait for vblank, not really needed but good practice
         input.update(); // Update pressed buttons
     }
