@@ -10,10 +10,10 @@ use crate::resources::{images::IMAGES, pixelara::PIXELARA};
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum MenuSelection {
     SceneSelect=0,
-    IterationsSelect,
-    DepthSelect,
-    HDMode,
-    ConfirmButton
+    IterationsSelect=1,
+    DepthSelect=2,
+    HDMode=3,
+    ConfirmButton=4
 }
 #[repr(i8)]
 #[allow(dead_code)]
