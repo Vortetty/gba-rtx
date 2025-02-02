@@ -113,13 +113,16 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
 
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location-camera_center);
+    let mut out_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
     for y in 0..GBA_SCREEN_Y_I32 {
         pixel_center.x = pixel00_location.x;
         pixel_center.y += pixel_height_y;
         for x in 0..GBA_SCREEN_X_I32 {
             pixel_center.x += pixel_width_x;
             ray.direction = pixel_center - camera_center;
-            let mut out_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+            out_color.x.inner = 0;
+            out_color.y.inner = 0;
+            out_color.z.inner = 0;
             for i in precalc_offsets.iter() {
                 let mut tmpray = ray;
                 tmpray.direction = tmpray.direction + *i;

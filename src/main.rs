@@ -24,7 +24,7 @@ use core::time::Duration;
 use get_render_config::{RenderConfig, Scenes};
 use resources::pixelara::PIXELARA;
 use vars::GBA_SCREEN_1_OVER_Y;
-use agb::{sound::mixer::Frequency, timer::Timer};
+use agb::{fixnum::FixedNum, sound::mixer::Frequency, timer::Timer};
 use math::types::FixFlt;
 use agb::{sound::mixer::SoundChannel, timer::Divider};
 use tracer::render;

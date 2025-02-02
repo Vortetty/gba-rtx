@@ -96,9 +96,9 @@ impl Scene {
         }
 
         Vec3::new(
-            out_color.x.sqrt(),
-            out_color.y.sqrt(),
-            out_color.z.sqrt()
+            out_color.x.sqrt01(),
+            out_color.y.sqrt01(),
+            out_color.z.sqrt01()
         )
     }
 }

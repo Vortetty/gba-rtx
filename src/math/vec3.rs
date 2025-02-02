@@ -92,6 +92,7 @@ impl Vec3 {
     }
     pub fn unit_vec(&mut self) -> Self {
         *self * self.length_squared().invsqrt()
+        //*self / self.length()
     }
     pub fn random_unit_vec(rng: &mut FixFlt) -> Self {
         loop {
