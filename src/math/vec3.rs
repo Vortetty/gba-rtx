@@ -140,6 +140,9 @@ impl Vec3 {
             && (self.y.inner < 0b000000000000_0000000000000001000)
             && (self.z.inner < 0b000000000000_0000000000000001000)
     }
+    pub fn reflect(&self, normal: &Vec3) -> Self {
+        *self - *normal*FixFlt::from_i32(2)*self.dot_prod(normal)
+    }
 
     //
     // COLOR FUNCS
