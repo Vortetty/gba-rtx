@@ -5,13 +5,31 @@ use crate::{
     vars::{GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32},
 };
 
-#[link_section = ".ewram"]
-static mut FRAMEBUFFER_1_STATIC: [[u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize] =
-    [[0u16; GBA_SCREEN_X_I32 as usize]; GBA_SCREEN_Y_I32 as usize];
+#[repr(C, align(4))]
+pub struct AlignedBuffer([u8; 240 * 160 * 3]);
+
+#[link_section = ".ewram"] // Can hold a full rgb888 framebuffer or 555 framebuffer, perfect for both the low and high res denoisers
+pub static mut FRAMEBUFFER_1_STATIC: AlignedBuffer = AlignedBuffer([0; 240 * 160 * 3]);
+
+// Safe access to the u16 view (160 * 2 bytes per row)
+#[allow(static_mut_refs)]
+fn as_u16_view_mut() -> &'static mut [[u16; 240]; 160] {
+    unsafe {
+        &mut *(FRAMEBUFFER_1_STATIC.0.as_mut_ptr() as *mut [[u16; 240]; 160])
+    }
+}
+
+// Safe access to the u8 view (160 * 3 bytes per row)
+#[allow(static_mut_refs)]
+fn as_rgb_view_mut() -> &'static mut [[[u8; 3]; 240]; 160] {
+    unsafe {
+        &mut *(FRAMEBUFFER_1_STATIC.0.as_mut_ptr() as *mut [[[u8; 3]; 240]; 160])
+    }
+}
 
 #[link_section = ".iwram"]
 pub fn denoise(bitmap: &mut Bitmap3) {
-    let FRAMEBUFFER_1 = unsafe { FRAMEBUFFER_1_STATIC.as_mut() };
+    let framebuffer_1 = as_u16_view_mut();
     //
     // Basic acne removal, checks the 4 immediate neighbors and if 3
     //    are more than 5% different (by luminance) from the current pixel, replaces the current pixel with the average of neighbors
@@ -19,28 +37,28 @@ pub fn denoise(bitmap: &mut Bitmap3) {
     for y in 0..GBA_SCREEN_Y_I32 as usize {
         for x in 0..GBA_SCREEN_X_I32 as usize {
             unsafe {
-                FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
+                framebuffer_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
             unsafe {
-                let color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
+                let color = Vec3::from_gba_color(framebuffer_1[y as usize][x as usize]);
                 let up = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let down = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let right = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x + 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
                 let left = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x - 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
 
@@ -68,28 +86,28 @@ pub fn denoise(bitmap: &mut Bitmap3) {
     for y in 0..GBA_SCREEN_Y_I32 as usize {
         for x in 0..GBA_SCREEN_X_I32 as usize {
             unsafe {
-                FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
+                framebuffer_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
             unsafe {
-                let mut color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
+                let mut color = Vec3::from_gba_color(framebuffer_1[y as usize][x as usize]);
                 let up = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let down = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let right = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x + 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
                 let left = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x - 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
 
@@ -127,28 +145,28 @@ pub fn denoise(bitmap: &mut Bitmap3) {
     for y in 0..GBA_SCREEN_Y_I32 as usize {
         for x in 0..GBA_SCREEN_X_I32 as usize {
             unsafe {
-                FRAMEBUFFER_1[y][x] = bitmap.read_point(x as i32, y as i32);
+                framebuffer_1[y][x] = bitmap.read_point(x as i32, y as i32);
             }
         }
     }
     for y in 0..GBA_SCREEN_Y_I32 {
         for x in 0..GBA_SCREEN_X_I32 {
             unsafe {
-                let color = Vec3::from_gba_color(FRAMEBUFFER_1[y as usize][x as usize]);
+                let color = Vec3::from_gba_color(framebuffer_1[y as usize][x as usize]);
                 let up = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y + 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let down = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
+                    framebuffer_1[(y - 1).clamp(0, const { GBA_SCREEN_Y_I32 - 1 }) as usize]
                         [x as usize],
                 );
                 let right = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x + 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
                 let left = Vec3::from_gba_color(
-                    FRAMEBUFFER_1[y as usize]
+                    framebuffer_1[y as usize]
                         [(x - 1).clamp(0, const { GBA_SCREEN_X_I32 - 1 }) as usize],
                 );
 

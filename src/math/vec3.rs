@@ -152,6 +152,13 @@ impl Vec3 {
             | ((self.y.to_bits() >> const { FRACTIONAL - 5 }) as u16) << 5
             | ((self.x.to_bits() >> const { FRACTIONAL - 5 }) as u16)
     }
+    pub fn to_888_color(&self) -> [u8; 3] {
+        [
+            ((self.z.to_bits() >> const { FRACTIONAL - 8 }) as u8),
+            ((self.y.to_bits() >> const { FRACTIONAL - 8 }) as u8),
+            ((self.x.to_bits() >> const { FRACTIONAL - 8 }) as u8)
+        ]
+    }
     pub fn from_gba_color(rhs: u16) -> Self {
         Self::new(
             FixFlt {

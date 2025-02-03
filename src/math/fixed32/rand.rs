@@ -1,7 +1,6 @@
-use bytemuck::cast;
-
 use super::Fixed32;
 use crate::math::types::FRACTIONAL;
+use bytemuck::cast;
 
 impl Fixed32 {
     pub fn next_rand_full_range(&mut self) -> Fixed32 {

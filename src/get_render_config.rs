@@ -286,7 +286,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
                     data.scene = data.scene.prev();
                 },
                 MenuSelection::IterationsSelect => {
-                    if data.iters_per_pixel > 1 {
+                    if data.iters_per_pixel > 2 {
                         data.iters_per_pixel -= 1;
                     }
                 },

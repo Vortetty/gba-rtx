@@ -38,11 +38,12 @@ impl MaterialManager {
             mat_type: MaterialType::LAMBERTIAN
         }
     }
-    pub fn add_metal(&mut self, albedo: Vec3) -> Material {
+    pub fn add_metal(&mut self, albedo: Vec3, matteness: FixFlt) -> Material {
         let id = self.metal_mats.len();
         unsafe {
             self.metal_mats.push_unchecked(MetalMat {
-                albedo
+                albedo,
+                matte: matteness
             });
         }
         Material {
