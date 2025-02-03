@@ -64,20 +64,46 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
     // Test scene, will be turned into it's own class later
     let mut scene = Scene {
         spheres: vec![
-            Sphere {
+            Sphere { // Center
                 center: Vec3::new(
                     FixFlt::zero(),
                     FixFlt::zero(),
-                    FixFlt::neg_one()
+                    FixFlt::from_f32(-1.2)
                 ),
                 radius: FixFlt::half_one(),
                 mat: mat_mgr.add_lambertian(Vec3::new(
                     FixFlt::from_f32(1.0),
-                    FixFlt::from_f32(0.5),
-                    FixFlt::from_f32(0.5)
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(0.3)
                 ))
             },
-            Sphere {
+            Sphere { // Left
+                center: Vec3::new(
+                    FixFlt::from_f32(-1.0),
+                    FixFlt::zero(),
+                    FixFlt::from_f32(-1.0)
+                ),
+                radius: FixFlt::half_one(),
+                mat: mat_mgr.add_metal(Vec3::new(
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(0.3)
+                ))
+            },
+            Sphere { // Right
+                center: Vec3::new(
+                    FixFlt::from_f32(1.0),
+                    FixFlt::zero(),
+                    FixFlt::from_f32(-1.0)
+                ),
+                radius: FixFlt::half_one(),
+                mat: mat_mgr.add_metal(Vec3::new(
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(1.0)
+                ))
+            },
+            Sphere { // Bottom
                 center: Vec3::new(
                     FixFlt::zero(),
                     FixFlt::from_f32(-50.5),
@@ -85,13 +111,15 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                 ),
                 radius: FixFlt::from_i32(50),
                 mat: mat_mgr.add_lambertian(Vec3::new(
-                    FixFlt::from_f32(1.0),
-                    FixFlt::from_f32(1.0),
-                    FixFlt::from_f32(1.0)
+                    FixFlt::from_f32(0.9),
+                    FixFlt::from_f32(0.9),
+                    FixFlt::from_f32(0.9)
                 ))
             }
         ]
     };
+
+    let mut rng = FixFlt { inner: const_random!(i32) };
 
     let mut precalc_offsets: ArrayVec<Vec3, 256> = ArrayVec::<Vec3, 256>::new();
     let dims = closest_factors(settings.iters_per_pixel as i32);
@@ -99,17 +127,19 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
     let yadd = pixel_height_y/dims.1;
     for x in 0..dims.0 {
         for y in 0..dims.1 {
+            // Jittering within the cell boundaries
+            let jitter_x = rng.next_rand_minmax(FixFlt::zero(), xadd);
+            let jitter_y = rng.next_rand_minmax(FixFlt::zero(), yadd);
+
             unsafe {
                 precalc_offsets.push_unchecked(Vec3::new(
-                    xadd*x,
-                    yadd*y,
-                    FixFlt::zero()
+                    xadd * x + jitter_x,
+                    yadd * y + jitter_y,
+                    FixFlt::zero(),
                 ));
             }
         }
     }
-
-    let mut rng = FixFlt { inner: const_random!(i32) };
 
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location-camera_center);

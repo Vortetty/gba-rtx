@@ -9,15 +9,26 @@ pub struct Scene {
 }
 
 
+//const SKY_TOP_COLOR: Vec3 = Vec3::new(
+//    FixFlt::from_f32(0.459),
+//    FixFlt::from_f32(0.478),
+//    FixFlt::from_f32(0.749)
+//);
+//const SKY_BOTTOM_COLOR: Vec3 = Vec3::new(
+//    FixFlt::from_f32(0.918),
+//    FixFlt::from_f32(0.69),
+//    FixFlt::from_f32(0.82)
+//);
+
 const SKY_TOP_COLOR: Vec3 = Vec3::new(
-    FixFlt::from_f32(0.459),
-    FixFlt::from_f32(0.478),
-    FixFlt::from_f32(0.749)
+    FixFlt::from_f32(0.5),
+    FixFlt::from_f32(0.7),
+    FixFlt::from_f32(1.0)
 );
 const SKY_BOTTOM_COLOR: Vec3 = Vec3::new(
-    FixFlt::from_f32(0.918),
-    FixFlt::from_f32(0.69),
-    FixFlt::from_f32(0.82)
+    FixFlt::from_f32(1.0),
+    FixFlt::from_f32(1.0),
+    FixFlt::from_f32(1.0)
 );
 
 impl Scene {
