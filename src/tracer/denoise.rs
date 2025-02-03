@@ -277,9 +277,9 @@ pub fn hd_denoise(bitmap: &mut Bitmap3) {
 
             bitmap.draw_point(x, y,
                 Vec3::new(
-                    FixFlt::from_f32(f32::min(255.0, (color[0] as f32 + window[0][x as usize][0] as f32)/255.0)),
-                    FixFlt::from_f32(f32::min(255.0, (color[1] as f32 + window[0][x as usize][1] as f32)/255.0)),
-                    FixFlt::from_f32(f32::min(255.0, (color[2] as f32 + window[0][x as usize][2] as f32)/255.0))
+                    FixFlt::from_f32(f32::min(255.0, (color[0] as f32 + window[0][x as usize][0] as f32))/256.0),
+                    FixFlt::from_f32(f32::min(255.0, (color[1] as f32 + window[0][x as usize][1] as f32))/256.0),
+                    FixFlt::from_f32(f32::min(255.0, (color[2] as f32 + window[0][x as usize][2] as f32))/256.0)
                 ).to_gba_color()
             );
         }
