@@ -9,6 +9,7 @@
 #![feature(generic_const_exprs)]
 #![feature(core_intrinsics)]
 #![feature(variant_count)]
+#![feature(f16)]
 
 mod vars;
 mod get_render_config;
@@ -43,13 +44,13 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut timer3: Timer = timers.timer3;
 
     // Get configuration for renderer
-    let conf = get_render_config::get_render_config(&mut input, &mut bitmap);
-    //let conf = RenderConfig {
-    //    scene: Scenes::SPHERES,
-    //    iters_per_pixel: 8,
-    //    max_depth: 8,
-    //    hd_mode: true
-    //};
+    //let conf = get_render_config::get_render_config(&mut input, &mut bitmap);
+    let conf = RenderConfig {
+        scene: Scenes::SPHERES,
+        iters_per_pixel: 8,
+        max_depth: 8,
+        hd_mode: true
+    };
     bitmap.clear(0);
 
     timer2.set_divider(Divider::Divider1024);
