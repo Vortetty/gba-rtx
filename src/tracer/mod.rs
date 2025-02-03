@@ -88,7 +88,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                     FixFlt::from_f32(0.3),
                     FixFlt::from_f32(1.0),
                     FixFlt::from_f32(0.3)
-                ))
+                ), FixFlt::from_f32(0.2))
             },
             Sphere { // Right
                 center: Vec3::new(
@@ -101,7 +101,7 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
                     FixFlt::from_f32(0.3),
                     FixFlt::from_f32(0.3),
                     FixFlt::from_f32(1.0)
-                ))
+                ), FixFlt::from_f32(1.0))
             },
             Sphere { // Bottom
                 center: Vec3::new(
@@ -161,6 +161,6 @@ pub fn render(bitmap: &mut Bitmap3, viewport_height: FixFlt, viewport_width: Fix
             bitmap.draw_point(x as i32, y as i32, (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color());
         }
     }
-    
+
     denoise(bitmap);
 }
