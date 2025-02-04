@@ -2,6 +2,8 @@
 
 Raytracing for the gba. to compile you just need `cargo` with the `nightly` compiler installed via rustup, as well as `agb-gbafix` (`cargo install agb-gbafix`)
 
+![Preview image](readme_assets/preview.png)
+
 ## Compiling
 
 on linux you can use the makefile to compile with `make fix` assuming `make` is installed as well
