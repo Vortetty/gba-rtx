@@ -193,6 +193,14 @@ fn add_assign_f16_array(a: &mut [f16; 3], b: [f16; 3]) {
 #[link_section = ".ewram"] // Can hold a full rgb888 framebuffer or 555 framebuffer, perfect for both the low and high res denoisers
 pub static mut DENOISING_WINDOW: [[[f16; 3]; 240]; 3] = [[[0f16; 3]; 240]; 3]; // one framebuffer row wide, 3 rows, 3 pixels per row
 
+fn round_f16(x: f16) -> f16 {
+    if x-x.next_down() < 0.5 {
+        x.next_down()
+    } else {
+        x.next_up()
+    }
+}
+
 pub fn hd_denoise(bitmap: &mut Bitmap3) {
     let bitmap_1 = as_rgb_view_mut();
     #[allow(static_mut_refs)]
@@ -211,7 +219,11 @@ pub fn hd_denoise(bitmap: &mut Bitmap3) {
             // # [0,    X,    7/16]
             // # [3/16, 5/16, 1/16]
             // Bayer extended, x is the current pixel
-            color = bitmap_1[y as usize][x as usize];
+            color = [
+                round_f16(f16::min(255.0, (bitmap_1[y as usize][x as usize][0] as f16 + window[0][x as usize][0] as f16))) as u8,
+                round_f16(f16::min(255.0, (bitmap_1[y as usize][x as usize][1] as f16 + window[0][x as usize][1] as f16))) as u8,
+                round_f16(f16::min(255.0, (bitmap_1[y as usize][x as usize][2] as f16 + window[0][x as usize][2] as f16))) as u8
+            ];
             err_r = (color[0] & 0b00000111) as f16 / 16.0;
             err_g = (color[1] & 0b00000111) as f16 / 16.0;
             err_b = (color[2] & 0b00000111) as f16 / 16.0;
@@ -260,16 +272,13 @@ pub fn hd_denoise(bitmap: &mut Bitmap3) {
                 y,
                 Vec3::new(
                     FixFlt::from_f32(
-                        f32::min(255.0, (color[0] as f32 + window[0][x as usize][0] as f32))
-                            / 256.0,
+                        color[0] as f32 / 256.0,
                     ),
                     FixFlt::from_f32(
-                        f32::min(255.0, (color[1] as f32 + window[0][x as usize][1] as f32))
-                            / 256.0,
+                        color[1] as f32 / 256.0,
                     ),
                     FixFlt::from_f32(
-                        f32::min(255.0, (color[2] as f32 + window[0][x as usize][2] as f32))
-                            / 256.0,
+                        color[2] as f32 / 256.0,
                     ),
                 )
                 .to_gba_color(),
