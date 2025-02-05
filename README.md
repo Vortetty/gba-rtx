@@ -4,6 +4,48 @@ Raytracing for the gba. to compile you just need `cargo` with the `nightly` comp
 
 ![Preview image](readme_assets/preview.png)
 
+### A note before we continue
+
+This project is an implementation of "Raytracing in one Weekend", it is not a world-class raytracer nor am i trying to be the Heaven Seven demo. The primary goal is not to have perfect rendering or blow people's minds beyond "oh that's cool".
+
+With that said, i am trying to keep it high quality, so for an faq:
+
+---
+
+**Q:** BVH?
+
+**A:** At some point, i am largely following the order of the book
+
+---
+
+**Q:** Importance sampling?
+
+**A:** Maybe some day but not right now.
+
+---
+
+**Q:** Realtime?
+
+**A:** If you make a realtime raytracer with good quality you are a better dev than i
+
+---
+
+**Q:** Meshes?
+
+**A:** Some day, when i add triangles, it will not be soon.
+
+---
+
+**Q:** Why are you not using X method?
+
+**A:** Likely either memory constraints, or the fact that this was a project for fun, not a project for reading 500 page research documents and learning 4th year college math to understand them so i can make a slightly nicer raytracer on a gba.
+
+---
+
+**Q:** Rom?
+
+**A:** Check the releases page
+
 ## Compiling
 
 on linux you can use the makefile to compile with `make fix` assuming `make` is installed as well
@@ -27,6 +69,10 @@ While this is a CC0 project, i do kindly ask you add attribution. I cannot force
 
 - [Zesterer](https://github.com/zesterer) for helping with finding inefficiencies as well as pointing out helpful libs and pushing me to better my code, as well as helping with a few implementations and some bug fixes
 - [gbadev](https://gbadev.net/) (mainly the discord) users for helping keep me motivated to work on it and helping with some bugs
+
+#### Another note
+
+Apologies if the faq comes off as rude, but this is a fun project not a full time job, and i will be adding features as they come up or are useful. If you have an idea you can ask but don't push for it to be perfect, that is how projects get killed.
 
 ## Old readme
 
