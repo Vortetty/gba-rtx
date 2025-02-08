@@ -68,7 +68,7 @@ fn main(mut gba: agb::Gba) -> ! {
 
     let viewport_height = FixFlt::from_i32(2);
 
-    let viewport_width = viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y);
+    let viewport_width = (viewport_height * (GBA_SCREEN_X * GBA_SCREEN_1_OVER_Y)) / 2;
 
     render(&mut bitmap, viewport_height, viewport_width, focal_length, conf);
 
@@ -79,7 +79,7 @@ fn main(mut gba: agb::Gba) -> ! {
     let time_per_1024_cycles = Duration::from_nanos(61035); // 61035.15625ns per 1024 clock cycles
     let total_time = total_cycles * time_per_1024_cycles;
 
-    PIXELARA.print_str(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
+    //PIXELARA.print_str(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
 
     //PIXELARA.print_str_rel(format!("{:}", FixFlt::from_i32(65536/16).recip().as_f32()), &mut bitmap, 0, 0);
     //PIXELARA.print_str_rel(format!("{:}", 1.0/(65536.0/16.0)), &mut bitmap, 0, 1);

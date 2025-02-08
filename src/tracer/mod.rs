@@ -168,59 +168,43 @@ pub fn render(
 
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location - camera_center);
-    let mut out_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
-    if settings.hd_mode {
-        let rgbf16_bitmap = as_rgb_view_mut();  // Change no.1 from the normal loop
-        for y in 0..GBA_SCREEN_Y_I32 {
-            pixel_center.x = pixel00_location.x;
-            pixel_center.y += pixel_height_y;
-            for x in 0..GBA_SCREEN_X_I32 {
-                pixel_center.x += pixel_width_x;
-                ray.direction = pixel_center - camera_center;
-                out_color.x.inner = 0;
-                out_color.y.inner = 0;
-                out_color.z.inner = 0;
-                for i in precalc_offsets.iter() {
-                    let mut tmpray = ray;
-                    tmpray.direction = tmpray.direction + *i;
-                    out_color =
-                        out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
-                }
-                out_color = out_color * FixFlt::from(settings.iters_per_pixel).recip();
-                bitmap.draw_point( // We should probably not display this but... seeing the scanlines is part of the magic so fuck speed amirite?
-                    x as i32,
-                    y as i32,
-                    out_color.to_gba_color(),
-                );
-                rgbf16_bitmap[y as usize][x as usize] = out_color.to_888_color(); // Change no.2 from the normal loop
-            }
-        }
+    let mut out_color_left: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+    let mut out_color_right: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
 
-        hd_denoise(bitmap); // Change no.3 from the normal loop
-    } else {
-        for y in 0..GBA_SCREEN_Y_I32 {
-            pixel_center.x = pixel00_location.x;
-            pixel_center.y += pixel_height_y;
-            for x in 0..GBA_SCREEN_X_I32 {
-                pixel_center.x += pixel_width_x;
-                ray.direction = pixel_center - camera_center;
-                out_color.x.inner = 0;
-                out_color.y.inner = 0;
-                out_color.z.inner = 0;
-                for i in precalc_offsets.iter() {
-                    let mut tmpray = ray;
-                    tmpray.direction = tmpray.direction + *i;
-                    out_color =
-                        out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
-                }
-                bitmap.draw_point(
-                    x as i32,
-                    y as i32,
-                    (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color(),
-                );
+    for y in 0..GBA_SCREEN_Y_I32 {
+        pixel_center.x = pixel00_location.x;
+        pixel_center.y += pixel_height_y;
+        for x in (0..GBA_SCREEN_X_I32).step_by(2) {
+            pixel_center.x += pixel_width_x << 1usize;
+            ray.direction = pixel_center - camera_center;
+            out_color_left.x.inner = 0;
+            out_color_left.y.inner = 0;
+            out_color_left.z.inner = 0;
+            out_color_right.x.inner = 0;
+            out_color_right.y.inner = 0;
+            out_color_right.z.inner = 0;
+            for i in precalc_offsets.iter() {
+                let mut tmpray = ray;
+                tmpray.direction = tmpray.direction + *i;
+                tmpray.origin.x -= (2.5*pixel_width_x);
+                out_color_left =
+                    out_color_left + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                tmpray.origin.x += (5*pixel_width_x);
+                out_color_right =
+                    out_color_right + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
             }
+            out_color_left = out_color_left * FixFlt::from(settings.iters_per_pixel).recip();
+            out_color_right = out_color_right * FixFlt::from(settings.iters_per_pixel).recip();
+            bitmap.draw_point(
+                x as i32,
+                y as i32,
+                out_color_left.to_gba_color(),
+            );
+            bitmap.draw_point(
+                x+1 as i32,
+                y as i32,
+                out_color_right.to_gba_color(),
+            );
         }
-
-        denoise(bitmap);
     }
 }
