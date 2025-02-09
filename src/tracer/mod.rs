@@ -146,6 +146,7 @@ pub fn render(
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location - camera_center);
     let mut out_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+    let iters_recip = FixFlt::from(settings.iters_per_pixel).recip();
     if settings.hd_mode {
         let bitmap_1 = as_rgb_view_mut();
         #[allow(static_mut_refs)]
@@ -173,10 +174,9 @@ pub fn render(
                 for i in precalc_offsets.iter() {
                     let mut tmpray = ray;
                     tmpray.direction = tmpray.direction + *i;
-                    out_color =
-                        out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                    out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
                 }
-                color = (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_888_color();
+                color = (out_color * iters_recip).to_888_color();
 
                 color = [
                     round_f16(f16::min(255.0, (color[0] as f16 + window[0][x as usize][0] as f16))) as u8,
@@ -256,7 +256,7 @@ pub fn render(
                 bitmap.draw_point(
                     x as i32,
                     y as i32,
-                    (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color(),
+                    (out_color * iters_recip).to_gba_color(),
                 );
             }
         }
