@@ -30,10 +30,16 @@ use math::types::FixFlt;
 use agb::{sound::mixer::SoundChannel, timer::Divider};
 use tracer::render;
 use vars::GBA_SCREEN_X;
+use core::ptr::write_volatile;
+
+const MEMORY_SPEED_SHI: *mut u16 = 0x04000204 as *mut u16;
 
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
+    unsafe {
+        write_volatile(MEMORY_SPEED_SHI, 0x4317);
+    }
 
     use math::vec3::Vec3;
     use vars::{GBA_SCREEN_X_I32, GBA_SCREEN_Y_I32};
