@@ -13,7 +13,7 @@ __bios_reserved_iwram = 256;
 
 MEMORY {
     ewram (w!x) : ORIGIN = 0x02000000, LENGTH = 256K
-    iwram (w!x) : ORIGIN = 0x03000000, LENGTH = 32K - 8K - __bios_reserved_iwram
+    iwram (w!x) : ORIGIN = 0x03000000, LENGTH = 32K - 4K - __bios_reserved_iwram
     rom (rx)    : ORIGIN = 0x08000000, LENGTH = 32M
 }
 

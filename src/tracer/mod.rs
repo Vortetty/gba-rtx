@@ -80,13 +80,30 @@ pub fn render(
                     FixFlt::from_f32(-1.0),
                 ),
                 radius: FixFlt::half_one(),
-                mat: mat_mgr.add_metal(
+                mat: mat_mgr.add_dielectric(
                     Vec3::new(
-                        FixFlt::from_f32(0.3),
                         FixFlt::from_f32(1.0),
-                        FixFlt::from_f32(0.3),
+                        FixFlt::from_f32(1.0),
+                        FixFlt::from_f32(1.0),
                     ),
-                    FixFlt::from_f32(0.2),
+                    FixFlt::from_f32(1.5),
+                ),
+            },
+            Sphere {
+                // Left inner
+                center: Vec3::new(
+                    FixFlt::from_f32(-1.0),
+                    FixFlt::zero(),
+                    FixFlt::from_f32(-1.0),
+                ),
+                radius: FixFlt::from_f32(0.4),
+                mat: mat_mgr.add_dielectric(
+                    Vec3::new(
+                        FixFlt::from_f32(1.0),
+                        FixFlt::from_f32(1.0),
+                        FixFlt::from_f32(1.0),
+                    ),
+                    FixFlt::from_f32(1.0/1.5),
                 ),
             },
             Sphere {

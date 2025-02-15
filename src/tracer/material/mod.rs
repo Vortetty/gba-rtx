@@ -1,5 +1,6 @@
 use alloc::vec::Vec;
 use arrayvec::ArrayVec;
+use dielectric::DielectricMat;
 use lambertian::LambertianMat;
 use metal::MetalMat;
 
@@ -11,7 +12,8 @@ use super::objects::HitRecord;
 pub enum MaterialType {
     #[default]
     LAMBERTIAN,
-    METAL
+    METAL,
+    DIELECTRIC
 }
 
 #[derive(Clone, Copy, Default)]
@@ -22,7 +24,8 @@ pub struct Material {
 
 pub struct MaterialManager {
     lambertian_mats: ArrayVec<LambertianMat, 256>,
-    metal_mats: ArrayVec<MetalMat, 256>
+    metal_mats: ArrayVec<MetalMat, 256>,
+    dielectric_mats: ArrayVec<DielectricMat, 256>
 }
 
 impl MaterialManager {
@@ -51,11 +54,26 @@ impl MaterialManager {
             mat_type: MaterialType::METAL
         }
     }
+    pub fn add_dielectric(&mut self, albedo: Vec3, refraction_index: FixFlt) -> Material {
+        let id = self.metal_mats.len();
+        unsafe {
+            self.dielectric_mats.push_unchecked(DielectricMat {
+                albedo,
+                refraction: refraction_index,
+                refraction_recip: refraction_index.recip()
+            });
+        }
+        Material {
+            mat_id: id,
+            mat_type: MaterialType::DIELECTRIC
+        }
+    }
 
     pub fn scatter(&self, material: &Material, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3) {
         match material.mat_type {
             MaterialType::LAMBERTIAN => unsafe {self.lambertian_mats.get_unchecked(material.mat_id)}.scatter(r, rng, hitrec),
             MaterialType::METAL => unsafe {self.metal_mats.get_unchecked(material.mat_id)}.scatter(r, rng, hitrec),
+            MaterialType::DIELECTRIC => unsafe {self.dielectric_mats.get_unchecked(material.mat_id)}.scatter(r, rng, hitrec),
         }
     }
 
@@ -63,6 +81,7 @@ impl MaterialManager {
         Self {
             lambertian_mats: ArrayVec::<LambertianMat, 256>::new(),
             metal_mats: ArrayVec::<MetalMat, 256>::new(),
+            dielectric_mats: ArrayVec::<DielectricMat, 256>::new(),
         }
     }
 }
@@ -73,3 +92,4 @@ trait Scatterable {
 
 mod lambertian;
 mod metal;
+mod dielectric;

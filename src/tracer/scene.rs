@@ -32,7 +32,6 @@ const SKY_BOTTOM_COLOR: Vec3 = Vec3::new(
 );
 
 impl Scene {
-    #[link_section = ".iwram"]
     fn calc_hit(&mut self, r: &mut Ray, ray_dist: Interval, rec: &mut HitRecord) -> bool {
         let mut temp_record = HitRecord {
             point: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero()),
@@ -62,7 +61,6 @@ impl Scene {
         return has_hit;
     }
 
-    #[link_section = ".iwram"]
     pub fn ray_color(&mut self, r: &mut Ray, rng: &mut FixFlt, conf: &RenderConfig, mat_mgr: &MaterialManager) -> Vec3 {
         //let t = hit_sphere(Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::neg_one()), FixFlt::half_one(), *r);
         let mut ctr = 0;

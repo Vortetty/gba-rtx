@@ -18,8 +18,8 @@ macro_rules! impl_ops {
         impl $trait<Self> for Vec3 {
             type Output = Self;
 
-                #[inline]
-    #[link_section = ".iwram"]
+            #[inline]
+            #[link_section = ".iwram"]
             fn $method(self, rhs: Self) -> Self {
                 Self::new(
                     self.x $op rhs.x,
@@ -33,8 +33,8 @@ macro_rules! impl_ops {
         impl $trait<FixFlt> for Vec3 {
             type Output = Self;
 
-                #[inline]
-    #[link_section = ".iwram"]
+            #[inline]
+            #[link_section = ".iwram"]
             fn $method(self, rhs: FixFlt) -> Self {
                 Self::new(
                     self.x $op rhs,
@@ -142,6 +142,11 @@ impl Vec3 {
     }
     pub fn reflect(&self, normal: &Vec3) -> Self {
         *self - *normal*FixFlt::from_i32(2)*self.dot_prod(normal)
+    }
+    pub fn refract(&self, normal: &Vec3, etai_over_etat: FixFlt, cos_theta: FixFlt) -> Self {
+        let mut r_out_perp = (*self + *normal * cos_theta) * etai_over_etat;
+        let r_out_parallel = *normal * -((FixFlt::one() - r_out_perp.length_squared()).abs().sqrt());
+        return r_out_perp + r_out_parallel;
     }
 
     //

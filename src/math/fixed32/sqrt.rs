@@ -83,7 +83,7 @@ const fn sqrt_const01(x: f32)  -> f32 {
     }
     return (l + h) * 0.5;
 }
-#[link_section = ".ewram"]
+
 static SQRT01_LUT: [Fixed32; 1<<14] = get_sqrt01_lut();
 const fn get_sqrt01_lut() -> [Fixed32; 1<<14] {
     let mut out = [Fixed32::zero(); 1<<14];

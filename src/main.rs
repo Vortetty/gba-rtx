@@ -34,6 +34,7 @@ use core::ptr::write_volatile;
 
 const MEMORY_SPEED_SHI: *mut u16 = 0x04000204 as *mut u16;
 
+#[link_section = ".text"]
 #[agb::entry]
 fn main(mut gba: agb::Gba) -> ! {
     // Basics needed for gui
@@ -85,7 +86,7 @@ fn main(mut gba: agb::Gba) -> ! {
     let time_per_1024_cycles = Duration::from_nanos(61035); // 61035.15625ns per 1024 clock cycles
     let total_time = total_cycles * time_per_1024_cycles;
 
-    PIXELARA.print_str(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
+    PIXELARA.print_str_rel(format!("{:.03}s", total_time.as_millis() as f64/1000.0), &mut bitmap, 0, 0);
 
     //PIXELARA.print_str_rel(format!("{:}", FixFlt::from_i32(65536/16).recip().as_f32()), &mut bitmap, 0, 0);
     //PIXELARA.print_str_rel(format!("{:}", 1.0/(65536.0/16.0)), &mut bitmap, 0, 1);

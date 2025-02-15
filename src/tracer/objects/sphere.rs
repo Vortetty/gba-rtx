@@ -12,7 +12,6 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    #[link_section = ".iwram"]
     pub fn hit(&self, r: &Ray, ray_dist: Interval, hitrec: &mut HitRecord) -> bool {
         let mut r = r.clone();
         r.reset_cached();
