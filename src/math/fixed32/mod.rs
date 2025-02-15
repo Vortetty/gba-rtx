@@ -26,6 +26,9 @@ impl Fixed32 {
     pub const fn as_f32(&self) -> f32 {
         self.inner as f32 * (1.0 / (1 << FRACTIONAL) as f32)
     }
+    pub const fn as_f16(&self) -> f16 {
+        self.inner as f16 * (1.0 / (1 << FRACTIONAL) as f16)
+    }
     pub const fn to_bits(&self) -> i32 {
         self.inner
     }

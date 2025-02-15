@@ -27,29 +27,6 @@ use crate::{
     vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32},
 };
 
-fn closest_factors(n: i32) -> (i32, i32) {
-    let sqrt = FixFlt::from_i32(n).sqrt().inner >> FRACTIONAL; // Compute the integer square root
-    if sqrt * sqrt == n {
-        return (sqrt, sqrt); // Return the square root if it's a perfect square
-    }
-
-    let mut closest = (1, n); // Initialize with the trivial factors
-    let mut min_diff = n; // Start with the maximum possible difference
-
-    for i in 1..=sqrt {
-        if n % i == 0 {
-            let pair = (i, n / i); // i is a factor, and n / i is its pair
-            let diff = (pair.1 as i32 - pair.0 as i32).abs(); // Calculate the difference
-            if diff < min_diff as i32 {
-                closest = pair; // Update the closest factors
-                min_diff = diff as i32;
-            }
-        }
-    }
-
-    closest
-}
-
 #[inline(never)]
 #[link_section = ".iwram"]
 pub fn render(
@@ -169,11 +146,25 @@ pub fn render(
     let mut pixel_center = pixel00_location;
     let mut ray = Ray::new(camera_center, pixel00_location - camera_center);
     let mut out_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
+    let iters_recip = FixFlt::from(settings.iters_per_pixel).recip();
     if settings.hd_mode {
-        let rgbf16_bitmap = as_rgb_view_mut();  // Change no.1 from the normal loop
+        let bitmap_1 = as_rgb_view_mut();
+        #[allow(static_mut_refs)]
+        let window = unsafe { DENOISING_WINDOW.as_mut() };
+        let mut color = [0u8; 3];
+        let mut err_r = (color[0] & 0b00000111) as f16 / 16.0;
+        let mut err_g = (color[1] & 0b00000111) as f16 / 16.0;
+        let mut err_b = (color[2] & 0b00000111) as f16 / 16.0;
+
         for y in 0..GBA_SCREEN_Y_I32 {
             pixel_center.x = pixel00_location.x;
             pixel_center.y += pixel_height_y;
+
+            // Shift window down a row and move in blank info
+            window[0] = window[1];
+            window[1] = window[2];
+            window[2] = [[0f16; 3]; 240];
+
             for x in 0..GBA_SCREEN_X_I32 {
                 pixel_center.x += pixel_width_x;
                 ray.direction = pixel_center - camera_center;
@@ -183,20 +174,69 @@ pub fn render(
                 for i in precalc_offsets.iter() {
                     let mut tmpray = ray;
                     tmpray.direction = tmpray.direction + *i;
-                    out_color =
-                        out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                    out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
                 }
-                out_color = out_color * FixFlt::from(settings.iters_per_pixel).recip();
-                bitmap.draw_point( // We should probably not display this but... seeing the scanlines is part of the magic so fuck speed amirite?
-                    x as i32,
-                    y as i32,
-                    out_color.to_gba_color(),
+                color = (out_color * iters_recip).to_888_color();
+
+                color = [
+                    round_f16(f16::min(255.0, (color[0] as f16 + window[0][x as usize][0] as f16))) as u8,
+                    round_f16(f16::min(255.0, (color[1] as f16 + window[0][x as usize][1] as f16))) as u8,
+                    round_f16(f16::min(255.0, (color[2] as f16 + window[0][x as usize][2] as f16))) as u8
+                ];
+                err_r = (color[0] & 0b00000111) as f16 / 16.0;
+                err_g = (color[1] & 0b00000111) as f16 / 16.0;
+                err_b = (color[2] & 0b00000111) as f16 / 16.0;
+
+                if x + 1 < 240 {
+                    add_assign_f16_array(&mut window[0][(x + 1) as usize], [
+                        // We need 555 color for the screen so the error is the 3 LSBs
+                        // Using f16 as we are storing 1/64 the error
+                        // one per different count since some are reused
+                        err_r * 7f16,
+                        err_g * 7f16,
+                        err_b * 7f16,
+                    ])
+                } // (2, 0)
+                if x - 1 >= 0 {
+                    add_assign_f16_array(&mut window[1][(x - 1) as usize], [
+                        err_r * 3f16,
+                        err_g * 3f16,
+                        err_b * 3f16,
+                    ])
+                } // (0, 1)
+                add_assign_f16_array(&mut window[1][x as usize], [
+                    err_r * 5f16,
+                    err_g * 5f16,
+                    err_b * 5f16,
+                ]); // (1, 1)
+                if x + 1 < 240 {
+                    add_assign_f16_array(&mut window[1][(x + 1) as usize], [
+                        err_r,
+                        err_g,
+                        err_b,
+                    ])
+                } // (2, 1)
+
+                bitmap.draw_point(
+                    x,
+                    y,
+                    Vec3::new(
+                        FixFlt::from_f32(
+                            color[0] as f32 / 256.0,
+                        ),
+                        FixFlt::from_f32(
+                            color[1] as f32 / 256.0,
+                        ),
+                        FixFlt::from_f32(
+                            color[2] as f32 / 256.0,
+                        ),
+                    )
+                    .to_gba_color(),
                 );
-                rgbf16_bitmap[y as usize][x as usize] = out_color.to_888_color(); // Change no.2 from the normal loop
             }
         }
 
-        hd_denoise(bitmap); // Change no.3 from the normal loop
+        //hd_denoise(bitmap); // Change no.3 from the normal loop
     } else {
         for y in 0..GBA_SCREEN_Y_I32 {
             pixel_center.x = pixel00_location.x;
@@ -216,11 +256,52 @@ pub fn render(
                 bitmap.draw_point(
                     x as i32,
                     y as i32,
-                    (out_color * FixFlt::from(settings.iters_per_pixel).recip()).to_gba_color(),
+                    (out_color * iters_recip).to_gba_color(),
                 );
             }
         }
 
         denoise(bitmap);
     }
+}
+
+
+#[link_section = ".ewram"] // Can hold a full rgb888 framebuffer or 555 framebuffer, perfect for both the low and high res denoisers
+pub static mut DENOISING_WINDOW: [[[f16; 3]; 240]; 3] = [[[0f16; 3]; 240]; 3]; // one framebuffer row wide, 3 rows, 3 pixels per row
+
+fn add_assign_f16_array(a: &mut [f16; 3], b: [f16; 3]) {
+    for i in 0..3 {
+        a[i] += b[i];
+    }
+}
+
+fn round_f16(x: f16) -> f16 {
+    if x-x.next_down() < 0.5 {
+        x.next_down()
+    } else {
+        x.next_up()
+    }
+}
+
+fn closest_factors(n: i32) -> (i32, i32) {
+    let sqrt = FixFlt::from_i32(n).sqrt().inner >> FRACTIONAL; // Compute the integer square root
+    if sqrt * sqrt == n {
+        return (sqrt, sqrt); // Return the square root if it's a perfect square
+    }
+
+    let mut closest = (1, n); // Initialize with the trivial factors
+    let mut min_diff = n; // Start with the maximum possible difference
+
+    for i in 1..=sqrt {
+        if n % i == 0 {
+            let pair = (i, n / i); // i is a factor, and n / i is its pair
+            let diff = (pair.1 as i32 - pair.0 as i32).abs(); // Calculate the difference
+            if diff < min_diff as i32 {
+                closest = pair; // Update the closest factors
+                min_diff = diff as i32;
+            }
+        }
+    }
+
+    closest
 }
