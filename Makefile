@@ -2,7 +2,7 @@ COLOUR_RED=\033[0;31m
 COLOUR_YEL=\033[0;33m
 COLOUR_RES=\033[0m
 
-run_mesen: fix
+run_mesen: clean build fix
 	mesen2 output/gba-rt.gba
 
 run: build
@@ -16,10 +16,15 @@ run: build
 	@read
 	cargo run --release
 
+fullclean:
+	cargo clean
+
+clean:
+	-rm -r output
+	-mkdir output
+
 build:
 	cargo build --release
 
 fix: build
-	-rm -r output
-	-mkdir output
 	agb-gbafix target/armv4t-none-eabi/release/gba-rt -o output/gba-rt.gba

@@ -12,7 +12,7 @@ edition = "2021"
 agb = "0.21.1"
 arrayvec = { version = "0.7.6", default-features = false }
 bytemuck = "1.21.0"
-const-random = "0.1.18"
+#const-random = "0.1.18"
 
 [profile.dev]
 opt-level = 3
@@ -25,16 +25,16 @@ opt-level = 3
 incremental = true
 
 [profile.release]
-strip = "symbols"
+#strip = "symbols"
 opt-level = 3
 lto = "fat"
 codegen-units = 4
 incremental = true
-rustflags = ["-Z", "location-detail=none"]
+rustflags = ["-Clink-args=-Map=map.map"]
 
 [profile.release.package."*"]
-strip = "symbols"
+#strip = "symbols"
 opt-level = 3
 codegen-units = 4
 incremental = true
-rustflags = ["-Z", "location-detail=none"]
+rustflags = []

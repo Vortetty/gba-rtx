@@ -11,7 +11,7 @@ use agb::{
 };
 use alloc::vec::Vec;
 use arrayvec::ArrayVec;
-use const_random::const_random;
+//use const_random::const_random;
 use denoise::{as_rgb_view_mut, denoise, hd_denoise};
 use material::MaterialManager;
 use objects::sphere::Sphere;
@@ -137,7 +137,7 @@ pub fn render(
     };
 
     let mut rng = FixFlt {
-        inner: const_random!(i32),
+        inner: 0xC0FFEE // const_random!(i32),
     };
 
     let mut precalc_offsets: ArrayVec<Vec3, 256> = ArrayVec::<Vec3, 256>::new();

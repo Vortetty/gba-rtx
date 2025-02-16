@@ -166,23 +166,23 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
     // Render the basic menuing stuff
 
     if render_all || rewrite_info {
-        PIXELARA.print_str_rel_music(rFillText30!("GBA-RT Configuration"), bitmap, 8, 0);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 1);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 2);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 3);
-        PIXELARA.print_str_rel_music(fmtOptionNew!("HD Mode", if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 0, 4);
-        PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
+        PIXELARA.print_str_rel(rFillText30!("GBA-RT Configuration"), bitmap, 8, 0);
+        PIXELARA.print_str_rel(fmtOptionNew!("Scene", get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 0, 1);
+        PIXELARA.print_str_rel(fmtOptionNew!("Iters", data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 0, 2);
+        PIXELARA.print_str_rel(fmtOptionNew!("Depth", data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 0, 3);
+        PIXELARA.print_str_rel(fmtOptionNew!("HD Mode", if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 0, 4);
+        PIXELARA.print_str_rel(if *selection == MenuSelection::ConfirmButton {
             "     > Confirm Settings <     "
         } else {
             "       Confirm Settings       "
         }, bitmap, 0, 19);
     } else {
         match selection {
-            MenuSelection::SceneSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 7, 1),
-            MenuSelection::IterationsSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 7, 2),
-            MenuSelection::DepthSelect => PIXELARA.print_str_rel_music(fmtOptionNoName!(data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 7, 3),
-            MenuSelection::HDMode => PIXELARA.print_str_rel_music(fmtOptionNoName!(if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 9, 4),
-            MenuSelection::ConfirmButton => PIXELARA.print_str_rel_music(if *selection == MenuSelection::ConfirmButton {
+            MenuSelection::SceneSelect => PIXELARA.print_str_rel(fmtOptionNoName!(get_scene_name(data.scene), *selection == MenuSelection::SceneSelect), bitmap, 7, 1),
+            MenuSelection::IterationsSelect => PIXELARA.print_str_rel(fmtOptionNoName!(data.iters_per_pixel, *selection == MenuSelection::IterationsSelect), bitmap, 7, 2),
+            MenuSelection::DepthSelect => PIXELARA.print_str_rel(fmtOptionNoName!(data.max_depth, *selection == MenuSelection::DepthSelect), bitmap, 7, 3),
+            MenuSelection::HDMode => PIXELARA.print_str_rel(fmtOptionNoName!(if data.hd_mode {"Yes"} else {"No"}, *selection == MenuSelection::HDMode), bitmap, 9, 4),
+            MenuSelection::ConfirmButton => PIXELARA.print_str_rel(if *selection == MenuSelection::ConfirmButton {
                 "> Confirm Settings <"
             } else {
                 "  Confirm Settings  "
@@ -199,7 +199,7 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
                         bitmap.draw_point(x, y, 0);
                     }
                 }
-                IMAGES.print_nth_music(3, bitmap, 6*8, 6*8); // Print image
+                IMAGES.print_nth(3, bitmap, 6*8, 6*8); // Print image
                 for x in 24*8..29*8 { // Clear right padding of image
                     for y in 6*8..17*8 {
                         bitmap.draw_point(x, y, 0);
@@ -208,17 +208,17 @@ fn render_menu(data: &RenderConfig, selection: &MenuSelection, bitmap: &mut Bitm
             },
             MenuSelection::IterationsSelect => {
                 for (i, s) in split_text("How many iterations to run per pixel, more iterations improves aliasing at the cost of performance. Generally not too noticeable over 32 iterations due to the shallow color depth, and more than passable at 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
+                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
                 }
             },
             MenuSelection::DepthSelect => {
                 for (i, s) in split_text("Max bounces per sample, more bounces will increase accuracy at the cost of performance with diminishing returns. Not useful for most scenes beyond 16.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
+                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
                 }
             },
             MenuSelection::HDMode => {
                 for (i, s) in split_text("Renders internally at a higher bit depth then uses the extra data to improve the denoiser, at the cost of speed.").iter().enumerate() { // Print each line of the help message, updating the music between each print
-                    PIXELARA.print_str_rel_music(s, bitmap, 0, 6 + i);
+                    PIXELARA.print_str_rel(s, bitmap, 0, 6 + i);
                 }
             },
             MenuSelection::ConfirmButton => {
