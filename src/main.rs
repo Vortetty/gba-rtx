@@ -50,13 +50,13 @@ fn main(mut gba: agb::Gba) -> ! {
     let mut timer3: Timer = timers.timer3;
 
     // Get configuration for renderer
-    //let conf = get_render_config::get_render_config(&mut input, &mut bitmap);
-    let conf = RenderConfig {
-        scene: Scenes::SPHERES,
-        iters_per_pixel: 8,
-        max_depth: 8,
-        hd_mode: true
-    };
+    let conf = get_render_config::get_render_config(&mut input, &mut bitmap);
+    //let conf = RenderConfig {
+    //    scene: Scenes::SPHERES,
+    //    iters_per_pixel: 8,
+    //    max_depth: 8,
+    //    hd_mode: true
+    //};
     bitmap.clear(0);
 
     timer2.set_divider(Divider::Divider1024);
@@ -85,7 +85,7 @@ fn main(mut gba: agb::Gba) -> ! {
     let time_per_1024_cycles = Duration::from_nanos(61035); // 61035.15625ns per 1024 clock cycles
     let total_time = total_cycles * time_per_1024_cycles;
 
-    PIXELARA.print_str_rel(format!("{:.03}s", (total_time.as_millis() as f64/1000.0) as f32), &mut bitmap, 0, 0);
+    PIXELARA.print_str_rel("1234", &mut bitmap, 0, 0);
 
     //PIXELARA.print_str_rel(format!("{:}", FixFlt::from_i32(65536/16).recip().as_f32()), &mut bitmap, 0, 0);
     //PIXELARA.print_str_rel(format!("{:}", 1.0/(65536.0/16.0)), &mut bitmap, 0, 1);

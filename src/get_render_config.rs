@@ -240,7 +240,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
         iters_per_pixel: 8,
         scene: Scenes::from_i8(0),
         max_depth: 8,
-        hd_mode: false
+        hd_mode: true
     };
 
     let mut menu_selection = MenuSelection::from_i8(0);
@@ -251,7 +251,7 @@ pub fn get_render_config(input: &mut ButtonController, bitmap: &mut Bitmap3) -> 
     loop {
         let mut one_true = true;          // If any button was pressed
         let mut change_menu_text = false; // If that button was up or down, thus requiring a rewrite of the help message.
-        
+
         if input.is_just_pressed(Button::UP) { // Moves to the previous config option
             menu_selection = menu_selection.prev();
             change_menu_text = true;
