@@ -11,6 +11,16 @@ pub struct Sphere {
     pub mat: Material
 }
 
+impl Default for Sphere {
+    fn default() -> Self {
+        Self {
+            center: Vec3::default(),
+            radius: FixFlt::zero(),
+            mat: Material::default()
+        }
+    }
+}
+
 impl Sphere {
     pub fn hit(&self, r: &Ray, ray_dist: Interval, hitrec: &mut HitRecord) -> bool {
         let mut r = r.clone();

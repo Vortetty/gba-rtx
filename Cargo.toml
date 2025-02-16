@@ -9,10 +9,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-agb = "0.21.1"
-arrayvec = { version = "0.7.6", default-features = false }
+agb = "0.21.3"
 bytemuck = "1.21.0"
-#const-random = "0.1.18"
+tinyvec = "1.8.1"
 
 [profile.dev]
 opt-level = 3
@@ -25,16 +24,16 @@ opt-level = 3
 incremental = true
 
 [profile.release]
-#strip = "symbols"
+strip = "symbols"
 opt-level = 3
 lto = "fat"
-codegen-units = 4
+codegen-units = 1
 incremental = true
-rustflags = ["-Clink-args=-Map=map.map"]
+rustflags = ["-Zlocation-detail=none", "-Clink-args=-Map=map.map"]
 
 [profile.release.package."*"]
-#strip = "symbols"
+strip = "symbols"
 opt-level = 3
-codegen-units = 4
+codegen-units = 1
 incremental = true
-rustflags = []
+rustflags = ["-Zlocation-detail=none", ]

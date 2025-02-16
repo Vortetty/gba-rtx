@@ -2,8 +2,17 @@ use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, tracer::objects::HitRec
 
 use super::Scatterable;
 
+#[derive(Clone, Copy)]
 pub struct LambertianMat {
     pub albedo: Vec3 // color
+}
+
+impl Default for LambertianMat {
+    fn default() -> Self {
+        Self {
+            albedo: Vec3::new(FixFlt::one(), FixFlt::one(), FixFlt::one()),
+        }
+    }
 }
 
 impl Scatterable for LambertianMat {

@@ -5,9 +5,19 @@ use crate::{
 
 use super::Scatterable;
 
+#[derive(Clone, Copy)]
 pub struct MetalMat {
     pub albedo: Vec3, // color
     pub matte: FixFlt,
+}
+
+impl Default for MetalMat {
+    fn default() -> Self {
+        Self {
+            albedo: Vec3::new(FixFlt::one(), FixFlt::one(), FixFlt::one()),
+            matte: FixFlt::zero(),
+        }
+    }
 }
 
 impl Scatterable for MetalMat {

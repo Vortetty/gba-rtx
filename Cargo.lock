@@ -10,9 +10,9 @@ checksum = "512761e0bb2578dd7380c6baaa0f4ce03e84f95e960231d1dec8bf4d7d6e2627"
 
 [[package]]
 name = "agb"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50903b613aefa05ad1e85c28faa866dd90c9805e3973790f874b77e37134d6f9"
+checksum = "9868b47ec3465f4b323eb5ea2bbe5e66b2bb4ed22c88c53ddc6c4d2dea04139c"
 dependencies = [
  "agb_fixnum",
  "agb_hashmap",
@@ -29,9 +29,9 @@ dependencies = [
 
 [[package]]
 name = "agb_fixnum"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85f34b72407c42d911bf88d4934ceadd97741ac851e1edd6105265a8db00e03f"
+checksum = "1c185aafe6928e0ab120e90f966629f483155bc04cef6b1bba5d80a15b0ad70c"
 dependencies = [
  "agb_macros",
  "num-traits",
@@ -39,18 +39,18 @@ dependencies = [
 
 [[package]]
 name = "agb_hashmap"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad1c3218a4abe6e6f16067c87e78902f0e5dbfb6861b59a34be6cdf55363f76d"
+checksum = "138a1928f41a47a9ab2a538db474dd3e3f6f1dbb55326c394c19fdf395272ce5"
 dependencies = [
  "rustc-hash",
 ]
 
 [[package]]
 name = "agb_image_converter"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7b432932e8a0ec974508f37919c9c530896c1e0c5b1b5614eabf2710cbab9f0"
+checksum = "d4cba071da52a2e6017a5955f8a7667bd8a8457ccb856b573753ed42dcb22bfe"
 dependencies = [
  "asefile",
  "fontdue",
@@ -63,9 +63,9 @@ dependencies = [
 
 [[package]]
 name = "agb_macros"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c99c2a624219134f8265f6da0b0d526fe16dae57710f189e67cb7721cf6a3815"
+checksum = "25a14e2ed51fb890c0299e7273199ff1578f34ef632b7c4f1b8b09b263d9296e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -74,9 +74,9 @@ dependencies = [
 
 [[package]]
 name = "agb_sound_converter"
-version = "0.21.1"
+version = "0.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a661c5900e8b380f633345efcd4f09094a2b08c595ae7138401c8b50878acfb2"
+checksum = "45948f3b971eb84d9afa79ac085926558a7d42afcb2cbc2109f293b421ed5507"
 dependencies = [
  "hound",
  "proc-macro2",
@@ -107,12 +107,6 @@ name = "arbitrary-int"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "825297538d77367557b912770ca3083f778a196054b3ee63b22673c4a3cae0a5"
-
-[[package]]
-name = "arrayvec"
-version = "0.7.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
 name = "asefile"
@@ -248,8 +242,8 @@ name = "gba-rt"
 version = "0.1.0"
 dependencies = [
  "agb",
- "arrayvec",
  "bytemuck",
+ "tinyvec",
 ]
 
 [[package]]
@@ -425,6 +419,12 @@ dependencies = [
  "quote",
  "unicode-ident",
 ]
+
+[[package]]
+name = "tinyvec"
+version = "1.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "022db8904dfa342efe721985167e9fcd16c29b226db4397ed752a761cfce81e8"
 
 [[package]]
 name = "ttf-parser"

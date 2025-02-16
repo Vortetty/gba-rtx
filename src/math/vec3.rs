@@ -1,5 +1,7 @@
 use core::ops::{Add, Div, Mul, Neg, Sub};
 
+use agb::println;
+
 use super::types::{FixFlt, FixFltOnce, FRACTIONAL};
 
 #[derive(Clone, Copy, PartialEq)]
@@ -12,14 +14,24 @@ pub struct Vec3 {
     length: FixFltOnce,
 }
 
+impl Default for Vec3 {
+    fn default() -> Self {
+        Self {
+            x: FixFlt::zero(),
+            y: FixFlt::zero(),
+            z: FixFlt::zero(),
+            length: FixFltOnce::new(),
+            length_square: FixFltOnce::new(),
+        }
+    }
+}
+
 macro_rules! impl_ops {
     ($trait:ident, $method:ident, $op:tt) => {
         // Element-wise operations for Vec3 and Vec3
         impl $trait<Self> for Vec3 {
             type Output = Self;
 
-            #[inline]
-            #[link_section = ".iwram"]
             fn $method(self, rhs: Self) -> Self {
                 Self::new(
                     self.x $op rhs.x,
@@ -33,8 +45,6 @@ macro_rules! impl_ops {
         impl $trait<FixFlt> for Vec3 {
             type Output = Self;
 
-            #[inline]
-            #[link_section = ".iwram"]
             fn $method(self, rhs: FixFlt) -> Self {
                 Self::new(
                     self.x $op rhs,
@@ -144,8 +154,9 @@ impl Vec3 {
         *self - *normal*FixFlt::from_i32(2)*self.dot_prod(normal)
     }
     pub fn refract(&self, normal: &Vec3, etai_over_etat: FixFlt, cos_theta: FixFlt) -> Self {
-        let mut r_out_perp = (*self + *normal * cos_theta) * etai_over_etat;
-        let r_out_parallel = *normal * -((FixFlt::one() - r_out_perp.length_squared()).abs().sqrt());
+        let cos_theta = (-*self).dot_prod(&normal).min(FixFlt::one());
+        let mut r_out_perp = (*self + (*normal * cos_theta)) * etai_over_etat;
+        let r_out_parallel = *normal * -((FixFlt::one() - r_out_perp.length_squared()).sqrt());
         return r_out_perp + r_out_parallel;
     }
 

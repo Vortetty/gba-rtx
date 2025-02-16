@@ -10,12 +10,12 @@ use agb::{
     sound::mixer::Mixer,
 };
 use alloc::vec::Vec;
-use arrayvec::ArrayVec;
 //use const_random::const_random;
 use denoise::{as_rgb_view_mut, denoise, hd_denoise};
 use material::MaterialManager;
 use objects::sphere::Sphere;
 use scene::Scene;
+use tinyvec::ArrayVec;
 
 use crate::{
     get_render_config::RenderConfig,
@@ -25,6 +25,13 @@ use crate::{
         vec3::Vec3,
     },
     vars::{GBA_SCREEN_X, GBA_SCREEN_X_I32, GBA_SCREEN_Y, GBA_SCREEN_Y_I32},
+};
+
+
+static mut MAT_MGR: MaterialManager = MaterialManager::new();
+// Test scene, will be turned into it's own class later
+static mut SCENE: Scene = Scene {
+    spheres: vec![],
 };
 
 #[inline(never)]
@@ -58,89 +65,86 @@ pub fn render(
         viewport_upper_left.z,
     );
 
-    let mut mat_mgr = MaterialManager::new();
-    // Test scene, will be turned into it's own class later
-    let mut scene = Scene {
-        spheres: vec![
-            Sphere {
-                // Center
-                center: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::from_f32(-1.2)),
-                radius: FixFlt::half_one(),
-                mat: mat_mgr.add_lambertian(Vec3::new(
-                    FixFlt::from_f32(1.0),
-                    FixFlt::from_f32(0.3),
-                    FixFlt::from_f32(0.3),
-                )),
-            },
-            Sphere {
-                // Left
-                center: Vec3::new(
-                    FixFlt::from_f32(-1.0),
-                    FixFlt::zero(),
-                    FixFlt::from_f32(-1.0),
-                ),
-                radius: FixFlt::half_one(),
-                mat: mat_mgr.add_dielectric(
-                    Vec3::new(
-                        FixFlt::from_f32(1.0),
-                        FixFlt::from_f32(1.0),
-                        FixFlt::from_f32(1.0),
-                    ),
-                    FixFlt::from_f32(1.5),
-                ),
-            },
-            Sphere {
-                // Left inner
-                center: Vec3::new(
-                    FixFlt::from_f32(-1.0),
-                    FixFlt::zero(),
-                    FixFlt::from_f32(-1.0),
-                ),
-                radius: FixFlt::from_f32(0.4),
-                mat: mat_mgr.add_dielectric(
-                    Vec3::new(
-                        FixFlt::from_f32(1.0),
-                        FixFlt::from_f32(1.0),
-                        FixFlt::from_f32(1.0),
-                    ),
-                    FixFlt::from_f32(1.0/1.5),
-                ),
-            },
-            Sphere {
-                // Right
-                center: Vec3::new(
-                    FixFlt::from_f32(1.0),
-                    FixFlt::zero(),
-                    FixFlt::from_f32(-1.0),
-                ),
-                radius: FixFlt::half_one(),
-                mat: mat_mgr.add_metal(
-                    Vec3::new(
-                        FixFlt::from_f32(0.3),
-                        FixFlt::from_f32(0.3),
-                        FixFlt::from_f32(1.0),
-                    ),
-                    FixFlt::from_f32(1.0),
-                ),
-            },
-            Sphere {
-                // Bottom
-                center: Vec3::new(FixFlt::zero(), FixFlt::from_f32(-50.5), FixFlt::neg_one()),
-                radius: FixFlt::from_i32(50),
-                mat: mat_mgr.add_lambertian(Vec3::new(
-                    FixFlt::from_f32(0.9),
-                    FixFlt::from_f32(0.9),
-                    FixFlt::from_f32(0.9),
-                )),
-            },
-        ],
-    };
-
     let mut rng = FixFlt {
         inner: 0xC0FFEE // const_random!(i32),
     };
 
-    let mut precalc_offsets: ArrayVec<Vec3, 256> = ArrayVec::<Vec3, 256>::new();
+    #[allow(static_mut_refs)] // fuk u
+    unsafe {
+        SCENE.spheres.push(Sphere {
+            // Center
+            center: Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::from_f32(-1.2)),
+            radius: FixFlt::half_one(),
+            mat: MAT_MGR.add_lambertian(Vec3::new(
+                FixFlt::from_f32(1.0),
+                FixFlt::from_f32(0.3),
+                FixFlt::from_f32(0.3),
+            )),
+        });
+        SCENE.spheres.push(Sphere {
+            // Left
+            center: Vec3::new(
+                FixFlt::from_f32(-1.0),
+                FixFlt::zero(),
+                FixFlt::from_f32(-1.0),
+            ),
+            radius: FixFlt::half_one(),
+            mat: MAT_MGR.add_dielectric(
+                Vec3::new(
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(1.0),
+                    FixFlt::from_f32(1.0),
+                ),
+                FixFlt::from_f32(1.5),
+            ),
+        });
+        //SCENE.spheres.push(Sphere {
+        //    // Left inner
+        //    center: Vec3::new(
+        //        FixFlt::from_f32(-1.0),
+        //        FixFlt::zero(),
+        //        FixFlt::from_f32(-1.0),
+        //    ),
+        //    radius: FixFlt::from_f32(0.4),
+        //    mat: MAT_MGR.add_dielectric(
+        //        Vec3::new(
+        //            FixFlt::from_f32(1.0),
+        //            FixFlt::from_f32(1.0),
+        //            FixFlt::from_f32(1.0),
+        //        ),
+        //        FixFlt::from_f32(1.0/1.5),
+        //    ),
+        //});
+        SCENE.spheres.push(Sphere {
+            // Right
+            center: Vec3::new(
+                FixFlt::from_f32(1.0),
+                FixFlt::zero(),
+                FixFlt::from_f32(-1.0),
+            ),
+            radius: FixFlt::half_one(),
+            mat: MAT_MGR.add_metal(
+                Vec3::new(
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(0.3),
+                    FixFlt::from_f32(1.0),
+                ),
+                FixFlt::from_f32(1.0),
+            ),
+        });
+        SCENE.spheres.push(Sphere {
+            // Bottom
+            center: Vec3::new(FixFlt::zero(), FixFlt::from_f32(-50.5), FixFlt::neg_one()),
+            radius: FixFlt::from_i32(50),
+            mat: MAT_MGR.add_lambertian(Vec3::new(
+                FixFlt::from_f32(0.5),
+                FixFlt::from_f32(0.5),
+                FixFlt::from_f32(0.5),
+            )),
+        });
+    }
+
+    let mut precalc_offsets: Vec<Vec3> = vec![];
     let dims = closest_factors(settings.iters_per_pixel as i32);
     let xadd = pixel_width_x / dims.0;
     let yadd = pixel_height_y / dims.1;
@@ -151,7 +155,7 @@ pub fn render(
             let jitter_y = rng.next_rand_minmax(FixFlt::zero(), yadd);
 
             unsafe {
-                precalc_offsets.push_unchecked(Vec3::new(
+                precalc_offsets.push(Vec3::new(
                     xadd * x + jitter_x,
                     yadd * y + jitter_y,
                     FixFlt::zero(),
@@ -191,7 +195,7 @@ pub fn render(
                 for i in precalc_offsets.iter() {
                     let mut tmpray = ray;
                     tmpray.direction = tmpray.direction + *i;
-                    out_color = out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                    out_color = out_color + unsafe{SCENE.ray_color(&mut tmpray, &mut rng, &settings, &MAT_MGR)};
                 }
                 color = (out_color * iters_recip).to_888_color();
 
@@ -268,7 +272,7 @@ pub fn render(
                     let mut tmpray = ray;
                     tmpray.direction = tmpray.direction + *i;
                     out_color =
-                        out_color + scene.ray_color(&mut tmpray, &mut rng, &settings, &mat_mgr);
+                        out_color + unsafe{SCENE.ray_color(&mut tmpray, &mut rng, &settings, &MAT_MGR)};
                 }
                 bitmap.draw_point(
                     x as i32,
@@ -277,9 +281,9 @@ pub fn render(
                 );
             }
         }
-
-        denoise(bitmap);
     }
+
+    denoise(bitmap);
 }
 
 

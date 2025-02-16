@@ -1,5 +1,4 @@
 use alloc::vec::Vec;
-use arrayvec::ArrayVec;
 use super::{interval::Interval, material::{Material, MaterialManager}, objects::{sphere::Sphere, HitRecord}};
 
 use crate::{get_render_config::RenderConfig, math::{ray::Ray, types::{FixFlt, FixFltOnce}, vec3::Vec3}};
