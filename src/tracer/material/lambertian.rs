@@ -16,7 +16,7 @@ impl Default for LambertianMat {
 }
 
 impl Scatterable for LambertianMat {
-    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3) {
+    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool) {
         let mut direction = hitrec.normal + Vec3::random_unit_vec(rng);
 
         //if direction.near_zero() {
@@ -25,7 +25,8 @@ impl Scatterable for LambertianMat {
 
         return (
             Ray::new(hitrec.point, direction),
-            self.albedo
+            self.albedo,
+            false
         );
     }
 }

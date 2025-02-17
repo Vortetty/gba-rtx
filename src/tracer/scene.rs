@@ -67,6 +67,7 @@ impl Scene {
         let mut tmp_color: Vec3 = Vec3::new(FixFlt::zero(), FixFlt::zero(), FixFlt::zero());
         let mut out_color: Vec3 = Vec3::new(FixFlt::one(), FixFlt::one(), FixFlt::one());
         let mut current_ray: Ray = *r;
+        let mut terminate = false;
 
         loop {
             ctr += 1;
@@ -88,11 +89,15 @@ impl Scene {
                 },
             };
             if self.calc_hit(&mut current_ray, Interval::new(FixFlt::from_f32(0.001), FixFlt::max_val()), &mut hitrec) {
-                (current_ray, tmp_color) = mat_mgr.scatter(&hitrec.mat, r, rng, &hitrec);
+                (current_ray, tmp_color, terminate) = mat_mgr.scatter(&hitrec.mat, r, rng, &hitrec);
                 unsafe {
                     out_color = out_color * tmp_color;
                 }
-                continue;
+                if terminate {
+                    break;
+                } else {
+                    continue;
+                }
             }
 
             let unit_dir = current_ray.direction.unit_vec();

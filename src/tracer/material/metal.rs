@@ -21,7 +21,7 @@ impl Default for MetalMat {
 }
 
 impl Scatterable for MetalMat {
-    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3) {
+    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool) {
         return (
             Ray::new(
                 hitrec.point,
@@ -29,6 +29,7 @@ impl Scatterable for MetalMat {
                     + Vec3::random_unit_vec(rng) * self.matte,
             ),
             self.albedo,
+            false
         );
     }
 }

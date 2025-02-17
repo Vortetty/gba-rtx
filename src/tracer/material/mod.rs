@@ -73,7 +73,7 @@ impl MaterialManager {
         r: &Ray,
         rng: &mut FixFlt,
         hitrec: &HitRecord,
-    ) -> (Ray, Vec3) {
+    ) -> (Ray, Vec3, bool) {
         match material.mat_type {
             MaterialType::LAMBERTIAN => {
                 unsafe { self.lambertian_mats.get_unchecked(material.mat_id) }
@@ -114,7 +114,7 @@ impl MaterialManager {
 }
 
 trait Scatterable {
-    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3);
+    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool);
 }
 
 mod dielectric;

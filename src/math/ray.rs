@@ -1,6 +1,6 @@
 use super::{types::FixFlt, vec3::Vec3};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Ray {
     pub origin: Vec3,
     pub direction: Vec3

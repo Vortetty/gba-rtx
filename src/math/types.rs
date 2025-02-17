@@ -3,7 +3,7 @@ use super::fixed32::Fixed32;
 pub const FRACTIONAL: usize = 16;
 pub type FixFlt = Fixed32; // Fixed float, just a fixed point number, used to have a single type through the program if i need to adjust it.
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct FixFltOnce {
     pub inner: FixFlt,
     initialized: bool

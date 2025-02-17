@@ -55,7 +55,7 @@ fn main(mut gba: agb::Gba) -> ! {
         scene: Scenes::SPHERES,
         iters_per_pixel: 8,
         max_depth: 16,
-        hd_mode: true
+        hd_mode: false
     };
     bitmap.clear(0);
 

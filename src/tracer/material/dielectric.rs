@@ -1,4 +1,6 @@
-use crate::{math::{ray::Ray, types::FixFlt, vec3::Vec3}, tracer::objects::HitRecord};
+use agb::println;
+
+use crate::{math::{ray::Ray, types::FixFlt, vec3::{self, Vec3}}, tracer::objects::HitRecord};
 
 use super::Scatterable;
 
@@ -20,22 +22,24 @@ impl Default for DielectricMat {
 }
 
 impl Scatterable for DielectricMat {
-    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3) {
+    fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool) {
         let ri = if hitrec.front_face { self.refraction_recip } else { self.refraction };
         let unit_dir = r.direction.clone().unit_vec();
 
         let cos_theta = (-unit_dir).dot_prod(&hitrec.normal).min(FixFlt::one());
         let sin_theta = (FixFlt::one() - cos_theta*cos_theta).sqrt();
 
-        let refracted = unit_dir.refract(&hitrec.normal, ri, cos_theta); //if (ri*sin_theta > FixFlt::one()) {//|| (reflectance(cos_theta, ri) > rng.next_rand_frac()) {
+        let refracted = Vec3::refract(&unit_dir, &hitrec.normal, ri, cos_theta); //if (ri*sin_theta > FixFlt::one()) {//|| (reflectance(cos_theta, ri) > rng.next_rand_frac()) {
         //    r.direction.reflect(&hitrec.normal)
         //} else {
         //    unit_dir.refract(&hitrec.normal, ri, cos_theta)
         //};
 
+        println!("{:?}", r.direction);
         return (
             Ray::new(hitrec.point, refracted),
-            self.albedo
+            (unit_dir.refract(&hitrec.normal, ri, cos_theta).unit_vec() + FixFlt::one()) * FixFlt::half_one(),
+            true
         );
     }
 }

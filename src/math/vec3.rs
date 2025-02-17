@@ -4,7 +4,7 @@ use agb::println;
 
 use super::types::{FixFlt, FixFltOnce, FRACTIONAL};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vec3 {
     pub x: FixFlt,
     pub y: FixFlt,
