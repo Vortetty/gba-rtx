@@ -24,21 +24,22 @@ impl Default for DielectricMat {
 impl Scatterable for DielectricMat {
     fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool) {
         let ri = if hitrec.front_face { self.refraction_recip } else { self.refraction };
-        let unit_dir = r.direction.clone().unit_vec();
+        let unit_dir = (-r.direction.clone()).unit_vec();
 
-        let cos_theta = (-unit_dir).dot_prod(&hitrec.normal).min(FixFlt::one());
+        let cos_theta = (unit_dir).dot_prod(&hitrec.normal).min(FixFlt::one());
         let sin_theta = (FixFlt::one() - cos_theta*cos_theta).sqrt();
 
-        let refracted = Vec3::refract(&unit_dir, &hitrec.normal, ri, cos_theta); //if (ri*sin_theta > FixFlt::one()) {//|| (reflectance(cos_theta, ri) > rng.next_rand_frac()) {
-        //    r.direction.reflect(&hitrec.normal)
+        let mut refracted = //if (ri*sin_theta > FixFlt::one()) {//|| (reflectance(cos_theta, ri) > rng.next_rand_frac()) {
+            r.direction.reflect(&hitrec.normal);
         //} else {
-        //    unit_dir.refract(&hitrec.normal, ri, cos_theta)
+        //    unit_dir.refract(hitrec.normal, ri, cos_theta)
         //};
+        
+        // continue debug with https://www.shadertoy.com/view/7tBXDh
 
-        println!("{:?}", r.direction);
         return (
-            Ray::new(hitrec.point, refracted),
-            (unit_dir.refract(&hitrec.normal, ri, cos_theta).unit_vec() + FixFlt::one()) * FixFlt::half_one(),
+            *r, //Ray::new(hitrec.point, refracted),
+            Vec3::new(sin_theta, sin_theta, sin_theta),
             true
         );
     }

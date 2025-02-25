@@ -80,6 +80,15 @@ impl Vec3 {
             length_square: FixFltOnce::new(),
         }
     }
+    pub const fn new_single(xyz: FixFlt) -> Self {
+        Self {
+            x: xyz,
+            y: xyz,
+            z: xyz,
+            length: FixFltOnce::new(),
+            length_square: FixFltOnce::new(),
+        }
+    }
 
     pub fn length_squared(&mut self) -> FixFlt {
         self.length_square
@@ -153,11 +162,15 @@ impl Vec3 {
     pub fn reflect(&self, normal: &Vec3) -> Self {
         *self - *normal*FixFlt::from_i32(2)*self.dot_prod(normal)
     }
-    pub fn refract(&self, normal: &Vec3, etai_over_etat: FixFlt, cos_theta: FixFlt) -> Self {
-        let cos_theta = (-*self).dot_prod(&normal).min(FixFlt::one());
-        let mut r_out_perp = (*self + (*normal * cos_theta)) * etai_over_etat;
-        let r_out_parallel = *normal * -((FixFlt::one() - r_out_perp.length_squared()).sqrt());
-        return r_out_perp + r_out_parallel;
+
+    // vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
+    // vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
+    // return r_out_perp + r_out_parallel;
+    pub fn refract(&self, normal: Vec3, etai_over_etat: FixFlt, cos_theta: FixFlt) -> Self {
+        let uv = *self;
+        let mut r_out_perp = (uv + normal * cos_theta) * etai_over_etat;
+        let r_out_parallel = normal * -((FixFlt::one() - r_out_perp.length_squared()).abs().sqrt());
+        return r_out_perp+r_out_parallel;
     }
 
     //
