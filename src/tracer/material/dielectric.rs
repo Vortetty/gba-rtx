@@ -23,24 +23,56 @@ impl Default for DielectricMat {
 
 impl Scatterable for DielectricMat {
     fn scatter(&self, r: &Ray, rng: &mut FixFlt, hitrec: &HitRecord) -> (Ray, Vec3, bool) {
-        let ri = if hitrec.front_face { self.refraction_recip } else { self.refraction };
-        let unit_dir = (-r.direction.clone()).unit_vec();
+        // FROM OPENGL 4
+        //
+        // Parameters
+        //
+        // I
+        //
+        // Specifies the incident vector.
+        // N
+        //
+        // Specifies the normal vector.
+        // eta
+        //
+        // Specifies the ratio of indices of refraction.
+        //
+        // Description
+        //
+        // For a given incident vector I, surface normal N and ratio of indices of refraction, eta, refract returns the refraction vector, R.
+        //
+        // R is calculated as:
+        //
+        // k = 1.0 - eta * eta * (1.0 - dot(N, I) * dot(N, I));
+        // if (k < 0.0)
+        //     R = genType(0.0);       // or genDType(0.0)
+        // else
+        //     R = eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+        //
+        // The input parameters I and N should be normalized in order to achieve the desired result.
 
-        let cos_theta = (unit_dir).dot_prod(&hitrec.normal).min(FixFlt::one());
-        let sin_theta = (FixFlt::one() - cos_theta*cos_theta).sqrt();
+        let I = r.direction.clone().unit_vec();
+        let N = hitrec.normal.clone().unit_vec();
+        let eta = if hitrec.front_face {
+            FixFlt::from_f32(0.66666666666)
+        } else {
+            FixFlt::from_f32(1.5)
+        };
 
-        let mut refracted = //if (ri*sin_theta > FixFlt::one()) {//|| (reflectance(cos_theta, ri) > rng.next_rand_frac()) {
-            r.direction.reflect(&hitrec.normal);
-        //} else {
-        //    unit_dir.refract(hitrec.normal, ri, cos_theta)
-        //};
-        
+        let IdotN = Vec3::dot_prod(&N, &I);
+        let k = FixFlt::one() - ((eta*eta) * (1.0 - (IdotN*IdotN)));
+        let refracted = if (k < FixFlt::zero()) {
+            I.reflect(&hitrec.normal)
+        } else {
+            I*eta - N*(eta * IdotN + k.sqrt01())
+        };
+
         // continue debug with https://www.shadertoy.com/view/7tBXDh
 
         return (
-            *r, //Ray::new(hitrec.point, refracted),
-            Vec3::new(sin_theta, sin_theta, sin_theta),
-            true
+            Ray::new(hitrec.point, refracted),
+            self.albedo,//if k < FixFlt::zero() { Vec3::new(-k, FixFlt::zero(), FixFlt::zero()) } else { Vec3::new(FixFlt::zero(), FixFlt::zero(), k) },
+            false
         );
     }
 }
